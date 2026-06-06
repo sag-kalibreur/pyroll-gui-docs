@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Groove Library Guide – PyRoll GUI</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  h4 { color: #333; margin-top: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; color: #222; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  td:first-child, th:first-child { white-space: nowrap; }
+  .params-table td:nth-child(2), .params-table th:nth-child(2) { white-space: nowrap; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; margin: 0.8em 0; }
+  .info  { background: rgba(0,84,153,0.07); border: 1px solid rgba(0,84,153,0.25); border-radius: 4px; padding: 10px 14px; color: #003f73; margin: 0.8em 0; }
+  .tip   { background: rgba(0,160,80,0.07); border: 1px solid rgba(0,160,80,0.3); border-radius: 4px; padding: 10px 14px; color: #064e2c; margin: 0.8em 0; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  img.screenshot { max-width: 100%; border: 1px solid #ccc; border-radius: 6px; margin: 1.2em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
+  img.screenshot-half { max-width: 60%; border: 1px solid #ccc; border-radius: 6px; margin: 1.2em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.10); display: block; }
+  nav.toc { background: #fafafa; border: 1px solid #ddd; border-radius: 6px; padding: 16px 24px; margin-bottom: 2em; }
+  nav.toc h2 { margin-top: 0; border: none; padding: 0; font-size: 1em; color: #222; }
+  nav.toc ol { margin: 0.4em 0 0 1.2em; }
+  nav.toc li { margin-bottom: 0.2em; }
+  nav.toc a { color: #005499; text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+
+  @media print {
+    h2 { break-before: page; }
+    h2:first-of-type { break-before: auto; }
+    h3, h4 { break-after: avoid; }
+    p { orphans: 3; widows: 3; }
+    table, .warn, .info, .tip { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
+</head>
+<body>
+
+<h1>Groove Library Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+
+<hr>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#libraries">Libraries — Create &amp; Manage</a></li>
+    <li><a href="#create-groove">Creating and Editing Grooves</a>
+      <ol>
+        <li><a href="#groove-params">Required and Additional Parameters</a></li>
+        <li><a href="#groove-validation">Validation</a></li>
+        <li><a href="#groove-visualization">Groove Visualization</a></li>
+      </ol>
+    </li>
+    <li><a href="#filter">Filter and Search</a></li>
+    <li><a href="#preview">Preview — Modal Geometry View</a></li>
+    <li><a href="#export">Export — Single Groove &amp; Full Library</a></li>
+    <li><a href="#import">Import</a>
+      <ol>
+        <li><a href="#import-excel">Import from Excel</a></li>
+        <li><a href="#import-json">Import from JSON File</a></li>
+        <li><a href="#import-dxf">Import from DXF</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="overview">1. Overview</h2>
+<p>
+  The <strong>Groove Library</strong> tab is the central database for all roll groove definitions.
+  It stores grooves in named libraries and makes them available for assignment in the
+  <em>Pass Design</em> tab. Grooves are defined by their geometric type and a set of
+  numeric parameters; the GUI computes the groove contour in real time and displays it
+  as a 2-D cross-section plot.
+</p>
+<p>
+  Grooves are grouped into <strong>libraries</strong>. A library is simply a named container —
+  for example <em>Standard</em>, <em>Project-X</em>, or <em>Archive</em>.
+  Every groove belongs to exactly one library and can be moved or copied between libraries via export/import.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="libraries">2. Libraries — Create &amp; Manage</h2>
+<p>
+  The library selector at the top of the tab lists all available libraries.
+  At least one library (<em>Standard</em>) always exists and cannot be deleted.
+</p>
+
+<img class="screenshot-half" src="img/groove_library_create_new_library.png" alt="New Groove Library dialog">
+
+<h4>Creating a new library</h4>
+<ol>
+  <li>Click <code>+ New Library</code> next to the library selector.</li>
+  <li>Enter a name in the dialog and confirm with <code>+ Create</code>.</li>
+  <li>The new library is immediately selected and ready to receive grooves.</li>
+</ol>
+
+<h4>Renaming and deleting</h4>
+<ul>
+  <li><strong>Rename</strong> — click the pencil icon next to the library name in the selector.</li>
+  <li><strong>Delete</strong> — only available when the library is empty. Move or delete all grooves first.</li>
+</ul>
+
+<div class="warn">
+  Deleting a library is irreversible. Export the library as JSON first if you want a backup.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="create-groove">3. Creating and Editing Grooves</h2>
+<p>
+  Click <code>+ New Groove</code> to open the <strong>New / Edit</strong> panel.
+  The same panel appears when you click the edit icon on an existing groove card.
+</p>
+
+<img class="screenshot" src="img/groove_library_create_new_groove.png" alt="New/Edit groove panel with FalseRoundGroove example">
+
+<p>Fill in the three header fields first:</p>
+<table class="params-table">
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td><strong>Pass Type</strong></td><td>The roll pass this groove is designed for: <em>TwoRollPass</em>, <em>ThreeRollPass</em>, or <em>AsymmetricRollPass</em>.</td></tr>
+  <tr><td><strong>Groove Type</strong></td><td>The geometric type, e.g. <em>FalseRoundGroove</em>, <em>BoxGroove</em>, <em>Oval3RadiiGroove</em>. The ℹ button next to the selector opens a short parameter description.</td></tr>
+  <tr><td><strong>Groove Name</strong></td><td>A unique name within the selected library, e.g. <code>RD1809</code> or <code>N1 110</code>. Used as identifier in the Pass Design tab.</td></tr>
+</table>
+
+<h3 id="groove-params">3.1 Required and Additional Parameters</h3>
+<p>
+  Each groove type defines a fixed set of <strong>Required Parameters</strong>
+  (always shown, always must be filled) and a set of <strong>Additional Parameters</strong>
+  (shown as checkboxes — check to enable and enter a value).
+</p>
+<p>
+  The constraint rule shown below the header (e.g. <em>"Exactly two of R2, Depth or Usable Width must be set.
+  One of Flank Angle, Width, Height or Length must be set."</em>) describes exactly which
+  combination of additional parameters is geometrically valid. The validation box at the bottom
+  of the form shows in real time whether the current selection satisfies the rule.
+</p>
+
+<table class="params-table">
+  <tr><th>Parameter</th><th>Unit</th><th>Meaning</th></tr>
+  <tr><td>R1</td><td>mm</td><td>Bottom radius (groove base)</td></tr>
+  <tr><td>R2</td><td>mm</td><td>Flank radius (transition from base to flank)</td></tr>
+  <tr><td>R3</td><td>mm</td><td>Third radius (e.g. shoulder radius in Oval3RadiiFlanked)</td></tr>
+  <tr><td>Depth</td><td>mm</td><td>Groove depth from the roll surface to the groove bottom</td></tr>
+  <tr><td>Usable Width</td><td>mm</td><td>Width of the groove at the roll surface level (opening width)</td></tr>
+  <tr><td>Flank Angle</td><td>°</td><td>Inclination of the groove flanks from vertical</td></tr>
+  <tr><td>Flank Width / Height / Length</td><td>mm</td><td>Flank geometry dimensions (type-specific)</td></tr>
+  <tr><td>Pad Angle</td><td>mm</td><td>Angle of the flat pad at the groove base (e.g. FalseRoundGroove); usually 0</td></tr>
+  <tr><td>Ground Width</td><td>mm</td><td>Width of the flat bottom (BoxGroove)</td></tr>
+</table>
+
+<h3 id="groove-validation">3.2 Validation</h3>
+<p>
+  Below the parameter inputs a validation status box shows whether the current parameter set
+  is geometrically consistent:
+</p>
+<ul>
+  <li><strong style="color:#2a7a2a">✓ Valid</strong> — all constraints satisfied, groove can be saved.</li>
+  <li><strong style="color:#b00">✗ Invalid</strong> — the constraint rule is violated. The message explains which parameters are missing or conflicting.</li>
+</ul>
+<p>
+  The <code>Save to Library</code> button is disabled as long as the groove is invalid.
+</p>
+
+<h3 id="groove-visualization">3.3 Groove Visualization</h3>
+<p>
+  As soon as a valid parameter set is entered, the <strong>Groove Visualization</strong>
+  plot updates in real time. It shows the groove contour as a 2-D cross-section
+  (Width [mm] on the x-axis, Height [mm] on the y-axis) with the roll surface at y = 0.
+  Key computed values — R1, R2, Depth, Flank Angle, Usable Width — are displayed in the
+  upper-right corner of the plot.
+</p>
+
+<img class="screenshot" src="img/groove_library_groove_visualization.png" alt="Groove visualization — FalseRoundGroove RD1607">
+
+<p>
+  Groove contours defined from a spline (imported from DXF or defined by point series) are shown
+  as a smooth free-form curve rather than arc segments:
+</p>
+
+<img class="screenshot-half" src="img/groove_library_spline_groove_visualization.png" alt="Groove visualization — spline-based groove PS1_upper">
+
+<div class="info">
+  The visualization shows the <em>upper</em> half-groove (as machined into one roll).
+  The full pass gap — upper and lower roll together with the workpiece — is visible
+  after running a simulation in the Pass Design &rarr; Results tab.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="filter">4. Filter and Search</h2>
+<p>
+  The groove list can be narrowed down using the filter bar above the groove cards:
+</p>
+
+<img class="screenshot" src="img/groove_library_filter_settings.png" alt="Groove Library filter bar — Pass Type, Groove Type and Search">
+
+<table>
+  <tr><th>Filter</th><th>Description</th></tr>
+  <tr><td><strong>Pass Type</strong></td><td>Show only grooves for 2-Roll, 3-Roll, or Asymmetric passes.</td></tr>
+  <tr><td><strong>Groove Type</strong></td><td>Filter by geometric type: Box, Oval, FalseRound, CircularOval, Diamond, etc.</td></tr>
+  <tr><td><strong>Search</strong></td><td>Free-text search on the groove name (case-insensitive, partial match).</td></tr>
+</table>
+<p>
+  Filters are combined: selecting <em>2-Roll</em> and <em>BoxGroove</em> shows only 2-Roll Box grooves.
+  Reset individual filters by clearing the selector or the search field.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="preview">5. Preview — Modal Geometry View</h2>
+<p>
+  Each groove card in the library list has an <strong>ℹ Info button</strong>.
+  Clicking it opens a modal overlay that shows the full groove geometry at a glance:
+</p>
+<ul>
+  <li>Groove name, Pass Type, Groove Type in the header.</li>
+  <li>All stored parameter values (R1, Pad Angle, R2, Depth, Flank Angle, …).</li>
+  <li>The groove visualization plot — identical to the one in the New/Edit panel.</li>
+</ul>
+
+<img class="screenshot" src="img/groove_library_geometric_parameters_modal.png" alt="Groove geometry parameters modal — Info button overlay">
+
+<div class="tip">
+  Use the Info modal to quickly compare two grooves side-by-side by opening one in the modal
+  and switching to the New/Edit panel for the other.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="export">6. Export — Single Groove &amp; Full Library</h2>
+<p>
+  Grooves and entire libraries can be exported as <strong>.groove.json</strong> /
+  <strong>.library.json</strong> files that can be shared, archived, or re-imported into
+  another installation of PyRoll GUI.
+</p>
+<table>
+  <tr><th>Action</th><th>How</th><th>File</th></tr>
+  <tr>
+    <td><strong>Export single groove</strong></td>
+    <td>Open the groove card menu (⋮) → <code>Export</code></td>
+    <td><code>&lt;name&gt;.groove.json</code></td>
+  </tr>
+  <tr>
+    <td><strong>Export full library</strong></td>
+    <td>Library selector menu → <code>Export Library</code></td>
+    <td><code>&lt;library&gt;.library.json</code></td>
+  </tr>
+</table>
+<p>
+  Both formats are plain JSON and can be opened in any text editor.
+  The library format wraps all groove objects in a <code>"grooves"</code> array with
+  a top-level <code>"library"</code> name field.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="import">7. Import</h2>
+<p>
+  Click <code>↑ Import Grooves</code> to open the import source selector:
+</p>
+
+<img class="screenshot-half" src="img/groove_library_import_grooves.png" alt="Import Grooves — source selection dialog">
+
+<p>Three import sources are available:</p>
+
+<h3 id="import-excel">7.1 Import from Excel</h3>
+<p>
+  The Excel import is designed for bulk import of entire groove catalogues.
+  It reads a <code>.xlsx</code> or <code>.xls</code> file and parses each row as one groove.
+</p>
+
+<img class="screenshot" src="img/groove_library_import_grooves_from_excel.png" alt="Import Grooves from Excel dialog — 125 grooves preview">
+
+<h4>Dialog controls</h4>
+<table>
+  <tr><th>Control</th><th>Description</th></tr>
+  <tr>
+    <td><strong>Sheet</strong></td>
+    <td>Drop-down to select the worksheet. Defaults to the first visible sheet.
+    Only one sheet can be imported per session.</td>
+  </tr>
+  <tr>
+    <td><strong>Skip hidden rows</strong></td>
+    <td>When checked, rows marked as hidden in Excel are excluded from import.
+    Useful when the source file uses hidden rows for subtotals or notes.</td>
+  </tr>
+  <tr>
+    <td><strong>Import into Library</strong></td>
+    <td>Target library for all imported grooves. Defaults to <em>Standard</em>;
+    select any existing library or create a new one before opening the dialog.</td>
+  </tr>
+</table>
+
+<h4>Preview table</h4>
+<p>
+  All parsed rows appear in the preview table before import. For each row the table shows:
+</p>
+<ul>
+  <li><strong>Checkbox</strong> — individual rows can be deselected to exclude them from import.</li>
+  <li><strong>Label</strong> — groove name read from the <code>label</code> column.</li>
+  <li><strong>Groove Type</strong> — e.g. <code>BoxGroove</code>, <code>FalseRoundGroove</code>.</li>
+  <li><strong>Pass Type</strong> — <code>2-Roll</code>, <code>3-Roll</code>, etc.</li>
+  <li><strong>Parameters</strong> — compact summary of the numeric values found in the row.</li>
+  <li><strong>Status</strong> — <span style="color:#2a7a2a"><strong>✓ OK</strong></span> if the row passes validation,
+      <span style="color:#b00"><strong>✗ Error</strong></span> with a short message if not.</li>
+</ul>
+<p>
+  Use <code>Deselect All</code> to uncheck all rows and then manually select the ones to import.
+  The counter above the table shows how many rows are currently selected and valid.
+</p>
+<p>
+  Click <code>Import N Grooves</code> to start the import.
+  Existing grooves with the same name in the target library are <strong>overwritten</strong> without warning.
+</p>
+
+<div class="warn">
+  The Excel file must follow the PyRoll groove import format. The first row must be a header row
+  with column names matching the PyRoll parameter naming convention
+  (<code>label</code>, <code>groove_type</code>, <code>pass_type</code>, <code>r1</code>, <code>r2</code>, …).
+  Contact your administrator for the template file.
+</div>
+
+<h4>Expected Excel column layout</h4>
+<table class="params-table">
+  <tr><th>Column</th><th>Content</th></tr>
+  <tr><td><code>label</code></td><td>Groove name (unique string)</td></tr>
+  <tr><td><code>groove_type</code></td><td>PyRoll groove class name, e.g. <code>FalseRoundGroove</code></td></tr>
+  <tr><td><code>pass_type</code></td><td><code>TwoRollPass</code>, <code>ThreeRollPass</code>, or <code>AsymmetricRollPass</code></td></tr>
+  <tr><td><code>r1</code>, <code>r2</code>, <code>r3</code></td><td>Radii in mm</td></tr>
+  <tr><td><code>depth</code></td><td>Groove depth in mm</td></tr>
+  <tr><td><code>usable_width</code></td><td>Usable width in mm (optional)</td></tr>
+  <tr><td><code>flank_angle</code></td><td>Flank angle in degrees</td></tr>
+  <tr><td><code>ground_width</code></td><td>Flat bottom width in mm (BoxGroove)</td></tr>
+  <tr><td><code>pad_angle</code></td><td>Pad angle in mm (FalseRoundGroove); usually 0</td></tr>
+</table>
+
+<h3 id="import-json">7.2 Import from JSON File</h3>
+<p>
+  Opens a file picker for <code>.groove.json</code> or <code>.library.json</code> files
+  previously exported from PyRoll GUI. The target library is selected in the same dialog.
+</p>
+<ul>
+  <li>A <strong>.groove.json</strong> file imports exactly one groove.</li>
+  <li>A <strong>.library.json</strong> file imports all grooves from that library at once.</li>
+</ul>
+
+<h3 id="import-dxf">7.3 Import from DXF</h3>
+<p>
+  Reads the groove contour from a CAD <code>.dxf</code> file.
+  The contour must be drawn on the <strong>default layer</strong> (<code>0</code>) as a
+  continuous polyline or spline representing the half-groove profile
+  (right half, from the groove centre to the roll edge).
+</p>
+<p>
+  The imported contour is stored as a <em>SplineGroove</em> (point series) and visualized
+  as a smooth free-form curve (see <a href="#groove-visualization">Section 3.3</a>).
+  No analytic parameter fitting is performed — the DXF geometry is used as-is.
+</p>
+<div class="info">
+  DXF import is suitable for grooves whose shape cannot be described by any of the standard
+  PyRoll groove types, such as complex box–oval transitions or manufacturer-specific profiles.
+</div>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Groove Library Guide</p>
+
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+
+</body>
+</html>

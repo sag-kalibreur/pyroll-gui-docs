@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pass Design Guide – PyRoll GUI</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  h4 { color: #333; margin-top: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; color: #222; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  td:first-child, th:first-child { white-space: nowrap; }
+  .params-table td:nth-child(2), .params-table th:nth-child(2) { white-space: nowrap; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; margin: 0.8em 0; }
+  .info  { background: rgba(0,84,153,0.07); border: 1px solid rgba(0,84,153,0.25); border-radius: 4px; padding: 10px 14px; color: #003f73; margin: 0.8em 0; }
+  .img-placeholder { background: #f0f0f0; border: 2px dashed #aaa; border-radius: 6px; padding: 30px; text-align: center; color: #777; font-style: italic; margin: 1.2em 0; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  img.screenshot { max-width: 100%; border: 1px solid #ccc; border-radius: 6px; margin: 1.2em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
+
+  /* Groove gallery */
+  .groove-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin: 1.2em 0; }
+  .groove-card { border: 1px solid #ddd; border-radius: 6px; padding: 10px 8px 8px 8px; text-align: center; background: #fafafa; }
+  .groove-card img { width: 100%; height: 110px; object-fit: contain; }
+  .groove-card .groove-name { font-size: 0.80em; color: #333; margin-top: 6px; font-family: monospace; word-break: break-word; }
+  .groove-card.no-svg { border-style: dashed; background: #f5f5f5; }
+  .groove-card.no-svg .groove-icon { height: 110px; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 2em; }
+
+  /* Type badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.82em; font-weight: 600; margin-right: 4px; }
+  .badge-roll  { background: #e8f0fe; color: #1a56db; }
+  .badge-trans { background: #fef3c7; color: #92400e; }
+  .badge-cool  { background: #d1fae5; color: #065f46; }
+  .badge-fb    { background: #ede9fe; color: #5b21b6; }
+  .badge-asym  { background: #fee2e2; color: #991b1b; }
+
+  @media print {
+    h2 { break-before: page; }
+    h2:first-of-type { break-before: auto; }
+    h3, h4 { break-after: avoid; }
+    p { orphans: 3; widows: 3; }
+    table, .formula-box, .warn, .tip { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+</style>
+</head>
+<body>
+
+<h1>Pass Design Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: May 2026</em></p>
+
+<hr>
+
+<h2>1. Overview</h2>
+<p>
+  The <strong>Pass Design</strong> tab is the central interface for defining a rolling schedule.
+  A rolling schedule consists of a sequence of <em>units</em> — rolling passes, transport sections,
+  cooling sections, and finishing blocks — that describe the complete path of the workpiece from
+  the initial billet to the finished product.
+</p>
+<p>
+  Each unit in the table represents one processing step. Units are executed in order from top to bottom.
+  The simulation passes the workpiece state (temperature, cross-section geometry, velocity) from one unit
+  to the next.
+</p>
+
+<img class="screenshot" src="img/pass_design_overview.png" alt="Pass Design tab overview with two roll passes">
+
+<h3>1.1 Multiple Sequences</h3>
+<p>
+  The Pass Design tab supports <strong>any number of sequences</strong>. Each sequence is an independent
+  rolling schedule with its own pass table, solve method, and spreading model.
+  New sequences are added with the <code>+ Add Sequence</code> button; existing sequences can be
+  collapsed, reordered, or deleted individually.
+</p>
+<p>
+  Multiple sequences enable two important simulation modes:
+</p>
+<table>
+  <tr><th>Mode</th><th>Description</th></tr>
+  <tr>
+    <td><strong>Semi-continuous rolling</strong></td>
+    <td>A multi-strand or tandem mill where different pass groups run at different conditions.
+    Each strand is defined as a separate sequence.</td>
+  </tr>
+  <tr>
+    <td><strong>Reversing mill</strong></td>
+    <td>The workpiece passes back and forth through the same stand. Each pass direction
+    is modelled as a separate sequence with a mirrored or identical groove set.</td>
+  </tr>
+</table>
+<div class="info">
+  <strong>Automatic profile transfer:</strong>
+  After a sequence is solved, its <em>output profile</em> — including cross-section geometry,
+  temperature, strain, and all other physical state variables — is automatically used as the
+  <em>input profile</em> of the following sequence.
+  The next sequence cannot be run until the previous one has been solved. Use
+  <code>▶▶ Run All Sequences</code> to solve all sequences in order in a single step.
+</div>
+
+<h3>1.2 Toolbar Actions</h3>
+<table>
+  <tr><th>Action</th><th>Description</th></tr>
+  <tr><td><code>+ Add Pass</code></td><td>Adds a new unit row at the bottom of the schedule. The default type is <em>TwoRollPass</em>. The type can be changed via the type selector in the row.</td></tr>
+  <tr><td><code>Save</code> / <code>Ctrl+S</code></td><td>Saves the current project (pass design + input profile) to a JSON file.</td></tr>
+  <tr><td><code>Open</code> / <code>Ctrl+O</code></td><td>Opens an existing project JSON file.</td></tr>
+  <tr><td><code>📂 Load</code></td><td>Loads a single pass design (one sequence) from the internal Library or from an XML file on disk. Opens a choice dialog first.</td></tr>
+  <tr><td><code>💾 Save</code> (sequence)</td><td>Saves the current sequence as a pass design — either to the Library or as an XML file on disk. Opens a choice dialog first.</td></tr>
+  <tr><td><code>Run Simulation</code></td><td>Validates all inputs and starts the PyRolL backend simulation. Results appear in the <em>Pass Results</em> tab.</td></tr>
+</table>
+
+<h3>1.3 Load and Save Pass Design</h3>
+<p>
+  Each sequence has its own <code>📂 Load</code> and <code>💾 Save</code> buttons. They let you exchange a single pass design
+  independently of the full project file (<code>Ctrl+S</code> / <code>Ctrl+O</code>), which always includes all sequences and the input profile.
+</p>
+<p>
+  When you click either button a choice dialog appears with two options:
+</p>
+<table>
+  <tr><th>Option</th><th>Description</th></tr>
+  <tr><td><strong>Library</strong></td><td>Opens the Pass Design Library modal. You can browse previously saved designs, load one into the current sequence, or save the current sequence under a new name.</td></tr>
+  <tr><td><strong>XML File</strong></td><td>Opens the native file dialog. <em>Load</em> reads a <code>.xml</code> pass design file from any directory. <em>Save</em> writes the current sequence to a new <code>.xml</code> file.</td></tr>
+</table>
+
+<div style="display:flex; gap:16px; align-items:flex-start;">
+  <div class="info" style="flex:1; min-width:0;">
+    <strong>Load Pass Design:</strong><br>
+    <img class="screenshot" src="img/pass_design_load_pass_design.png" alt="Load Pass Design choice dialog" style="margin:0.6em 0 0;">
+  </div>
+  <div class="info" style="flex:1; min-width:0;">
+    <strong>Save Pass Design:</strong><br>
+    <img class="screenshot" src="img/pass_design_save_pass_design.png" alt="Save Pass Design choice dialog" style="margin:0.6em 0 0;">
+  </div>
+</div>
+
+<div class="note">
+  <strong>XML format:</strong> The XML file stores all unit types, groove parameters, roll parameters and sub-passes
+  of the sequence. It does <em>not</em> include the input profile or simulation results.
+  The same XML format is used by both Library storage and file export.
+</div>
+
+<h3>1.4 Unit Row Structure</h3>
+<p>
+  Every unit row in the schedule shows:
+</p>
+<ul>
+  <li>A <strong>type selector</strong> (left) to switch between unit types</li>
+  <li>An <strong>expand / collapse</strong> button to show or hide detailed parameters</li>
+  <li>A <strong>delete</strong> button to remove the unit from the schedule</li>
+  <li>The unit's <strong>parameter fields</strong> when expanded</li>
+</ul>
+
+<div class="info">
+  <strong>Tip:</strong> Rows can be collapsed to keep the overview clean when working with long schedules.
+  All parameters are preserved when a row is collapsed.
+</div>
+
+<hr>
+
+<h2>2. Unit Types</h2>
+
+<p>The following unit types are available:</p>
+
+<table>
+  <tr>
+    <th>Type</th>
+    <th>Purpose</th>
+  </tr>
+  <tr>
+    <td><span class="badge badge-roll">TwoRollPass</span></td>
+    <td>Standard symmetric two-roll pass with a single groove profile</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-roll">ThreeRollPass</span></td>
+    <td>Three-roll pass (e.g. Kocks mill) with inscribed circle diameter</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-asym">AsymmetricRollPass</span></td>
+    <td>Two-roll pass with different upper and lower groove geometries</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-trans">Transport</span></td>
+    <td>Free air transport section between two stands — models air cooling</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-cool">CoolingPipe</span></td>
+    <td>Water cooling section — models forced convection cooling in a pipe</td>
+  </tr>
+  <tr>
+    <td><span class="badge badge-fb">FinishingBlock</span></td>
+    <td>Motor-driven block of multiple mechanically linked roll passes</td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>3. TwoRollPass</h2>
+<span class="badge badge-roll">TwoRollPass</span>
+
+<p>
+  The <strong>TwoRollPass</strong> is the standard rolling pass. Two rolls with identical groove profiles
+  are arranged symmetrically. The workpiece is reduced and shaped as it passes through the roll gap.
+</p>
+
+<img class="screenshot" src="img/pass_design_two_roll_pass.png" alt="TwoRollPass with all parameters expanded and roll pass visualization">
+
+<h3>3.1 Parameters</h3>
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Label</code></td><td>—</td><td>Unique name for this pass (e.g. <em>Stand 1</em>, <em>Oval 1</em>, <em>Round 2</em>). Used in result charts and tables. Must be unique within the schedule.</td></tr>
+  <tr><td><code>Gap</code></td><td>mm</td><td>Distance between the barrel surfaces of the two rolls (i.e. the clearance between the roll bodies outside the groove). A gap of 0 means the roll barrels are touching.</td></tr>
+  <tr><td><code>Define Velocity by</code></td><td>—</td><td>Choose whether to specify the roll surface speed directly (<em>Velocity</em>) or via the rotational frequency (<em>Rotational Frequency</em>).</td></tr>
+  <tr><td><code>Value</code></td><td>m/s or 1/s</td><td>Numeric value corresponding to the velocity definition selected above.</td></tr>
+  <tr><td><code>Coulomb Friction Coefficient</code></td><td>—</td><td>Friction coefficient μ between workpiece and roll surface. Typical values: 0.2–0.4 for hot rolling.</td></tr>
+  <tr><td><code>Orientation</code></td><td>—</td><td>Roll axis orientation: <em>horizontal</em> (rolls above/below) or <em>vertical</em> (rolls left/right).</td></tr>
+  <tr><td><code>Groove Type</code></td><td>—</td><td>Cross-sectional profile of the roll groove. See Section 6 for available types. The <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#1976d2;color:#fff;font-size:11px;font-weight:700;font-style:normal;line-height:1;vertical-align:middle;">i</span> button next to the selector opens a preview panel showing all groove types with their geometric parameters.</td></tr>
+  <tr><td><code>Groove Parameters</code></td><td>mm</td><td>Geometry parameters specific to the selected groove type (radii, depths, widths). See Section 6. Use the <strong>Library</strong> button to load or save a groove directly from the Groove Library.</td></tr>
+</table>
+
+<div class="info">
+  <strong>Groove Library:</strong>
+  Inside the <em>Groove Parameters</em> box a <code>📖 Library</code> button opens the <strong>Groove Library modal</strong>.
+  From there you can:
+  <ul>
+    <li><strong>Load</strong> — select a previously saved groove entry and fill all parameter fields automatically.</li>
+    <li><strong>Save to Library</strong> — store the current groove parameters under a name for reuse across pass designs.</li>
+  </ul>
+  The Library button is available for <em>TwoRollPass</em>, <em>AsymmetricRollPass</em> (both upper and lower groove),
+  and <em>ThreeRollPass</em>.
+</div>
+
+<h3>3.2 Roll Parameters</h3>
+<p>
+  Expanding the <em>Roll Parameters</em> section reveals additional roll-specific settings:
+</p>
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Roll Diameter / Radius</code></td><td>mm</td><td>Nominal diameter or radius of the roll body (selectable).</td></tr>
+  <tr><td><code>Roll Temperature</code></td><td>°C</td><td>Surface temperature of the rolls. Used in heat transfer calculations.</td></tr>
+  <tr><td><code>Roll Heat Transfer Coefficient</code></td><td>W/(m²·K)</td><td>Heat transfer coefficient between workpiece and roll surface. Controls the rate of heat conduction from the hot workpiece into the roll during the pass.</td></tr>
+</table>
+
+<h3>3.3 Roll Pass Visualization</h3>
+<p>
+  The <em>Roll Pass Visualization</em> panel shows a 2D cross-section of the groove caliber
+  overlaid with the incoming workpiece profile. This allows quick visual verification that
+  the groove fits the incoming cross-section without overfilling.
+</p>
+<p>
+  <em>Note:</em> In the Pass Design view, only the groove caliber outline is displayed —
+  without the incoming workpiece profile. The full visualization including the workpiece
+  cross-section overlay is available after running the simulation in the
+  <strong>Roll Pass Plots</strong> and <strong>Overall Plots</strong>.
+</p>
+
+<hr>
+
+<h2>4. ThreeRollPass</h2>
+<span class="badge badge-roll">ThreeRollPass</span>
+
+<p>
+  The <strong>ThreeRollPass</strong> represents a three-roll mill stand (e.g. Kocks or PSW mill)
+  where three rolls are arranged at 120° intervals around the workpiece.
+</p>
+
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Label</code></td><td>—</td><td>Unique identifier for this pass.</td></tr>
+  <tr><td><code>Inscribed Circle Diameter (ICD)</code></td><td>mm</td><td>Diameter of the circle inscribed in the three roll grooves or flat rolls. Defines the target output cross-section size.</td></tr>
+  <tr><td><code>Define Velocity by</code></td><td>—</td><td>Surface velocity or rotational frequency (same as TwoRollPass).</td></tr>
+  <tr><td><code>Coulomb Friction Coefficient</code></td><td>—</td><td>Friction coefficient μ.</td></tr>
+  <tr><td><code>Orientation</code></td><td>—</td><td><em>Y</em> = one roll pointing up; <em>AntiY</em> = one roll pointing down.</td></tr>
+  <tr><td><code>Groove Type</code></td><td>—</td><td>Groove profile (subset of types — round-type grooves typically used).</td></tr>
+</table>
+
+<hr>
+
+<h2>5. AsymmetricRollPass</h2>
+<span class="badge badge-asym">AsymmetricRollPass</span>
+
+<p>
+  An <strong>AsymmetricRollPass</strong> uses two rolls with <em>different groove geometries</em>
+  (upper and lower). A common example is a pass where one roll has a shaped groove (e.g.
+  <code>SplineGroove</code>) and the other is flat (<code>FlatGroove</code>).
+</p>
+<p>
+  For details on the simulation method, see the dedicated help page:
+  <a href="AsymmetricRollPass_Method.html">Asymmetric Roll Pass – Method &amp; Results</a>.
+</p>
+
+<hr>
+
+<h2>6. Transport</h2>
+<span class="badge badge-trans">Transport</span>
+
+<p>
+  A <strong>Transport</strong> unit models the free transport of the workpiece between two stands —
+  for example, on a roller table or a runout table exposed to ambient air. During transport,
+  the workpiece loses heat to the surrounding environment.
+</p>
+
+<h3>6.1 Parameters</h3>
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Label</code></td><td>—</td><td>Unique name for this transport section.</td></tr>
+  <tr><td><code>Define by</code></td><td>—</td><td>Specify the transport section by physical <em>length</em> (m) or elapsed <em>duration</em> (s).</td></tr>
+  <tr><td><code>Value</code></td><td>m or s</td><td>Numeric value corresponding to the definition selected above.</td></tr>
+  <tr><td><code>Environment Temperature</code></td><td>°C</td><td>Ambient air temperature surrounding the workpiece. Typical value: 20 °C.</td></tr>
+  <tr><td><code>Heat Transfer Coefficient</code></td><td>W/(m²·K)</td><td>Convective heat transfer coefficient between the workpiece surface and the environment. Typical range for free air convection during hot rolling: 10–30 W/(m²·K).</td></tr>
+</table>
+
+<h3>6.2 Thermal Calculation</h3>
+<p>
+  PyRolL models the temperature evolution during transport using Newton's law of cooling.
+  The surface heat flux \( q \) is:
+</p>
+<div class="formula-box">
+  $$q = \alpha \cdot (T_\text{surface} - T_\text{environment})$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    where \(\alpha\) = <code>heat_transfer_coefficient</code> [W/(m²·K)],
+    \(T_\text{surface}\) = workpiece surface temperature,
+    \(T_\text{environment}\) = <code>environment_temperature</code>.
+  </p>
+</div>
+<p>
+  If <em>Define by length</em> is selected, the transit time is internally derived from the
+  exit velocity of the preceding roll pass and the specified length.
+  If <em>Define by duration</em> is selected, the transit time is used directly.
+</p>
+
+<div class="warn">
+  <strong>Note:</strong> Transport units do not perform any deformation — the cross-section
+  geometry is unchanged. Only the workpiece temperature is updated.
+</div>
+
+<hr>
+
+<h2>7. CoolingPipe</h2>
+<span class="badge badge-cool">CoolingPipe</span>
+
+<p>
+  A <strong>CoolingPipe</strong> unit models a controlled water cooling section,
+  such as a water box or quench station. The workpiece passes through a pipe with
+  flowing coolant, resulting in significantly stronger heat extraction than free-air transport.
+</p>
+
+<h3>7.1 Parameters</h3>
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Label</code></td><td>—</td><td>Unique name for this cooling section.</td></tr>
+  <tr><td><code>Define by</code></td><td>—</td><td>Specify by <em>length</em> (m) or <em>duration</em> (s) — same logic as Transport.</td></tr>
+  <tr><td><code>Value</code></td><td>m or s</td><td>Length or duration of the cooling section.</td></tr>
+  <tr><td><code>Inner Radius</code></td><td>mm</td><td>Inner radius of the cooling pipe. Determines the annular gap between pipe wall and workpiece.</td></tr>
+  <tr><td><code>Coolant Temperature</code></td><td>°C</td><td>Inlet temperature of the cooling water. Typical value: 15–25 °C.</td></tr>
+  <tr><td><code>Coolant Volume Flux</code></td><td>m³/s</td><td>Volumetric flow rate of the cooling water through the pipe. Controls the intensity of forced convection.</td></tr>
+</table>
+
+<h3>7.2 Difference to Transport</h3>
+<p>
+  Unlike a <em>Transport</em> unit (air cooling, low heat extraction), a <em>CoolingPipe</em>
+  uses forced convection with water, resulting in heat transfer coefficients typically
+  1–3 orders of magnitude higher. This is relevant for controlled cooling of wire rod and
+  bar products after the finishing block.
+</p>
+
+<div class="info">
+  <strong>Typical use case:</strong> Stelmor line cooling after a wire rod finishing block —
+  alternating CoolingPipe sections and Transport (air cooling) sections to control the
+  metallurgical transformation temperature.
+</div>
+
+<hr>
+
+<h2>8. FinishingBlock</h2>
+<span class="badge badge-fb">FinishingBlock</span>
+
+<p>
+  A <strong>FinishingBlock</strong> is a mechanically coupled group of roll passes driven
+  by a single motor. All sub-passes within the block are kinematically linked:
+  the roll surface velocity of each sub-pass is determined by the shared motor RPM
+  and the individual gear ratio of each stand.
+</p>
+
+<img class="screenshot" src="img/pass_design_finishing_block.png" alt="FinishingBlock with three sub-passes and transport-between elements">
+
+<h3>8.1 Block Parameters</h3>
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Block Name</code></td><td>—</td><td>Label for the entire finishing block (e.g. <em>Finishing Block</em>).</td></tr>
+  <tr><td><code>Motor</code></td><td>—</td><td>Selection of the drive motor from the motor library. Determines the available power and maximum torque.</td></tr>
+  <tr><td><code>Motor RPM</code></td><td>rpm</td><td>Rotational speed of the drive motor. This single value controls the velocity of all sub-passes through their respective gear ratios.</td></tr>
+</table>
+
+<h3>8.2 Sub-Pass Parameters</h3>
+<p>
+  Each sub-pass within the FinishingBlock is a <em>TwoRollPass</em> with the following differences:
+</p>
+<ul>
+  <li>No individual velocity input — velocity is derived from the block motor RPM</li>
+  <li>An additional <code>Gear Ratio</code> field per sub-pass</li>
+</ul>
+
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Label</code></td><td>—</td><td>Unique name for this sub-pass (auto-generated as FB1, FB2, …)</td></tr>
+  <tr><td><code>Gear Ratio</code></td><td>—</td><td>Transmission ratio \(i\) between motor shaft and this roll stand. The rotational frequency at the rolls is \(f = n_\text{motor} / (i \cdot 60)\).</td></tr>
+  <tr><td><code>Gap</code></td><td>mm</td><td>Distance between the barrel surfaces of the two rolls.</td></tr>
+  <tr><td><code>Groove Type / Parameters</code></td><td>—/mm</td><td>Same as for a standalone TwoRollPass (see Section 3).</td></tr>
+</table>
+
+<h3>8.3 Velocity Calculation</h3>
+<p>
+  The roll surface velocity for each sub-pass is computed as:
+</p>
+<div class="formula-box">
+  $$v_\text{roll} = \frac{n_\text{motor}}{i \cdot 60} \cdot 2\pi \cdot r_\text{roll}$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    where \(n_\text{motor}\) = motor RPM,&nbsp;
+    \(i\) = gear ratio,&nbsp;
+    \(r_\text{roll}\) = roll radius [m].
+  </p>
+</div>
+<p>
+  The displayed rotational frequency (shown in the UI next to each gear ratio input) is:
+  \(f = n_\text{motor} / (i \cdot 60)\) [1/s].
+</p>
+<p>
+  <em>Note:</em> The GUI additionally computes and displays the <strong>inter-stand tension / compression stress</strong>
+  between consecutive sub-passes within the FinishingBlock, based on the resulting velocity and cross-section profile.
+</p>
+
+<h3>8.4 Transport-Between Elements</h3>
+<p>
+  Between sub-passes inside a FinishingBlock, optional <strong>Transport-between</strong> elements
+  (shown with a yellow border in the UI) can be added to model short transport sections
+  between individual stands within the block — for example, a short air gap or guide tube.
+  These follow the same logic as standalone <em>Transport</em> units (see Section 6).
+</p>
+
+<h3>8.5 Adding and Removing Sub-Passes</h3>
+<ul>
+  <li><strong>Add Sub-Pass</strong> — appends a new sub-pass at the end of the block</li>
+  <li><strong>× (Remove)</strong> button on each sub-pass row — removes that sub-pass</li>
+  <li><strong>Delete Block</strong> — removes the entire FinishingBlock from the schedule</li>
+</ul>
+
+<div class="warn">
+  <strong>Note:</strong> The FinishingBlock motor power check is performed during simulation.
+  If the required power exceeds the motor's rated power, a warning is shown in the results.
+</div>
+
+<hr>
+
+<h2>9. Groove Profiles</h2>
+
+<p>
+  A groove profile defines the cross-sectional shape of the roll caliber. The groove type
+  is selected per roll pass; the parameters (radii, depths, widths) depend on the selected type.
+  All groove dimensions are specified in <strong>mm</strong>.
+</p>
+
+<div class="groove-gallery">
+
+  <div class="groove-card">
+    <img src="../grooves/circular_oval.svg" alt="CircularOvalGroove">
+    <div class="groove-name">CircularOvalGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/oval_3radii.svg" alt="Oval3RadiiGroove">
+    <div class="groove-name">Oval3RadiiGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/oval_3radii_flanked.svg" alt="Oval3RadiiFlankedGroove">
+    <div class="groove-name">Oval3Radii­FlankedGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/swedish_oval.svg" alt="SwedishOvalGroove">
+    <div class="groove-name">SwedishOvalGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/constricted_swedish_oval.svg" alt="ConstrictedSwedishOvalGroove">
+    <div class="groove-name">Constricted­SwedishOvalGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/flat_oval.svg" alt="FlatOvalGroove">
+    <div class="groove-name">FlatOvalGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/upset_oval.svg" alt="UpsetOvalGroove">
+    <div class="groove-name">UpsetOvalGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/round.svg" alt="RoundGroove">
+    <div class="groove-name">RoundGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/false_round.svg" alt="FalseRoundGroove">
+    <div class="groove-name">FalseRoundGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/box.svg" alt="BoxGroove">
+    <div class="groove-name">BoxGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/constricted_box.svg" alt="ConstrictedBoxGroove">
+    <div class="groove-name">Constricted­BoxGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/diamond.svg" alt="DiamondGroove">
+    <div class="groove-name">DiamondGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/square.svg" alt="SquareGroove">
+    <div class="groove-name">SquareGroove</div>
+  </div>
+
+  <div class="groove-card">
+    <img src="../grooves/gothic.svg" alt="GothicGroove">
+    <div class="groove-name">GothicGroove</div>
+  </div>
+
+  <div class="groove-card no-svg">
+    <div class="groove-icon">▬</div>
+    <div class="groove-name">FlatGroove</div>
+  </div>
+
+  <div class="groove-card no-svg">
+    <div class="groove-icon">〜</div>
+    <div class="groove-name">SplineGroove</div>
+  </div>
+
+</div>
+
+<h3>9.1 FlatGroove</h3>
+<p>
+  A <code>FlatGroove</code> has a perfectly flat bottom (no curvature). It is used for flat rolling passes
+  or as one side of an asymmetric roll pass (see Section 5). Only the groove width is specified.
+</p>
+
+<h3>9.2 SplineGroove</h3>
+<p>
+  A <code>SplineGroove</code> is a custom free-form groove defined by a set of
+  control points. This type is used when none of the standard geometric profiles accurately
+  represents the actual roll caliber. The control points are entered as a list of
+  (y, z) coordinate pairs describing the groove contour.
+</p>
+
+<h3>9.3 ConstrictedCircularOvalGroove</h3>
+<p>
+  A variant of the <code>CircularOvalGroove</code> with an additional constriction
+  (reduced width at the groove exit plane), used to improve material confinement.
+  No separate SVG is available; the shape is similar to <em>CircularOvalGroove</em> with
+  narrower flanks.
+</p>
+
+<hr>
+
+<h2>10. Solve Methods</h2>
+
+<p>
+  The <strong>Solve Method</strong> defines how PyRolL distributes and iterates the velocities
+  across the pass schedule. The selector is located in the toolbar area above the pass table,
+  next to the <em>Run Simulation</em> button.
+</p>
+
+<table>
+  <tr><th>Method</th><th>Description</th><th>Additional Input</th></tr>
+  <tr>
+    <td><strong>Standard Solve</strong></td>
+    <td>PyRolL's default solver. The workpiece is processed sequentially pass by pass.
+    Velocities are determined implicitly by the continuity equation and the roll surface speed
+    of each pass. No additional parameters required.<br><br>
+    <em>Note:</em> The GUI additionally computes and displays the <strong>inter-stand tension / compression stress</strong>
+    between consecutive passes based on the resulting velocity and cross-section profile.</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td><strong>Forward Solve</strong></td>
+    <td>The simulation starts from a <em>known entry velocity</em> at the first pass.
+    All subsequent pass velocities are computed forward using mass continuity.
+    Useful when the inlet speed is known (e.g. from a roughing mill exit).</td>
+    <td>Initial Velocity [m/s]</td>
+  </tr>
+  <tr>
+    <td><strong>Backward Solve</strong></td>
+    <td>The simulation works <em>backwards from a defined exit condition</em> — the
+    target final velocity. PyRolL adjusts the entire velocity profile so that the
+    last pass exits at the specified speed. The final cross-section area is determined
+    automatically from the schedule geometry.</td>
+    <td>Final Velocity [m/s]</td>
+  </tr>
+</table>
+
+<h3>10.1 Velocity Continuity</h3>
+<p>
+  All three methods respect the law of mass continuity between passes:
+</p>
+<div class="formula-box">
+  $$v_1 \cdot A_1 = v_2 \cdot A_2$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    where \(v\) = workpiece velocity [m/s] and \(A\) = cross-section area [m²]
+    at the exit of passes 1 and 2 respectively.
+  </p>
+</div>
+
+<h3>10.2 Velocity Seed Requirement</h3>
+<p>
+  For <em>Forward Solve</em> and <em>Backward Solve</em>, every roll pass in the
+  schedule must have a positive velocity seed value (&gt; 0). This allows the solver
+  to establish the velocity ratios between stands before iteration. A value of
+  <code>1</code> m/s is sufficient as a seed — the solver will scale it automatically.
+</p>
+
+<div class="warn">
+  <strong>Note:</strong> FinishingBlock sub-passes derive their velocity from the
+  motor RPM and gear ratio. No manual velocity seed is needed for sub-passes —
+  the block motor RPM serves as the velocity constraint.
+</div>
+
+<hr>
+
+<h2>11. Spreading Models</h2>
+
+<p>
+  <strong>Lateral spreading</strong> describes the increase in workpiece width during rolling
+  caused by material flowing sideways (in addition to elongation). PyRolL GUI offers three
+  empirical spreading models, selectable in the toolbar area of the Pass Design tab.
+</p>
+
+<div class="info">
+  The spreading model is a <em>global setting</em> for the entire sequence —
+  it applies to all roll passes in the schedule.
+  Default: <strong>Wusatowski</strong>.
+</div>
+
+<h3>11.1 Wusatowski Spreading</h3>
+<p>
+  The <strong>Wusatowski</strong> model (1969) is the default spreading model.
+  It describes lateral spreading through an empirical power law based on the
+  reduction ratio and groove geometry:
+</p>
+<div class="formula-box">
+  $$\frac{b_1}{b_0} = a_T \cdot a_v \cdot a_M \cdot a_f \cdot \left(\frac{h_0}{h_1}\right)^{\,\psi}$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    where \(b_0, b_1\) = workpiece width before/after the pass,
+    \(h_0, h_1\) = height before/after,
+    \(\psi\) = Wusatowski exponent (function of roll diameter, workpiece dimensions and reduction),
+    and \(a_T, a_v, a_M, a_f\) = correction factors for temperature, velocity, material, friction.
+  </p>
+</div>
+<p>
+  The exponent \(\psi\) is determined empirically and accounts for roll diameter,
+  initial dimensions, and the degree of reduction. Wusatowski is well-suited for
+  conventional groove rolling (oval, round, box sequences).
+</p>
+
+<div class="info">
+  <strong>Velocity correction \(a_v\):</strong> Wusatowski explicitly includes a rolling-speed
+  correction factor:
+  $$a_v = \bigl(-0.002958 + 0.00341\,\varepsilon\bigr)\cdot v \;+\; 1.07168 - 0.10431\,\varepsilon$$
+  where \(\varepsilon = (h_0-h_1)/h_0\) is the relative height reduction and \(v\) the roll surface
+  velocity in m/s.
+  The <strong>roll velocity entered in the pass parameters therefore directly affects the calculated
+  spreading</strong> with the Wusatowski model.
+</div>
+
+<div class="note">
+  <strong>Friction — no effect with Wusatowski:</strong> The internal friction correction factor
+  is fixed at \(a_f = 1\). The <em>Coulomb Friction Coefficient</em> entered in the pass parameters
+  has <strong>no influence</strong> on the Wusatowski spreading result. It is only used by other
+  sub-models (force, torque, gripping analysis).
+</div>
+
+<h3>11.2 Marini Spreading</h3>
+<p>
+  The <strong>Marini</strong> model (1979) extends the power-law approach with
+  additional consideration of the groove caliber geometry. It provides improved
+  accuracy for passes with strong lateral confinement (e.g. box and diamond grooves)
+  where the groove walls actively constrain the spreading.
+</p>
+<p>
+  The core of the Marini model is the first Marini parameter:
+</p>
+<div class="formula-box">
+  $$a = \frac{\sqrt{\Delta h_{eq}}}{2\,\mu\,\sqrt{R}}$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    where \(\Delta h_{eq}\) = equivalent height reduction, \(\mu\) = Coulomb friction coefficient,
+    \(R\) = working roll radius.
+  </p>
+</div>
+
+<div class="info">
+  <strong>Friction — strong effect with Marini:</strong> The Coulomb friction coefficient \(\mu\)
+  appears directly in the denominator of the first Marini parameter. A higher \(\mu\) reduces \(a\)
+  and therefore reduces the spreading correction term \(\tfrac{1+a}{1-a}\).
+  The <strong>friction value entered in the pass parameters has a significant influence</strong> on
+  the Marini spreading result — in contrast to Wusatowski.
+</div>
+
+<div class="note">
+  <strong>Velocity — no effect with Marini:</strong> The Marini formula contains no rolling-speed
+  term. The roll velocity entered in the pass parameters has <strong>no direct influence</strong>
+  on the Marini spreading result.
+</div>
+
+<h3>11.3 Hill Spreading</h3>
+<p>
+  The <strong>Hill</strong> model is based on the analytical theory of plasticity
+  (R. Hill, 1950) and derives spreading from the plane-strain deformation assumption.
+  It is less empirical than Wusatowski and Marini, but typically gives good results
+  for flat and near-flat passes where the plane-strain assumption is approximately valid.
+</p>
+
+<h3>11.4 Choosing a Model</h3>
+<table>
+  <tr><th>Model</th><th>Best suited for</th><th>Friction effect</th><th>Velocity effect</th><th>Notes</th></tr>
+  <tr>
+    <td>Wusatowski</td>
+    <td>General groove rolling (oval/round sequences, box groove)</td>
+    <td>None (internal constant \(a_f=1\))</td>
+    <td><strong>Yes</strong> — correction factor \(a_v(v,\varepsilon)\)</td>
+    <td>Default; most commonly validated model in long product rolling</td>
+  </tr>
+  <tr>
+    <td>Marini</td>
+    <td>Passes with strong groove confinement (box, diamond)</td>
+    <td><strong>Strong</strong> — \(\mu\) in denominator of \(a\)</td>
+    <td>None</td>
+    <td>Better captures constrained spreading in deep grooves; requires realistic μ value</td>
+  </tr>
+  <tr>
+    <td>Hill</td>
+    <td>Flat and near-flat passes</td>
+    <td>Indirect (via friction in force/torque)</td>
+    <td>None</td>
+    <td>Analytically derived; less accurate for profiled grooves</td>
+  </tr>
+</table>
+
+<div class="info">
+  <strong>Tip:</strong> When calibrating a pass schedule against measured data,
+  compare the <em>Elongation Spread</em> chart in the results tab for each model —
+  it directly shows the spreading vs. elongation relationship per pass.
+</div>
+
+<hr>
+
+<h2>12. Tips and Common Mistakes</h2>
+
+<h3>10.1 Label Uniqueness</h3>
+<p>
+  Every unit in the schedule must have a <strong>unique label</strong>. Duplicate labels cause
+  a validation error before the simulation starts. The error message shows which labels are duplicated.
+</p>
+
+<h3>10.2 Velocity Seed for Forward/Backward Solve</h3>
+<p>
+  When using the <em>Forward/Backward</em> solve method, every roll pass must have a
+  velocity value greater than zero. A velocity of 0 will prevent the solver from converging.
+</p>
+
+<h3>10.3 Roll Temperature</h3>
+<p>
+  The <code>Roll Temperature</code> field in the roll parameters must always be filled in.
+  Leaving it empty causes a validation error. Typical roll temperatures in hot rolling:
+  60–150 °C depending on cooling intensity and stand sequence.
+</p>
+
+<h3>10.4 Transport Length vs. Duration</h3>
+<p>
+  If <em>Define by length</em> is chosen for a <em>Transport</em> unit, the simulation
+  requires the exit velocity from the preceding roll pass to compute the transit time.
+  Ensure the preceding pass has a valid velocity. If no preceding roll pass exists (e.g.,
+  the first unit is a Transport), use <em>Define by duration</em> instead.
+</p>
+
+<h3>10.5 FinishingBlock — Gear Ratio Direction</h3>
+<p>
+  A gear ratio \(i > 1\) means the roll rotates <em>slower</em> than the motor;
+  \(i < 1\) means faster. For a typical finishing block with increasing roll speed
+  from stand to stand (to compensate for cross-section reduction), gear ratios
+  decrease from the first to the last sub-pass.
+</p>
+
+<hr>
+<p style="font-size:0.85em; color:#888; margin-top:2em;">
+  Michael Molter &nbsp;|&nbsp; PyRoll GUI — Pass Design Guide &nbsp;|&nbsp; May 2026
+</p>
+
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+</body>
+</html>

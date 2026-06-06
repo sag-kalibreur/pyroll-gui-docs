@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Results Guide – PyRoll GUI</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  h4 { color: #333; margin-top: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; color: #222; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  td:first-child { white-space: nowrap; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5);  border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; margin: 0.8em 0; }
+  .info  { background: rgba(0,84,153,0.07);  border: 1px solid rgba(0,84,153,0.25);  border-radius: 4px; padding: 10px 14px; color: #003f73; margin: 0.8em 0; }
+  .tip   { background: rgba(0,160,80,0.07);  border: 1px solid rgba(0,160,80,0.3);   border-radius: 4px; padding: 10px 14px; color: #064e2c; margin: 0.8em 0; }
+  .badge { display:inline-block; padding:2px 9px; border-radius:10px; font-size:0.82em; font-weight:600; margin-right:4px; }
+  .badge-only { background:#fff3cd; color:#856404; border:1px solid #ffc107; }
+  .badge-fb   { background:#ede9fe; color:#5b21b6; }
+  .badge-asym { background:#fee2e2; color:#991b1b; }
+  .badge-flat { background:#d1fae5; color:#065f46; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  .ui-btn { display:inline-flex; align-items:center; gap:5px; background:#f8f9fa; border:1px solid #ced4da; border-radius:5px; padding:3px 10px; font-size:0.88em; font-family:'Segoe UI',Arial,sans-serif; color:#333; vertical-align:middle; white-space:nowrap; box-shadow:0 1px 2px rgba(0,0,0,0.06); pointer-events:none; }
+  .ui-btn-yellow { background:#FFDD00; border-color:#c9a800; color:#222; font-weight:bold; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  img.screenshot      { max-width:100%; border:1px solid #ccc; border-radius:6px; margin:1.2em 0; box-shadow:0 2px 8px rgba(0,0,0,0.10); }
+  img.screenshot-half { max-width:60%; border:1px solid #ccc; border-radius:6px; margin:1.2em 0; box-shadow:0 2px 8px rgba(0,0,0,0.10); display:block; }
+  nav.toc { background:#fafafa; border:1px solid #ddd; border-radius:6px; padding:16px 24px; margin-bottom:2em; }
+  nav.toc h2 { margin-top:0; border:none; padding:0; font-size:1em; color:#222; }
+  nav.toc ol { margin:0.4em 0 0 1.2em; }
+  nav.toc li { margin-bottom:0.2em; }
+  nav.toc a { color:#005499; text-decoration:none; }
+  nav.toc a:hover { text-decoration:underline; }
+  .plot-section { border-top: 1px solid #eee; padding-top: 1.2em; margin-top: 1.4em; }
+  .status-ok  { display:inline-block; background:#e6ffea; color:#1a7f37; border:1px solid #57ab5a; border-radius:4px; padding:1px 8px; font-size:0.85em; font-weight:bold; }
+  .status-ov  { display:inline-block; background:#ffe6e6; color:#c0392b; border:1px solid #e74c3c; border-radius:4px; padding:1px 8px; font-size:0.85em; font-weight:bold; }
+
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+
+  @media print {
+    h2 { break-before: page; }
+    h2:first-of-type { break-before: auto; }
+    h3, h4 { break-after: avoid; }
+    p { orphans: 3; widows: 3; }
+    table, .warn, .info, .tip { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
+</head>
+<body>
+
+<h1>Results Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+
+<hr>
+
+<!-- ─── TABLE OF CONTENTS ──────────────────────────────────── -->
+<nav class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#sim-config">Simulation Configuration</a></li>
+    <li><a href="#results-table">Roll Pass Results Table</a>
+      <ol>
+        <li><a href="#hot-cold">Hot / Cold Switcher</a></li>
+        <li><a href="#fb-table">Special Case: Finishing Block</a></li>
+      </ol>
+    </li>
+    <li><a href="#engine-eval">Engine Evaluation</a>
+      <ol>
+        <li><a href="#engine-eval-fb">Special Case: Finishing Block</a></li>
+      </ol>
+    </li>
+    <li><a href="#plots">Result Plots</a>
+      <ol>
+        <li><a href="#plot-cs">Profile Cross Section Area</a></li>
+        <li><a href="#plot-draft">Draft &amp; Reduction per Pass</a></li>
+        <li><a href="#plot-strain">Equivalent Strain</a></li>
+        <li><a href="#plot-filling">Roll Pass Filling Ratios</a></li>
+        <li><a href="#plot-temp">Temperature Profile</a></li>
+        <li><a href="#plot-force">Roll Force</a></li>
+        <li><a href="#plot-torque">Roll Torque</a></li>
+        <li><a href="#plot-elong-spread">Elongation Efficiency &amp; Spread</a></li>
+        <li><a href="#plot-elong-ratio">Elongation Ratio &amp; True Strain</a></li>
+        <li><a href="#plot-velocity">In/Out Profile Velocity</a></li>
+        <li><a href="#plot-motor-power">Motor Power <span class="badge badge-fb">Finishing Block</span></a></li>
+        <li><a href="#plot-torque-util">Torque Utilization <span class="badge badge-fb">Finishing Block</span></a></li>
+        <li><a href="#plot-pillar">Pillar Elongation &amp; Spread <span class="badge badge-asym">Asymmetric Pass</span></a></li>
+        <li><a href="#plot-asym-sub">Asymmetric Sub-Pass Detail <span class="badge badge-asym">Asymmetric Pass</span></a></li>
+        <li><a href="#plot-siebel">Siebel Diagram <span class="badge badge-flat">Flat Pass</span></a></li>
+      </ol>
+    </li>
+    <li><a href="#export">Export Options</a></li>
+    <li><a href="#raw-data">Raw Data</a></li>
+  </ol>
+</nav>
+
+<!-- ─── 1. OVERVIEW ───────────────────────────────────────── -->
+<h2 id="overview">1. Overview</h2>
+<p>
+  The <strong>Results</strong> tab is populated automatically after a successful simulation run
+  from the <em>Pass Design</em> tab. It displays all computed rolling data in structured form:
+  a tabular summary of each roll pass, an engine utilization evaluation, and a comprehensive
+  set of result plots. Data can be exported in multiple formats.
+</p>
+<p>
+  The tab remains empty until at least one sequence has been solved. Results are retained in
+  memory until a new simulation is run or the project is reset.
+  Previously saved projects that include simulation results will restore the results automatically
+  when the project file is loaded.
+</p>
+
+<!-- ─── 2. SIMULATION CONFIGURATION ──────────────────────── -->
+<h2 id="sim-config">2. Simulation Configuration</h2>
+<p>
+  At the top of the Results tab, one or more <strong>Simulation Configuration</strong> cards are shown —
+  one per sequence. Each card summarises the parameters that governed the simulation.
+</p>
+
+<img class="screenshot" src="img/results_simulation_configuration.png" alt="Simulation Configuration cards for two sequences">
+
+<table>
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td>Steel Grade</td><td>Material identifier taken from the In Profile tab (e.g. <code>11SMn30</code>).</td></tr>
+  <tr><td>Spreading Model</td><td>The spreading law used by PyRolL for width calculation (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td></tr>
+  <tr><td>Solve Method</td><td>Forward Solve, Backward Solve, or Standard Solve — determines the direction of the numerical iteration.</td></tr>
+  <tr><td>Coulomb Friction Coefficient</td><td>The global friction coefficient applied in the simulation.</td></tr>
+</table>
+
+<div class="info">
+  When multiple sequences are present, each sequence shows its own configuration card side by side.
+  Different sequences can use different spreading models or solve methods within the same project.
+</div>
+
+<!-- ─── 3. ROLL PASS RESULTS TABLE ────────────────────────── -->
+<h2 id="results-table">3. Roll Pass Results Table</h2>
+<p>
+  The results table lists all simulated roll passes as columns, with computed output parameters as rows.
+  In a multi-sequence project the table spans all sequences from left to right, with a colour-coded
+  sequence header row above the pass labels.
+</p>
+
+<img class="screenshot" src="img/results_roll_pass_results_table.png" alt="Roll Pass Results Table with two sequences">
+
+<p>The following parameters are reported for each roll pass:</p>
+
+<table>
+  <tr><th>Parameter</th><th>Unit</th><th>Description</th></tr>
+  <tr><td>Groove Name</td><td>—</td><td>Groove identifier as entered in the Pass Design tab (if assigned).</td></tr>
+  <tr><td>Inscribed Circle Diameter / Gap</td><td>mm</td><td>For two-roll passes: roll gap. For three-roll passes: inscribed circle diameter of the outgoing profile.</td></tr>
+  <tr><td>Bar Height</td><td>mm</td><td>Outgoing profile height.</td></tr>
+  <tr><td>Bar Width</td><td>mm</td><td>Outgoing profile width.</td></tr>
+  <tr><td>Bar Width (corrected)</td><td>mm</td><td>Width corrected for interstand tension or gear tension effects. Shown only when tension data is available.</td></tr>
+  <tr><td>Tension After</td><td>%</td><td>Interstand tension after this pass as a percentage of the material flow stress. Shown only when tension data is present.</td></tr>
+  <tr><td>Bar Area</td><td>mm²</td><td>Cross-section area of the outgoing profile.</td></tr>
+  <tr><td>Bar Area (corrected)</td><td>mm²</td><td>Cross-section area corrected for tension effects. Shown only when tension data is available.</td></tr>
+  <tr><td>Reduction</td><td>%</td><td>Fractional area reduction: (A_in − A_out) / A_in × 100.</td></tr>
+  <tr><td>Roll Diameter</td><td>mm</td><td>Nominal roll diameter (2 × nominal radius).</td></tr>
+  <tr><td>Working Diameter</td><td>mm</td><td>Effective working diameter at the groove base (2 × working radius).</td></tr>
+  <tr><td>Roll RPM (actual)</td><td>rpm</td><td>Actual rotational speed of the roll as set in the Pass Design.</td></tr>
+  <tr><td>Roll RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal RPM calculated for zero interstand tension.</td></tr>
+  <tr><td>Motor RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal motor RPM (after gear ratio) for zero tension condition.</td></tr>
+  <tr><td>In Profile Velocity</td><td>m/s</td><td>Bar speed at the entry of the roll pass.</td></tr>
+  <tr><td>Out Profile Velocity</td><td>m/s</td><td>Bar speed at the exit of the roll pass.</td></tr>
+  <tr><td>Transport Duration</td><td>s</td><td>Time the bar spends in the transport section following this pass. Shown as <em>x.xx s / y.yy m</em>.</td></tr>
+  <tr><td>Transport Length</td><td>m</td><td>Length of the transport section following this pass.</td></tr>
+  <tr><td>Entry Temperature</td><td>°C</td><td>Mean bar temperature entering this pass.</td></tr>
+  <tr><td>Core Temperature</td><td>°C</td><td>Core temperature of the outgoing profile.</td></tr>
+  <tr><td>Mean Temperature</td><td>°C</td><td>Volume-averaged temperature of the outgoing profile.</td></tr>
+  <tr><td>Surface Temperature</td><td>°C</td><td>Surface temperature of the outgoing profile.</td></tr>
+  <tr><td>Bite Angle</td><td>°</td><td>Contact angle between roll and workpiece at entry.</td></tr>
+  <tr><td>Roll Force</td><td>kN</td><td>Total rolling force per roll pass.</td></tr>
+  <tr><td>Roll Force (corrected)</td><td>kN</td><td>Roll force corrected for tension effects.</td></tr>
+  <tr><td>Roll Torque (per roll)</td><td>kNm</td><td>Torque on a single roll.</td></tr>
+  <tr><td>Roll Torque (corrected, per roll)</td><td>kNm</td><td>Corrected roll torque for tension or gear effects.</td></tr>
+  <tr><td>Power</td><td>kW</td><td>Total motor power demand for this pass.</td></tr>
+  <tr><td>Power (corrected)</td><td>kW</td><td>Power corrected for tension effects. Shown only when tension data is available.</td></tr>
+  <tr><td>Flow Stress</td><td>MPa</td><td>Mean flow stress of the outgoing profile.</td></tr>
+  <tr><td>Filling Ratio</td><td>%</td><td>Ratio of actual bar cross-section area to the groove cross-section area.</td></tr>
+  <tr><td>Elongation Efficiency</td><td>—</td><td>Ratio of actual elongation to the theoretical ideal elongation.</td></tr>
+  <tr><td>Spread</td><td>—</td><td>Width increase factor: B_out / B_in.</td></tr>
+  <tr><td>Strain φ</td><td>—</td><td>True (logarithmic) strain: −ln(1 − reduction).</td></tr>
+  <tr><td>Strain Rate φ̇</td><td>1/s</td><td>Equivalent strain rate during the pass.</td></tr>
+</table>
+
+<h3 id="hot-cold">3.1 Hot / Cold Switcher</h3>
+<p>
+  Above the results table, a <strong>Hot / Cold</strong> toggle button is visible.
+  This switch converts all dimension values (Bar Height, Bar Width, Bar Area, Diameter, Gap)
+  between hot (simulated) and cold (room temperature) dimensions.
+</p>
+
+<img class="screenshot-half" src="img/results_hot_cold_switcher.png" alt="Hot / Cold switcher buttons">
+
+<p>
+  The conversion uses the thermal expansion coefficient and the material temperature from the
+  In Profile configuration. Selecting <strong>Cold</strong> is useful when comparing simulated
+  dimensions to final product drawings which are specified at room temperature.
+</p>
+
+<div class="info">
+  The Hot/Cold toggle only affects dimensional columns (lengths, widths, areas). Force, torque, temperature,
+  RPM, and ratio columns are not affected.
+</div>
+
+<h3 id="fb-table">3.2 Special Case: Finishing Block</h3>
+<p>
+  When a <strong>Finishing Block</strong> is part of the rolling schedule, its passes appear in the
+  results table with additional columns and adjusted labels:
+</p>
+
+<img class="screenshot" src="img/results_finishing_block_results_table.png" alt="Roll Pass Results Table showing Finishing Block column group and tension-corrected rows">
+
+<ul>
+  <li>A <strong>Finishing Block</strong> header row groups the passes belonging to the block.</li>
+  <li>The <em>Tension After</em> column shows the gear-controlled tension between block passes (as a percentage of flow stress).</li>
+  <li><em>Bar Width (corrected)</em> and <em>Bar Area (corrected)</em> reflect the geometry after gear-tension correction.</li>
+  <li><em>Roll Force (corrected)</em>, <em>Roll Torque (corrected)</em>, and <em>Power (corrected)</em> are calculated with the gear tension taken into account.</li>
+  <li>For block passes the <em>Roll RPM (ideal)</em> and <em>Motor RPM (ideal)</em> represent the tension-free ideal values used for gear ratio setup.</li>
+</ul>
+
+<!-- ─── 4. ENGINE EVALUATION ──────────────────────────────── -->
+<h2 id="engine-eval">4. Engine Evaluation</h2>
+<p>
+  Below the Roll Pass Results table, an <strong>Engine Evaluation</strong> section is shown
+  automatically whenever engines have been defined in the <em>Engine Configuration</em> tab.
+  It compares the motor demands calculated by the simulation against the rated engine capacities.
+</p>
+
+<img class="screenshot" src="img/results_engine_evaluation.png" alt="Engine Evaluation table with multiple engines and OK status">
+
+<p>The table shows the following columns per engine:</p>
+
+<table>
+  <tr><th>Column</th><th>Description</th></tr>
+  <tr><td>Engine</td><td>Engine name as configured in the Engine Configuration tab.</td></tr>
+  <tr><td>Typ</td><td>Motor type: <strong>DC</strong> (grey badge) or <strong>AC</strong> (blue badge).</td></tr>
+  <tr><td>Assigned Stands</td><td>The roll pass labels that are driven by this engine.</td></tr>
+  <tr><td>Max Engine RPM</td><td>Maximum mechanical speed at the roll (engine max RPM after gear ratio).</td></tr>
+  <tr><td>Calculated Engine RPM</td><td>The highest RPM required by any assigned stand in the simulation. Highlighted green (OK) or red (OVERLOAD).</td></tr>
+  <tr><td>Aggregated Required kW</td><td>Sum of power demands from all stands assigned to this engine.</td></tr>
+  <tr><td>Rated kW</td><td>Rated continuous power of the engine as configured.</td></tr>
+  <tr><td>Available Power kW</td><td>Derated power available at the actual operating RPM (AC motor characteristic).</td></tr>
+  <tr><td>Status</td><td><span class="status-ok">OK</span> if all limits are within bounds, <span class="status-ov">OVERLOAD</span> if any limit is exceeded.</td></tr>
+</table>
+
+<div class="warn">
+  The Engine Evaluation section only appears if engines have been configured. If no engines are defined,
+  this section is hidden. Go to the <em>Engine Configuration</em> tab to set up engines.
+</div>
+
+<h3 id="engine-eval-fb">4.1 Special Case: Finishing Block</h3>
+<p>
+  When interstand tensions are present (e.g. from a Finishing Block), the engine evaluation table
+  gains additional columns to reflect the tension-corrected demands:
+</p>
+
+<img class="screenshot" src="img/results_finishing_block_engine_evaluation.png" alt="Engine Evaluation table with Finishing Block FB1 row showing tension-corrected columns">
+<ul>
+  <li><strong>Required kW (corrected)</strong> — power demand accounting for the gear-controlled tension between passes.</li>
+  <li><strong>Calculated RPM (corrected)</strong> — RPM at the tension-corrected operating point.</li>
+  <li><strong>Available Power kW (corrected)</strong> — derated power available at the corrected RPM.</li>
+  <li>A second <strong>Status (corrected)</strong> column reflects whether the engine is within limits under tension conditions.</li>
+</ul>
+<p>
+  This allows direct comparison of the tension-free design point and the actual loaded condition
+  side by side in the same row.
+</p>
+
+<!-- ─── 5. PLOTS ───────────────────────────────────────────── -->
+<h2 id="plots">5. Result Plots</h2>
+<p>
+  All plots are rendered below the Engine Evaluation. They are loaded progressively as the page scrolls
+  to keep the interface responsive for long rolling schedules. Each plot can be exported individually
+  via the <em>Save Results</em> export dialog.
+</p>
+
+<div class="info">
+  Three plots are only shown when specific pass types are present in the schedule:<br>
+  <span class="badge badge-fb">Finishing Block</span> Motor Power and Torque Utilization plots<br>
+  <span class="badge badge-asym">Asymmetric Pass</span> Pillar Elongation &amp; Spread and Sub-Pass Detail plots<br>
+  <span class="badge badge-flat">Flat Pass</span> Siebel Diagram
+</div>
+
+<!-- 5.1 Cross Section -->
+<div class="plot-section">
+<h3 id="plot-cs">5.1 Profile Cross Section Area</h3>
+<p>
+  Shows the outgoing cross-section area [mm²] for each roll pass as a line/point chart.
+  This is the most direct indicator of the overall reduction along the rolling line —
+  the curve should decrease monotonically from the initial billet area to the final product area.
+</p>
+<img class="screenshot" src="img/results_cross_section.png" alt="Profile Cross Section Area chart">
+</div>
+
+<!-- 5.2 Draft & Reduction -->
+<div class="plot-section">
+<h3 id="plot-draft">5.2 Draft &amp; Reduction per Pass</h3>
+<p>
+  A combined bar/line chart showing two quantities per pass:
+</p>
+<ul>
+  <li><strong>Draft [mm]</strong> (blue bars) — the absolute height reduction (h_in − h_out) per pass.</li>
+  <li><strong>Reduction [%]</strong> (red dashed line) — the fractional area reduction as a percentage.</li>
+</ul>
+<p>
+  This chart is useful for identifying passes with disproportionately high or low reductions
+  and for verifying that the reduction schedule is well balanced.
+</p>
+<img class="screenshot" src="img/results_draft_reduction.png" alt="Draft and Reduction per Pass chart">
+</div>
+
+<!-- 5.3 Strain -->
+<div class="plot-section">
+<h3 id="plot-strain">5.3 Equivalent Strain</h3>
+<p>
+  Displays the cumulative equivalent (logarithmic) true strain per pass. The strain accumulates
+  pass by pass and reflects the total deformation history of the workpiece.
+  A high value indicates heavy forming at that pass; a drop may indicate a tension
+  reversal or a finishing block pass with very low reduction.
+</p>
+<img class="screenshot" src="img/results_strain.png" alt="Equivalent Strain chart">
+</div>
+
+<!-- 5.4 Filling Ratio -->
+<div class="plot-section">
+<h3 id="plot-filling">5.4 Roll Pass Filling Ratios</h3>
+<p>
+  The filling ratio is the ratio of the actual bar cross-section area to the groove cross-section area:
+  <em>i = A_bar / A_groove</em>.
+</p>
+<ul>
+  <li>Values <strong>close to 1.0</strong> indicate that the bar fills the groove almost completely — good for shape accuracy.</li>
+  <li>Values <strong>above 1.0</strong> indicate overfilling, which produces flash and may damage rolls or guides.</li>
+  <li>Values <strong>well below 1.0</strong> (e.g. finishing block passes) are intentional and leave space for further forming.</li>
+</ul>
+<img class="screenshot" src="img/results_filling_ratio.png" alt="Roll Pass Filling Ratios chart">
+</div>
+
+<!-- 5.5 Temperature -->
+<div class="plot-section">
+<h3 id="plot-temp">5.5 Temperature Profile</h3>
+<p>
+  The temperature section contains two sub-plots:
+</p>
+<ul>
+  <li>
+    <strong>Temperature Profile Along Rolling Line</strong> — continuous temperature curves (Core, Mean, Surface)
+    plotted against the position [m] along the rolling line. Transport sections are visible as gradual
+    cooling curves; roll passes appear as short drops (surface) and slight rises (core).
+  </li>
+  <li>
+    <strong>Temperature Profile per Step</strong> — the same three temperatures shown discretely per roll pass
+    and transport step. This format makes it easy to read off exact temperatures at each pass entry/exit.
+  </li>
+</ul>
+<p>
+  In a multi-sequence project, the temperature plot spans all sequences in the order they were solved.
+</p>
+<img class="screenshot" src="img/results_temperature.png" alt="Temperature Profile Along Rolling Line and per Step">
+</div>
+
+<!-- 5.6 Roll Force -->
+<div class="plot-section">
+<h3 id="plot-force">5.6 Roll Force</h3>
+<p>
+  Bar chart showing the total rolling force [kN] for each pass. Higher forces typically occur in the
+  earlier (roughing) passes due to larger cross-sections and higher material flow stress.
+  The chart is useful for sizing roll journals, housings, and screwdown systems.
+</p>
+<img class="screenshot" src="img/results_roll_force.png" alt="Roll Force chart">
+</div>
+
+<!-- 5.7 Roll Torque -->
+<div class="plot-section">
+<h3 id="plot-torque">5.7 Roll Torque</h3>
+<p>
+  Bar chart showing the torque per roll [kNm] for each pass.
+  Combined with the RPM values from the results table, this allows the required motor power
+  to be cross-checked: P = 2 · π · n/60 · M_roll · (number of rolls).
+</p>
+<img class="screenshot" src="img/results_roll_torque.png" alt="Roll Torque chart">
+</div>
+
+<!-- 5.8 Elongation Efficiency & Spread -->
+<div class="plot-section">
+<h3 id="plot-elong-spread">5.8 Elongation Efficiency &amp; Spread</h3>
+<p>
+  Combined line chart with two series:
+</p>
+<ul>
+  <li><strong>Elongation (yellow)</strong> — elongation efficiency per pass (actual elongation / ideal elongation). Values below 1 indicate energy lost to lateral spread.</li>
+  <li><strong>Spread (blue dashed)</strong> — width increase ratio B_out / B_in. Values above 1.0 indicate that the material is flowing sideways.</li>
+</ul>
+<p>
+  Finishing block passes typically show very low elongation efficiency (≈0.3–0.4) and spread close to 1.0,
+  which reflects the constrained deformation mode in small-diameter passing grooves.
+</p>
+<img class="screenshot" src="img/results_elongation_spread.png" alt="Elongation Efficiency and Spread chart">
+</div>
+
+<!-- 5.9 Elongation Ratio -->
+<div class="plot-section">
+<h3 id="plot-elong-ratio">5.9 Elongation Ratio &amp; True Strain per Pass</h3>
+<p>
+  Combined bar/line chart with two series:
+</p>
+<ul>
+  <li><strong>Elongation Ratio λ</strong> (green bars &amp; line) — the length elongation factor per pass: L_out / L_in. A value of 1.25 means the bar is 25 % longer after this pass.</li>
+  <li><strong>True Strain ε</strong> (purple dashed line) — the natural logarithm of the elongation ratio: ln(λ). Shown on the right axis.</li>
+</ul>
+<img class="screenshot" src="img/results_elongation_ratio.png" alt="Elongation Ratio and True Strain per Pass chart">
+</div>
+
+<!-- 5.10 Velocity -->
+<div class="plot-section">
+<h3 id="plot-velocity">5.10 In/Out Profile Velocity</h3>
+<p>
+  Grouped bar chart showing the bar speed [m/s] entering and leaving each roll pass:
+</p>
+<ul>
+  <li><strong>In Profile (yellow)</strong> — entry velocity.</li>
+  <li><strong>Out Profile (blue)</strong> — exit velocity.</li>
+</ul>
+<p>
+  The velocity increases continuously from stand to stand (volume conservation).
+  This chart is critical for verifying that the RPM schedule is consistent — mismatches
+  lead to interstand tension or compression.
+</p>
+<img class="screenshot" src="img/results_velocity.png" alt="In/Out Profile Velocity chart">
+</div>
+
+<!-- 5.11 Motor Power – Finishing Block -->
+<div class="plot-section">
+<h3 id="plot-motor-power">5.11 Motor Power <span class="badge badge-only">Only: Finishing Block</span></h3>
+<p>
+  This plot appears exclusively when at least one <strong>Finishing Block</strong> is present in the schedule.
+  It shows the demanded motor power [kW] per engine across all finishing block passes, alongside
+  the rated engine power for comparison. The chart makes it easy to identify which engine is closest
+  to its capacity limit.
+</p>
+<p>
+  The chart shows:
+</p>
+<ul>
+  <li><strong>Required Power bars (yellow)</strong> — individual power demand [kW] per finishing block pass.</li>
+  <li><strong>P available (red dashed)</strong> — the derated available motor power at the actual engine RPM.</li>
+  <li><strong>P total req. (green dashed)</strong> — the total aggregated power demand across all block passes.</li>
+  <li><strong>Engine RPM (orange)</strong> — the calculated engine speed annotation.</li>
+</ul>
+<img class="screenshot" src="img/results_finishing_block_motor_power.png" alt="Engine Power chart for finishing block FB1">
+<div class="info">
+  If no finishing block is configured, this plot is hidden. Configure a finishing block in the
+  Pass Design tab and assign engines in the Engine Configuration tab to activate this plot.
+</div>
+</div>
+
+<!-- 5.12 Torque Utilization – Finishing Block -->
+<div class="plot-section">
+<h3 id="plot-torque-util">5.12 Torque Utilization <span class="badge badge-only">Only: Finishing Block</span></h3>
+<p>
+  Also only shown when a Finishing Block is present. Displays the torque utilization for each
+  finishing block pass as a percentage of the engine's rated torque capacity.
+  A utilization above 100 % indicates an overload condition for that pass.
+</p>
+<p>
+  The chart shows:
+</p>
+<ul>
+  <li><strong>Torque Util. / Stand bars (yellow)</strong> — torque utilization [%] for each pass in the block.</li>
+  <li><strong>T nominal 100 % (red dashed)</strong> — the rated torque limit at 100 %.</li>
+  <li><strong>T total (green dashed)</strong> — the overall torque utilization across all block passes combined.</li>
+  <li><strong>Engine RPM (orange)</strong> — the calculated engine speed at this operating point.</li>
+</ul>
+<img class="screenshot" src="img/results_finishing_block_torque_utilization.png" alt="Torque Utilization chart for finishing block FB1">
+<div class="info">
+  Both the Motor Power and Torque Utilization plots are rendered directly below the Engine Evaluation
+  section, before the standard Result Plots.
+</div>
+</div>
+
+<!-- 5.13 Pillar Elongation – Asymmetric -->
+<div class="plot-section">
+<h3 id="plot-pillar">5.13 Pillar Elongation &amp; Spread Distribution <span class="badge badge-only">Only: Asymmetric Pass</span></h3>
+<p>
+  Shown only when at least one <strong>Asymmetric Roll Pass</strong> is part of the schedule.
+  Plots the local elongation factor λ and spread factor β as a function of the half-width position
+  [mm] for each asymmetric pass. This shows how deformation is distributed across the bar's
+  cross-section — the centre elongates more than the edges.
+</p>
+<img class="screenshot" src="img/results_pillar_elongation_spread.png" alt="Pillar Elongation and Spread Distribution chart">
+</div>
+
+<!-- 5.14 Asymmetric Sub-Pass Detail -->
+<div class="plot-section">
+<h3 id="plot-asym-sub">5.14 Asymmetric Sub-Pass Detail <span class="badge badge-only">Only: Asymmetric Pass</span></h3>
+<p>
+  Also only shown for Asymmetric Roll Passes. Provides a detailed breakdown per pass with:
+</p>
+<ul>
+  <li><strong>Upper vs. Lower Sub-Pass Comparison</strong> — bar chart comparing Roll Force, Roll Torque,
+    Bite Angle, Exit Temperature, Height and Width for the upper and lower groove sub-simulations.</li>
+  <li><strong>Pillar Elongation — Upper vs. Lower Groove (Symmetric Sub-Analysis)</strong> — shows the
+    elongation distribution for each symmetric sub-simulation alongside each other, allowing
+    quantification of the asymmetry in deformation.</li>
+  <li><strong>Pillar Elongation tables</strong> — numerical tables of pillar elongation values at discrete
+    half-width positions for both the upper and lower groove.</li>
+</ul>
+<img class="screenshot" src="img/results_asymmetric_sub_pass_detail.png" alt="Asymmetric Sub-Pass Detail panel">
+</div>
+
+<!-- 5.15 Siebel Diagram – Flat Pass -->
+<div class="plot-section">
+<h3 id="plot-siebel">5.15 Siebel Diagram — Constriction / Bulging <span class="badge badge-only">Only: Flat Pass</span></h3>
+<p>
+  Shown only when at least one <strong>Flat Pass</strong> (Two-Roll Pass with a flat or box groove)
+  is present in the schedule.
+  The Siebel diagram classifies each flat pass as either <em>Bulging</em> or <em>Constriction</em>
+  based on the ratios b₀/h₀ and LD/h₀:
+</p>
+<ul>
+  <li><strong>b₀/h₀</strong> — ratio of initial bar width to initial bar height.</li>
+  <li><strong>LD/h₀</strong> — ratio of contact arc length to initial bar height.</li>
+</ul>
+<p>
+  Each flat pass is plotted as a yellow circle. Points in the <em>Bulging</em> region (upper-left,
+  red background) indicate that the material tends to bulge outward. Points in the <em>Constriction</em>
+  region (lower-right, blue background) indicate lateral constriction. The boundary curve corresponds
+  to the Siebel criterion constant C = 0.355.
+</p>
+<p>
+  Points above the boundary curve are annotated with their distance Δ from the boundary, indicating
+  the magnitude of the tendency to bulge. This is relevant for edge quality and camber prediction.
+</p>
+<img class="screenshot" src="img/results_siebel_diagram.png" alt="Siebel Diagram – Constriction / Bulging (Flat Passes)">
+<div class="info">
+  See the <em>Flat Rolling Edge Deformation – Siebel Criterion</em> document (Help menu) for a
+  detailed mathematical description of the method.
+</div>
+</div>
+
+<!-- ─── 6. EXPORT ─────────────────────────────────────────── -->
+<h2 id="export">6. Export Options</h2>
+<p>
+  Click <span class="ui-btn ui-btn-yellow">💾 Save Results</span> to open the export dialog.
+  Enter a custom filename in the input field to the left of the button before exporting —
+  all generated files will use this name as a prefix.
+  Six formats are available:
+</p>
+
+<img class="screenshot-half" src="img/results_save_results_button_input_field.png" alt="Filename input field and Save Results button">
+
+<img class="screenshot-half" src="img/results_export_results_type.png" alt="Export Results modal with all six format buttons">
+
+<table>
+  <tr><th>Format</th><th>Contents</th></tr>
+  <tr><td>📊 Plots &amp; CSV (ZIP)</td><td>All visible plots as PNG images + results table as CSV, packaged in a ZIP archive.</td></tr>
+  <tr><td>📄 Single HTML</td><td>Self-contained HTML file with the results table and all plots embedded as images. Can be opened in any browser without the application.</td></tr>
+  <tr><td>📊 Excel XLSX</td><td>Results table in Excel format with formatted cells and column headers.</td></tr>
+  <tr><td>📄 PDF</td><td>Multi-page landscape PDF: configuration page, results table, engine evaluation, and one plot per page.</td></tr>
+  <tr><td>📊 PowerPoint</td><td>PPTX presentation with one slide per plot, suitable for reporting.</td></tr>
+  <tr><td>📄 JSON</td><td>Full raw PyRolL simulation output as a JSON file. Useful for post-processing or archiving.</td></tr>
+</table>
+
+<!-- ─── 7. RAW DATA ───────────────────────────────────────── -->
+<h2 id="raw-data">7. Raw Data</h2>
+<p>
+  At the bottom of the Results tab, a collapsible <strong>Raw Data</strong> panel is available.
+  Click the <em>Raw Data ▼ Show</em> header to expand it.
+</p>
+<p>
+  The panel shows the complete PyRolL simulation output as formatted JSON, up to a preview of
+  500 lines. If the output exceeds 500 lines (which is typical for large rolling schedules with
+  pillar data), a notice is shown:
+</p>
+<blockquote style="font-style:italic; color:#555; border-left:3px solid #ddd; padding-left:12px;">
+  Showing first 500 of N lines — use Export → JSON for full data.
+</blockquote>
+<p>
+  The raw JSON contains all PyRolL pass objects with their full attribute set, including
+  intermediate values that are not shown in the results table (e.g. individual pillar positions,
+  sub-pass data, heat transfer coefficients).
+</p>
+
+<div class="tip">
+  Use <strong>Export → JSON</strong> to download the full untruncated raw data for scripting,
+  comparison, or archiving in external tools.
+</div>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Results Guide</p>
+
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+
+</body>
+</html>

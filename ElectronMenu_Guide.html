@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Application Menu Guide – PyRoll GUI</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; color: #222; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5);  border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; margin: 0.8em 0; }
+  .info  { background: rgba(0,84,153,0.07);  border: 1px solid rgba(0,84,153,0.25);  border-radius: 4px; padding: 10px 14px; color: #003f73; margin: 0.8em 0; }
+  .tip   { background: rgba(0,160,80,0.07);  border: 1px solid rgba(0,160,80,0.3);   border-radius: 4px; padding: 10px 14px; color: #064e2c; margin: 0.8em 0; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  kbd { display:inline-block; background:#f0f0f0; border:1px solid #bbb; border-bottom:2px solid #999; border-radius:4px; padding:1px 7px; font-size:0.85em; font-family:'Segoe UI',Arial,sans-serif; white-space:nowrap; }  td.shortcut-col { white-space: nowrap; }  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  img.screenshot      { max-width:100%; border:1px solid #ccc; border-radius:6px; margin:1.2em 0; box-shadow:0 2px 8px rgba(0,0,0,0.10); }
+  img.screenshot-half { max-width:55%; border:1px solid #ccc; border-radius:6px; margin:1.2em 0; box-shadow:0 2px 8px rgba(0,0,0,0.10); display:block; }
+
+  /* ── rendered menu mockup ── */
+  .menubar { display:flex; gap:2px; background:#f0f0f0; border:1px solid #ccc; border-radius:4px; padding:2px 6px; margin:1.2em 0 0.4em; font-size:0.92em; user-select:none; }
+  .menubar-item { padding:3px 10px; border-radius:3px; cursor:default; }
+  .menubar-item:hover { background:#FFDD00; }
+  .menu-panel { display:inline-block; min-width:220px; background:#fff; border:1px solid #bbb; border-radius:4px; box-shadow:2px 4px 12px rgba(0,0,0,0.15); padding:4px 0; font-size:0.91em; margin:0 0 1.2em; vertical-align:top; }
+  .menu-panel + .menu-panel { margin-left: 16px; }
+  .menu-item { display:flex; justify-content:space-between; align-items:center; padding:4px 18px 4px 14px; white-space:nowrap; gap:24px; }
+  .menu-item:hover { background:#FFDD00; }
+  .menu-item.has-sub::after { content:'▶'; font-size:0.7em; color:#888; margin-left:auto; padding-left:12px; }
+  .menu-item.checked::before { content:'✓'; margin-right:6px; }
+  .menu-sep { border:none; border-top:1px solid #ddd; margin:4px 0; }
+  .menu-accel { color:#888; font-size:0.85em; }
+  .menu-sub-wrapper { display:inline-flex; vertical-align:top; margin:0 0 1.2em; }
+  .menu-sub-indent { width:32px; flex-shrink:0; border-top:2px solid #FFDD00; margin-top:26px; }
+  .menu-sub-panel { min-width:200px; background:#fff; border:1px solid #bbb; border-radius:4px; box-shadow:2px 4px 12px rgba(0,0,0,0.15); padding:4px 0; font-size:0.91em; }
+
+  nav.toc { background:#fafafa; border:1px solid #ddd; border-radius:6px; padding:16px 24px; margin-bottom:2em; }
+  nav.toc h2 { margin-top:0; border:none; padding:0; font-size:1em; color:#222; }
+  nav.toc ol { margin:0.4em 0 0 1.2em; }
+  nav.toc li { margin-bottom:0.2em; }
+  nav.toc a { color:#005499; text-decoration:none; }
+  nav.toc a:hover { text-decoration:underline; }
+
+  /* dark/light mode comparison */
+  .mode-compare { display:flex; gap:16px; flex-wrap:wrap; margin:1.2em 0; }
+  .mode-box { flex:1; min-width:260px; border-radius:8px; overflow:hidden; border:1px solid #ccc; box-shadow:0 2px 8px rgba(0,0,0,0.10); }
+  .mode-box img { width:100%; display:block; }
+  .mode-label { padding:6px 12px; font-size:0.85em; font-weight:600; text-align:center; }
+  .mode-label-light { background:#f0f0f0; color:#333; }
+  .mode-label-dark  { background:#222; color:#FFDD00; }
+
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+
+  @media print {
+    h2 { break-before: page; }
+    h2:first-of-type { break-before: auto; }
+    h3, h4 { break-after: avoid; }
+    table, .warn, .info, .tip { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
+</head>
+<body>
+
+<h1>Application Menu Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+
+<hr>
+
+<!-- ─── TABLE OF CONTENTS ──────────────────────────────────── -->
+<nav class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#dark-mode">Dark / Bright Mode Switcher</a></li>
+    <li><a href="#file">File Menu</a></li>
+    <li><a href="#edit">Edit Menu</a></li>
+    <li><a href="#view">View Menu</a></li>
+    <li><a href="#window">Window Menu</a></li>
+    <li><a href="#help">Help Menu</a>
+      <ol>
+        <li><a href="#help-info">Description, About &amp; Authors</a></li>
+        <li><a href="#help-guides">Guides Submenu</a></li>
+        <li><a href="#help-methods">Methods Submenu</a></li>
+      </ol>
+    </li>
+    <li><a href="#shortcuts">Keyboard Shortcuts Reference</a></li>
+  </ol>
+</nav>
+
+<!-- ─── 1. OVERVIEW ──────────────────────────────────────────── -->
+<h2 id="overview">1. Overview</h2>
+<p>
+  PyRoll WebGUI runs as a native <strong>Electron</strong> application, which means it has
+  a standard operating system menu bar at the top of the window — separate from the
+  tab-based web interface inside the window. The menu bar provides access to file
+  operations, view controls, window management, and the built-in help documentation.
+</p>
+
+<div class="menubar">
+  <span class="menubar-item">File</span>
+  <span class="menubar-item">Edit</span>
+  <span class="menubar-item">View</span>
+  <span class="menubar-item">Window</span>
+  <span class="menubar-item">Help</span>
+</div>
+
+<p>
+  All menu items are also accessible via keyboard shortcuts. On Windows, you can
+  activate the menu bar by pressing <kbd>Alt</kbd>, then navigate with the arrow keys.
+</p>
+
+<!-- ─── 2. DARK / BRIGHT MODE ────────────────────────────────── -->
+<h2 id="dark-mode">2. Dark / Bright Mode Switcher</h2>
+<p>
+  The application supports two colour themes — <strong>Bright Mode</strong> (default,
+  white background) and <strong>Dark Mode</strong> (dark background with yellow accents).
+  The theme can be toggled in two ways:
+</p>
+<ul>
+  <li>Via the menu: <strong>View → Dark Mode</strong> (checkbox item, also shows
+    current state)</li>
+  <li>Via keyboard shortcut: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></li>
+  <li>Via the <strong>sun/moon toggle button</strong> in the application toolbar
+    (the icon button next to the tab bar in the top centre of the window)</li>
+</ul>
+
+<img class="screenshot-small" src="img/electron_menu_dark_mode_switcher.png" alt="Dark/Bright Mode toggle switch showing sun and moon icons" style="display:block; margin:1.2em auto;">
+
+<div class="mode-compare">
+  <div class="mode-box">
+    <img src="img/electron_menu_bright_mode.png" alt="PyRoll WebGUI in Bright Mode – white background, yellow tab bar">
+    <div class="mode-label mode-label-light">Bright Mode (default)</div>
+  </div>
+  <div class="mode-box">
+    <img src="img/electron_menu_dark_mode.png" alt="PyRoll WebGUI in Dark Mode – dark background, yellow accents">
+    <div class="mode-label mode-label-dark">Dark Mode</div>
+  </div>
+</div>
+
+<p>
+  The theme setting is applied immediately and persists for the current session.
+  All plots, tables, and UI elements switch colours together — including the roll pass
+  visualization plots and the 3D cross-section evolution chart.
+</p>
+<div class="tip">
+  Dark Mode is recommended for extended work sessions or when using the application
+  on a monitor with high brightness in a darkened room. Bright Mode is preferable
+  for screenshots and exports that will appear on white paper.
+</div>
+
+<!-- ─── 3. FILE MENU ──────────────────────────────────────────── -->
+<h2 id="file">3. File Menu</h2>
+<p>
+  The <strong>File</strong> menu contains all project file operations.
+</p>
+
+<div class="menu-panel">
+  <div class="menu-item"><span>New</span><span class="menu-accel">Ctrl+N</span></div>
+  <div class="menu-item"><span>Open</span><span class="menu-accel">Ctrl+O</span></div>
+  <div class="menu-item"><span>Save</span><span class="menu-accel">Ctrl+S</span></div>
+  <hr class="menu-sep">
+  <div class="menu-item"><span>Exit</span><span class="menu-accel">Ctrl+Q</span></div>
+</div>
+
+<table>
+  <thead><tr><th>Item</th><th>Shortcut</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>New</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>N</kbd></td>
+      <td>Resets the entire project to a blank state — clears the current pass design, simulation results, and all configuration. Prompts for confirmation if unsaved changes are present.</td>
+    </tr>
+    <tr>
+      <td>Open</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>O</kbd></td>
+      <td>Opens a system file dialog to load a previously saved PyRoll project file (<code>.json</code>). All pass design, engine configuration, simulation settings, and results are restored.</td>
+    </tr>
+    <tr>
+      <td>Save</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>S</kbd></td>
+      <td>Saves the current project (pass design, engine configuration, In-Profile, settings, and simulation results) to a <code>.json</code> file. Opens a save dialog on first save.</td>
+    </tr>
+    <tr>
+      <td>Exit</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Q</kbd></td>
+      <td>Closes the application. The Python backend process is shut down automatically.</td>
+    </tr>
+  </tbody>
+</table>
+<div class="info">
+  Project files saved with <strong>Save</strong> include the full simulation results.
+  When the file is reopened with <strong>Open</strong>, all results tabs are immediately
+  populated — no re-simulation required.
+</div>
+
+<!-- ─── 4. EDIT MENU ──────────────────────────────────────────── -->
+<h2 id="edit">4. Edit Menu</h2>
+<p>
+  The <strong>Edit</strong> menu provides standard text editing operations for
+  input fields within the application.
+</p>
+
+<div class="menu-panel">
+  <div class="menu-item"><span>Undo</span><span class="menu-accel">Ctrl+Z</span></div>
+  <div class="menu-item"><span>Redo</span><span class="menu-accel">Ctrl+Y</span></div>
+  <hr class="menu-sep">
+  <div class="menu-item"><span>Cut</span><span class="menu-accel">Ctrl+X</span></div>
+  <div class="menu-item"><span>Copy</span><span class="menu-accel">Ctrl+C</span></div>
+  <div class="menu-item"><span>Paste</span><span class="menu-accel">Ctrl+V</span></div>
+</div>
+
+<table>
+  <thead><tr><th>Item</th><th>Shortcut</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Undo</td><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undoes the last text edit in the focused input field.</td></tr>
+    <tr><td>Redo</td><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Re-applies the last undone text edit.</td></tr>
+    <tr><td>Cut</td><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>X</kbd></td><td>Cuts the selected text from the focused input field to the clipboard.</td></tr>
+    <tr><td>Copy</td><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Copies the selected text to the clipboard.</td></tr>
+    <tr><td>Paste</td><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>Pastes text from the clipboard into the focused input field.</td></tr>
+  </tbody>
+</table>
+
+<!-- ─── 5. VIEW MENU ──────────────────────────────────────────── -->
+<h2 id="view">5. View Menu</h2>
+<p>
+  The <strong>View</strong> menu controls the display scale of the application window
+  and provides access to the theme toggle and developer tools.
+</p>
+
+<div class="menu-panel">
+  <div class="menu-item"><span>Zoom In</span><span class="menu-accel">Ctrl+=</span></div>
+  <div class="menu-item"><span>Zoom Out</span><span class="menu-accel">Ctrl+−</span></div>
+  <div class="menu-item"><span>Reset Zoom</span><span class="menu-accel">Ctrl+0</span></div>
+  <hr class="menu-sep">
+  <div class="menu-item"><span>Fullscreen</span><span class="menu-accel">F11</span></div>
+  <div class="menu-item"><span>Developer Tools</span><span class="menu-accel">F12</span></div>
+  <hr class="menu-sep">
+  <div class="menu-item"><span>Dark Mode</span><span class="menu-accel">Ctrl+Shift+D</span></div>
+</div>
+
+<table>
+  <thead><tr><th>Item</th><th>Shortcut</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Zoom In</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>=</kbd></td>
+      <td>Increases the UI scale by 10 % per step. Maximum zoom: 300 %. Also works with <kbd>Ctrl</kbd>+<kbd>+</kbd> on most keyboard layouts.</td>
+    </tr>
+    <tr>
+      <td>Zoom Out</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>−</kbd></td>
+      <td>Decreases the UI scale by 10 % per step. Minimum zoom: 25 %.</td>
+    </tr>
+    <tr>
+      <td>Reset Zoom</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>0</kbd></td>
+      <td>Resets the UI scale to 100 % (default).</td>
+    </tr>
+    <tr>
+      <td>Fullscreen</td>
+      <td class="shortcut-col"><kbd>F11</kbd></td>
+      <td>Toggles fullscreen mode. The menu bar is hidden in fullscreen; press <kbd>F11</kbd> again or <kbd>Esc</kbd> to exit.</td>
+    </tr>
+    <tr>
+      <td>Developer Tools</td>
+      <td class="shortcut-col"><kbd>F12</kbd></td>
+      <td>Opens the Chromium DevTools panel for debugging the web UI. Intended for developers.</td>
+    </tr>
+    <tr>
+      <td>Dark Mode</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></td>
+      <td>Toggles between Bright and Dark colour theme. The menu item shows a checkmark (✓) when Dark Mode is active.</td>
+    </tr>
+  </tbody>
+</table>
+<div class="tip">
+  Zoom In / Zoom Out is particularly useful on high-DPI screens where the default
+  100 % scale may render text too small. The zoom level affects only the application
+  display — exported files are always at full resolution.
+</div>
+
+<!-- ─── 6. WINDOW MENU ────────────────────────────────────────── -->
+<h2 id="window">6. Window Menu</h2>
+<p>
+  The <strong>Window</strong> menu provides basic window management actions.
+</p>
+
+<div class="menu-panel">
+  <div class="menu-item"><span>Minimize</span><span class="menu-accel">Ctrl+M</span></div>
+  <div class="menu-item"><span>Close</span><span class="menu-accel">Ctrl+W</span></div>
+</div>
+
+<table>
+  <thead><tr><th>Item</th><th>Shortcut</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Minimize</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>M</kbd></td>
+      <td>Minimizes the main window to the taskbar. The backend continues running in the background.</td>
+    </tr>
+    <tr>
+      <td>Close</td>
+      <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>W</kbd></td>
+      <td>Closes the main window and shuts down the application including the Python backend.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ─── 7. HELP MENU ──────────────────────────────────────────── -->
+<h2 id="help">7. Help Menu</h2>
+<p>
+  The <strong>Help</strong> menu provides access to application information, the online
+  PyRoll documentation, all built-in guide documents, and method reference documents.
+  Guide and method documents open in a separate window.
+</p>
+
+<div class="menu-panel">
+  <div class="menu-item"><span>Description</span></div>
+  <div class="menu-item"><span>About</span></div>
+  <div class="menu-item"><span>Authors</span></div>
+  <hr class="menu-sep">
+  <div class="menu-item"><span>PyRoll Documentation ↗</span></div>
+  <hr class="menu-sep">
+  <div class="menu-item has-sub"><span>Guides</span></div>
+  <div class="menu-item has-sub"><span>Methods</span></div>
+</div>
+
+<h3 id="help-info">7.1 Description, About &amp; Authors</h3>
+
+<table>
+  <thead><tr><th>Item</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Description</td>
+      <td>Shows a brief text description of the PyRoll WebGUI application in a dialog box.</td>
+    </tr>
+    <tr>
+      <td>About</td>
+      <td>
+        Displays detailed version information in a dialog:
+        <ul style="margin:0.3em 0 0 1em;">
+          <li>PyRoll WebGUI version and release date</li>
+          <li>PyRolL-Core version (from the active Python environment)</li>
+          <li>Electron, Chromium and Node.js versions</li>
+          <li>Python version (fetched live from the running backend)</li>
+          <li>Operating system platform and architecture</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Authors</td>
+      <td>Shows the author information for the application.</td>
+    </tr>
+    <tr>
+      <td>PyRoll Documentation ↗</td>
+      <td>Opens the official PyRoll documentation at <code>pyroll.readthedocs.io</code> in the system default web browser.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="help-guides">7.2 Guides Submenu</h3>
+<p>
+  The <strong>Guides</strong> submenu opens the built-in HTML guide documents, each in
+  its own separate window. Guides cover the main workflow tabs of the application.
+</p>
+
+<div class="menu-sub-wrapper">
+  <div class="menu-sub-panel">
+    <div class="menu-item"><span>In Profile Guide</span></div>
+    <div class="menu-item"><span>Pass Design Guide</span></div>
+    <div class="menu-item"><span>Engine Configuration Guide</span></div>
+    <div class="menu-item"><span>Groove Library Guide</span></div>
+    <hr class="menu-sep">
+    <div class="menu-item"><span>Results Guide</span></div>
+    <div class="menu-item"><span>Pass Plots Guide</span></div>
+    <div class="menu-item"><span>Overall Plots Guide</span></div>
+  </div>
+</div>
+
+<table>
+  <thead><tr><th>Guide</th><th>Tab</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>In Profile Guide</td>
+      <td>In Profile</td>
+      <td>Setting up the initial billet geometry, selecting steel grade, temperature, and loading profiles from the library or XML.</td>
+    </tr>
+    <tr>
+      <td>Pass Design Guide</td>
+      <td>Pass Design</td>
+      <td>Creating and editing roll passes, configuring groove geometry, pass sequences, and using the pass design library.</td>
+    </tr>
+    <tr>
+      <td>Engine Configuration Guide</td>
+      <td>Engine Configuration</td>
+      <td>Defining drive motors, assigning stands to engines, reviewing utilisation diagrams, and using the engine library.</td>
+    </tr>
+    <tr>
+      <td>Groove Library Guide</td>
+      <td>Groove Library</td>
+      <td>Browsing and filtering the groove geometry library, visualising groove profiles, and loading grooves into the pass design.</td>
+    </tr>
+    <tr>
+      <td>Results Guide</td>
+      <td>Results</td>
+      <td>Reading the roll pass results table, engine evaluation, result plots, and exporting results.</td>
+    </tr>
+    <tr>
+      <td>Pass Plots Guide</td>
+      <td>Pass Plots</td>
+      <td>Per-pass roll pass visualization, temperature profile plot, interactive profiles animation, DXF export.</td>
+    </tr>
+    <tr>
+      <td>Overall Plots Guide</td>
+      <td>Overall Plots</td>
+      <td>Cross-section evolution 3D chart, all-pass roll pass plots, pass profile overview, and result export.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="help-methods">7.3 Methods Submenu</h3>
+<p>
+  The <strong>Methods</strong> submenu opens technical reference documents for the
+  simulation methods and special models implemented in PyRoll WebGUI.
+</p>
+
+<div class="menu-sub-wrapper">
+  <div class="menu-sub-panel">
+    <div class="menu-item"><span>Interstand Tensions</span></div>
+    <div class="menu-item"><span>Asymmetric Roll Pass</span></div>
+    <div class="menu-item"><span>Flat Rolling Edge Deformation</span></div>
+  </div>
+</div>
+
+<table>
+  <thead><tr><th>Document</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Interstand Tensions</td>
+      <td>Explains the interstand tension model used when tension between consecutive stands is defined. Covers the theoretical background, input parameters, and result interpretation.</td>
+    </tr>
+    <tr>
+      <td>Asymmetric Roll Pass</td>
+      <td>Documents the asymmetric rolling model — passes where the upper and lower rolls have different speeds or radii. Covers sub-pass results, pillar plots, and limitations.</td>
+    </tr>
+    <tr>
+      <td>Flat Rolling Edge Deformation</td>
+      <td>Describes the Siebel criterion for edge deformation in flat rolling passes. Covers the dog-bone profile prediction and the conditions under which it applies.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ─── 8. KEYBOARD SHORTCUTS ────────────────────────────────── -->
+<h2 id="shortcuts">8. Keyboard Shortcuts Reference</h2>
+<p>A complete overview of all keyboard shortcuts available in PyRoll WebGUI:</p>
+
+<table>
+  <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>New project</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Open project file</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Save project</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>Exit application</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo (text input)</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Redo (text input)</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>X</kbd></td><td>Cut</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Copy</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>Paste</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>=</kbd> / <kbd>Ctrl</kbd>+<kbd>+</kbd></td><td>Zoom in</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>−</kbd></td><td>Zoom out</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>0</kbd></td><td>Reset zoom to 100 %</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></td><td>Toggle Dark / Bright Mode</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>M</kbd></td><td>Minimize window</td></tr>
+    <tr><td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>W</kbd></td><td>Close window</td></tr>
+    <tr><td class="shortcut-col"><kbd>F11</kbd></td><td>Toggle fullscreen</td></tr>
+    <tr><td class="shortcut-col"><kbd>F12</kbd></td><td>Toggle Developer Tools</td></tr>
+  </tbody>
+</table>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Application Menu Guide</p>
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+
+</body>
+</html>

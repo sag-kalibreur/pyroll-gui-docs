@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Asymmetric Roll Pass – Method &amp; Results</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  h4 { color: #333; margin-top: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; }
+  .info  { background: rgba(0,84,153,0.07);  border: 1px solid rgba(0,84,153,0.25);  border-radius: 4px; padding: 10px 14px; color: #003f73; }
+  .img-placeholder { background: #f0f0f0; border: 2px dashed #aaa; border-radius: 6px; padding: 30px; text-align: center; color: #777; font-style: italic; margin: 1.2em 0; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  .tag-avg   { color: #005499; font-weight: 600; }
+  .tag-lendl { color: #c06000; font-weight: 600; }
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+</style>
+</head>
+<body>
+
+<h1>Asymmetric Roll Pass – Method &amp; Results <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: May 2026</em></p>
+
+<hr>
+
+<h2>1. What is an Asymmetric Roll Pass?</h2>
+<p>
+  An <strong>Asymmetric Roll Pass (AsymmetricRollPass)</strong> uses two rolls with
+  <em>different groove geometries</em> (upper and lower). A typical example is the
+  asymmetric entry pass of a rolling line where one side has a shaped groove (e.g.
+  SplineGroove) and the other side is flat (FlatGroove). The asymmetry produces an
+  unsymmetric cross-section and an offset neutral axis.
+</p>
+<p>
+  PyRolL Core does not natively support asymmetric roll passes. The PyRoll GUI
+  implements a dedicated simulation strategy for this case, described in the
+  following sections.
+</p>
+
+<hr>
+
+<h2>2. Simulation Strategy</h2>
+
+<h3>2.1 Two Symmetric Sub-Passes</h3>
+<p>
+  The asymmetric pass is decomposed into <strong>two independent symmetric
+  TwoRollPasses</strong>:
+</p>
+<ul>
+  <li><strong>Upper sub-pass</strong>: both rolls use the <em>upper groove</em> geometry.</li>
+  <li><strong>Lower sub-pass</strong>: both rolls use the <em>lower groove</em> geometry.</li>
+</ul>
+<p>
+  Both sub-passes share the same gap, nominal roll radius, velocity and inlet profile.
+  Each is solved independently by the PyRolL simulation kernel. The sub-passes are
+  shown as separate entries in the results table
+  (flagged internally as <code>is_sub_pass: true</code>) for transparency.
+</p>
+
+<img src="img/asym_subpass_upper.png" alt="Roll Pass Visualization – Upper Sub-Pass (symmetric, upper groove on both sides)" style="max-width:48%;border-radius:6px;margin:1.2em 0.5% 1.2em 0;display:inline-block;vertical-align:top;">
+<img src="img/asym_subpass_lower.png" alt="Roll Pass Visualization – Lower Sub-Pass (symmetric, lower groove on both sides)" style="max-width:48%;border-radius:6px;margin:1.2em 0 1.2em 0.5%;display:inline-block;vertical-align:top;">
+
+<h3>2.2 Averaged Process Parameters</h3>
+<p>
+  All scalar process parameters for the <em>combined</em> AsymmetricRollPass result
+  are computed as the <strong>arithmetic mean of the two sub-passes</strong>:
+</p>
+<table>
+  <tr><th>Quantity</th><th>Symbol</th><th>Source</th></tr>
+  <tr><td>Roll force</td><td>\(F\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Roll torque</td><td>\(M\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Power</td><td>\(P\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Exit velocity</td><td>\(v\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Working radius</td><td>\(r_w\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Roll RPM</td><td>\(n\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Bite angle</td><td>\(\alpha\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Exit temperature</td><td>\(T_{out}\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Core temperature</td><td>\(T_{core}\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Surface temperature</td><td>\(T_{surf}\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Exit strain</td><td>\(\varepsilon\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Flow stress</td><td>\(k_f\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+  <tr><td>Filling ratio</td><td>\(\varphi_{fill}\)</td><td class="tag-avg">avg(upper, lower)</td></tr>
+</table>
+<p>
+  The individual per-roll values (force_upper, force_lower, torque_upper, torque_lower,
+  velocity_upper, velocity_lower, etc.) are also stored and can be displayed in the
+  results table for detailed inspection.
+</p>
+
+<h3>2.3 Geometric Cross-Section: Lendl Pillar Method</h3>
+<p>
+  The averaged scalars cannot describe the <em>shape</em> of the asymmetric exit
+  cross-section. For this, the <strong>Lendl pillar method</strong> is used.
+</p>
+<div class="info">
+  ℹ The LendlAnalyser is fully embedded in the PyRoll GUI backend — it does not
+  depend on the optional <code>pyroll-pillar-model</code> plugin.
+</div>
+
+<hr>
+
+<h2>3. Lendl Pillar Analysis</h2>
+
+<h3>3.1 Pillar Discretisation</h3>
+<p>
+  The inlet cross-section is discretised into \(N = 50\) vertical pillars of equal
+  width \(\Delta x\) spanning the half-width of the profile. Each pillar \(i\) has:
+</p>
+<div class="formula-box">
+  \[
+    x_i = \left(i - \tfrac{1}{2}\right) \Delta x, \quad
+    \Delta x = \frac{x_{\max}}{N}
+  \]
+</div>
+<p>
+  The inlet height of each pillar is read from the cross-section polygon by
+  intersecting a vertical line at \(x_i\) with the profile boundary.
+</p>
+
+<h3>3.2 Roll Gap Height per Pillar</h3>
+<p>
+  The gap height between the upper and lower roll contour at pillar position \(x_i\)
+  is computed from the groove contour lines. Pillars are flagged as
+  <em>in contact</em> if their inlet height exceeds the local roll gap height.
+</p>
+<div class="formula-box">
+  \[
+    h_{\text{gap},i} = y_{\text{upper}}(x_i) - y_{\text{lower}}(x_i)
+  \]
+  \[
+    \text{contact}_i = h_{\text{in},i} > h_{\text{gap},i}
+  \]
+</div>
+
+<h3>3.3 Spreading (Pawelski 2000)</h3>
+<p>
+  The lateral spread of each pillar is computed according to Pawelski (2000), using
+  the equivalent width-to-height ratio of the entire cross-section to select the
+  coefficient set:
+</p>
+<div class="formula-box">
+  \[
+    \lambda_{\text{spread},i} = 1 + b_1
+      \left(\frac{\Delta h_i}{h_{eq}}\right)^{b_2}
+      \left(\frac{l_{c,i}}{w_{eq}}\right)^{b_3}
+      \left(\frac{h_{eq}}{w_{eq}}\right)^{b_4}
+  \]
+</div>
+<p>
+  where \(\Delta h_i\) is the draught of pillar \(i\), \(l_{c,i}\) is its contact
+  length, and \(h_{eq}\), \(w_{eq}\) are the equivalent height and width of the
+  inlet cross-section. The coefficients \(b_1 \ldots b_4\) depend on the
+  width-to-height ratio:
+</p>
+<table>
+  <tr><th>Ratio \(w/h\)</th><th>\(b_1\)</th><th>\(b_2\)</th><th>\(b_3\)</th><th>\(b_4\)</th></tr>
+  <tr><td>\(w/h &lt; 1\)</td><td>1.240</td><td>1.626</td><td>0.788</td><td>−0.056</td></tr>
+  <tr><td>\(w/h = 1\)</td><td>0.312</td><td>0.866</td><td>0.892</td><td>19.946</td></tr>
+  <tr><td>\(w/h &gt; 1\)</td><td>0.496</td><td>1.025</td><td>1.142</td><td>1.166</td></tr>
+</table>
+
+<h3>3.4 Contact Length per Pillar</h3>
+<div class="formula-box">
+  \[
+    l_{c,i} = \sqrt{\frac{r_u \cdot r_l}{r_u + r_l} \cdot \Delta h_i}
+  \]
+</div>
+<p>
+  where \(r_u\), \(r_l\) are the local roll radii derived from the nominal radius
+  and pillar draught.
+</p>
+
+<h3>3.5 Output Cross-Section Reconstruction</h3>
+<p>
+  The output pillar widths are \(w_{\text{out},i} = w_{\text{in},i} \cdot \lambda_{\text{spread},i}\).
+  The output cross-section polygon is built by:
+</p>
+<ul>
+  <li>computing cumulative output pillar boundaries from the centre outward;</li>
+  <li>reading the upper and lower y-coordinates of the exit groove contours at the
+      new pillar positions;</li>
+  <li>assembling a closed polygon from upper-right → upper-left → lower-left →
+      lower-right vertices, mirrored about the y-axis for the left half.</li>
+</ul>
+<p>
+  The resulting polygon represents the asymmetric exit cross-section in the
+  <em>pass coordinate frame</em> (x = spread direction, y = closing direction).
+</p>
+
+<h3>3.6 Symmetric Sub-Analyses</h3>
+<p>
+  In addition to the combined asymmetric analysis, two <strong>symmetric
+  sub-analyses</strong> are run with the same Lendl method:
+</p>
+<ul>
+  <li><strong>Upper-symmetric</strong>: upper groove on both sides.</li>
+  <li><strong>Lower-symmetric</strong>: lower groove on both sides.</li>
+</ul>
+<p>
+  These are hypothetical analyses (the gap geometry differs from the true asymmetric
+  pass) that isolate the contribution of each groove to the spreading behaviour.
+  Their output cross-sections and per-pillar spreading/elongation curves are shown
+  in the Pillar-Fill Plot and Pillar-Chart for qualitative comparison.
+</p>
+
+<img src="img/asym_pillar_cs_symmetric.png" alt="Lendl Pillar Cross-Section – Symmetric Sub-Analyses (Upper / Lower)" style="max-width:100%;border-radius:6px;margin:1.2em 0;display:block;">
+<img src="img/asym_pillar_cs_combined.png" alt="Lendl Cross-Section – Combined (Lendl out-profile + spreading)" style="max-width:100%;border-radius:6px;margin:1.2em 0;display:block;">
+<img src="img/asym_pillar_elongation_symmetric.png" alt="Pillar Elongation – Upper vs. Lower Groove (Symmetric Sub-Analysis)" style="max-width:100%;border-radius:6px;margin:1.2em 0;display:block;">
+
+<hr>
+
+<h2>4. Coordinate Frame and Orientation</h2>
+<p>
+  The AsymmetricRollPass is typically used as a <strong>vertical pass</strong>
+  (rolls arranged horizontally, closing direction = horizontal = x-axis in world frame).
+  An <code>_orientation_delta</code> value (in degrees) tracks the total rotation
+  applied to the inlet profile relative to the global horizontal frame.
+</p>
+
+<h3>4.1 Pass Frame vs. World Frame</h3>
+<table>
+  <tr><th>Frame</th><th>x-axis</th><th>y-axis</th></tr>
+  <tr><td><strong>Pass frame</strong></td><td>Spread direction (pillar positions)</td><td>Closing direction (groove depth)</td></tr>
+  <tr><td><strong>World frame</strong> (horizontal pass)</td><td>Width (spread)</td><td>Height (closing)</td></tr>
+  <tr><td><strong>World frame</strong> (vertical pass, δ = 90°)</td><td>Height (closing)</td><td>Width (spread)</td></tr>
+</table>
+
+<h3>4.2 Contour Data Used by Each Plot</h3>
+<table>
+  <tr><th>Field</th><th>Frame</th><th>Used by</th></tr>
+  <tr><td><code>out_profile_contour</code></td><td>Pass frame rotated +δ (technological display)</td><td>OutProfilePlot, Roll Pass Result Plot</td></tr>
+  <tr><td><code>out_profile_cross_section_coords</code></td><td>World frame (rotated −δ)</td><td>Next sequence in_profile, 3D Evolution Plot</td></tr>
+  <tr><td><code>pillar_data.*</code></td><td>Pass frame (unrotated)</td><td>PillarFillPlot, PillarChart</td></tr>
+</table>
+
+<hr>
+
+<h2>5. Results Overview</h2>
+
+<h3>5.1 Combined AsymmetricRollPass Result</h3>
+<p>
+  The main result entry (type = <code>AsymmetricRollPass</code>) contains:
+</p>
+<ul>
+  <li><strong>Geometry</strong>: in/out height, width, cross-section area, reduction — from the Lendl exit cross-section in world frame. <span class="tag-lendl">(Lendl)</span></li>
+  <li><strong>Process scalars</strong>: force, torque, power, velocity, RPM, bite angle, filling ratio — arithmetic mean of both sub-passes. <span class="tag-avg">(averaged)</span></li>
+  <li><strong>Temperatures</strong>: exit mean, core, surface temperature — averaged from both sub-passes. <span class="tag-avg">(averaged)</span></li>
+  <li><strong>Strain / flow stress</strong>: averaged from both sub-passes. <span class="tag-avg">(averaged)</span></li>
+  <li><strong>Profile contours</strong>: in_profile_contour (inlet polygon), out_profile_contour (Lendl exit polygon). <span class="tag-lendl">(Lendl)</span></li>
+  <li><strong>Roll contours</strong>: upper and lower groove contour lines, rotated to technological display frame.</li>
+  <li><strong>Pillar data</strong>: full pillar arrays for front-end visualisation (see Section 6).</li>
+  <li><strong>Per-roll values</strong>: force_upper, force_lower, torque_upper, torque_lower, velocity_upper, velocity_lower (stored individually for transparency).</li>
+</ul>
+
+<h3>5.2 Sub-Pass Results</h3>
+<p>
+  The two symmetric sub-pass results (<code>is_sub_pass: true</code>) are stored as
+  separate entries in the pass list and contain the full PyRolL output for each
+  symmetric simulation (geometry, temperatures, force, torque, contours, ring
+  temperatures). They are used for the Roll Pass Visualization of each sub-pass.
+</p>
+
+<img src="img/asym_roll_pass_result_plot.png" alt="Roll Pass Result Plot – Combined AsymmetricRollPass" style="max-width:100%;border-radius:6px;margin:1.2em 0;display:block;">
+
+<hr>
+
+<h2>6. Visualisation Plots</h2>
+
+<h3>6.1 Roll Pass Visualization</h3>
+<p>
+  Shown in the <em>Pass Design</em> tab. Displays the upper and lower groove contour
+  lines with the inlet and outlet profile overlaid. For an AsymmetricRollPass the
+  upper and lower roll contours differ visibly.
+</p>
+
+<h3>6.2 Roll Pass Result Plot (Pass Plots / Overall Plots tabs)</h3>
+<p>
+  Shows the combined result: roll contours (black), inlet profile (blue) and exit
+  profile (red) in the technological display frame. The asymmetric exit shape
+  produced by the Lendl analyser is clearly visible — one side follows the shaped
+  groove, the other side is flatter or differently contoured.
+</p>
+
+<h3>6.3 Pillar Fill Plot</h3>
+<p>
+  Two panels side by side:
+</p>
+<ul>
+  <li><strong>Left – Symmetric Sub-Analyses</strong>: the upper half of the upper-symmetric
+      exit cross-section and the lower half of the lower-symmetric exit cross-section,
+      overlaid on the inlet profile. Qualitatively shows the different spreading
+      contribution from each groove.</li>
+  <li><strong>Right – Combined Lendl (Asymmetric)</strong>: inlet cross-section (blue outline)
+      and the combined asymmetric exit cross-section with the lateral spreading areas
+      highlighted (yellow fill). Groove contour lines are shown clipped to the pillar
+      x-range.</li>
+</ul>
+
+<img src="img/asym_pillar_cs_symmetric.png" alt="Pillar Fill Plot – Symmetric Sub-Analyses (Upper / Lower)" style="max-width:48%;border-radius:6px;margin:1.2em 0.5% 1.2em 0;display:inline-block;vertical-align:top;">
+<img src="img/asym_pillar_cs_combined.png" alt="Pillar Fill Plot – Combined Lendl Cross-Section" style="max-width:48%;border-radius:6px;margin:1.2em 0 1.2em 0.5%;display:inline-block;vertical-align:top;">
+
+<h3>6.4 Pillar Chart (Elongation &amp; Spreading)</h3>
+<p>
+  Per-pillar charts showing:
+</p>
+<ul>
+  <li><strong>Spreading factor \(\lambda_{spread}\)</strong> vs. pillar position — for upper-sym, lower-sym, and combined.</li>
+  <li><strong>Elongation factor \(\lambda_{elong}\)</strong> vs. pillar position — same three curves.</li>
+</ul>
+<p>
+  Pillars not in contact (draught = 0) have \(\lambda_{spread} = 1\) and
+  \(\lambda_{elong} = 1\). The asymmetry between upper and lower groove is reflected
+  in the different spreading profiles of the two sub-analyses.
+</p>
+
+<img src="img/asym_pillar_elongation_chart.png" alt="Pillar Chart – spreading and elongation per pillar position" style="max-width:100%;border-radius:6px;margin:1.2em 0;display:block;">
+
+<h3>6.5 Out Profile Plot (Pass Design tab)</h3>
+<p>
+  Shows the Lendl exit cross-section after the last pass of each sequence.
+  For a sequence following an AsymmetricRollPass, the profile is automatically
+  x-mirrored in the display to match the technological orientation convention
+  (curved side on the left).
+</p>
+
+<h3>6.6 3D Cross-Section Evolution Plot</h3>
+<p>
+  Displays the cross-section evolution along the pass sequence in 3D. For the
+  AsymmetricRollPass the x-coordinates of the displayed cross-section are
+  negated (mirror in x) so that the curved side appears consistently on the
+  left in all sequences. The raw Lendl geometry is stored in world frame;
+  the 3D plot applies this mirror internally.
+</p>
+
+<img src="img/asym_3d_cs_evolution.png" alt="3D Cross-Section Evolution Plot" style="max-width:100%;border-radius:6px;margin:1.2em 0;display:block;">
+
+<hr>
+
+<h2>7. Multi-Sequence Workflow</h2>
+<p>
+  When an AsymmetricRollPass is the last pass of a sequence, its exit cross-section
+  (<code>out_profile_cross_section_coords</code>) is automatically carried forward
+  as the inlet profile for the next sequence. The coordinate transformation applied:
+</p>
+<ul>
+  <li>Lendl output is in <em>pass frame</em>.</li>
+  <li>Rotated by <strong>\(-\delta\) (negative orientation_delta)</strong> → world frame.</li>
+  <li>Stored as <code>out_profile_cross_section_coords</code> and fed to the next
+      sequence via <code>helpers.create_initial_profile()</code>.</li>
+</ul>
+<p>
+  In the next sequence all pass result plots apply an automatic
+  <strong>x-mirror correction</strong> (<code>display_mirror_x = true</code>) so
+  that 2D contour displays show the correct left/right orientation.
+</p>
+
+<hr>
+
+<h2>8. Approximation Notes</h2>
+<div class="warn">
+  ⚠ <strong>Symmetric sub-pass approximation:</strong> Each sub-pass is simulated
+  with the <em>same groove on both rolls</em>. The true asymmetric boundary condition
+  (different upper and lower groove contact simultaneously) is not solved by PyRolL
+  Core. The averaged scalars are therefore an approximation — they are most accurate
+  when the two grooves have similar depths and contact geometries.
+</div>
+<div class="warn" style="margin-top:0.8em;">
+  ⚠ <strong>Lendl geometry approximation:</strong> The Lendl pillar model assumes
+  independent lateral spreading of each vertical strip. Longitudinal coupling between
+  adjacent pillars (e.g. near groove flanks) is not modelled. For highly asymmetric
+  grooves or large lateral spread gradients the predicted cross-section shape may
+  deviate from the real geometry.
+</div>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – AsymmetricRollPass Method Documentation</p>
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+</body>
+</html>

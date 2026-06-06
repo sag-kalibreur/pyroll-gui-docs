@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyRoll WebGUI – Documentation</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  a { color: #005499; text-decoration: none; }
+  a:hover { text-decoration: underline; color: #003f73; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 1em;
+  }
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 18px 20px;
+    background: #fafafa;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .card:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+    border-color: #FFDD00;
+    text-decoration: none;
+  }
+  .card-title {
+    font-weight: 600;
+    font-size: 1.0em;
+    color: #005499;
+    margin-bottom: 4px;
+  }
+  .card-desc {
+    font-size: 0.88em;
+    color: #555;
+    line-height: 1.45;
+  }
+  .card-icon {
+    font-size: 1.3em;
+    margin-bottom: 6px;
+  }
+
+  .reference-box {
+    margin-top: 2.5em;
+    border: 2px solid #FFDD00;
+    border-radius: 8px;
+    padding: 20px 24px;
+    background: #fffbe6;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .reference-box .ref-icon { font-size: 2.2em; flex-shrink: 0; }
+  .reference-box .ref-body h3 { margin: 0 0 4px 0; color: #222; font-size: 1.05em; }
+  .reference-box .ref-body p  { margin: 0; font-size: 0.9em; color: #555; }
+  .reference-box .ref-body a  { color: #005499; font-weight: 600; }
+
+  footer {
+    margin-top: 4em;
+    padding-top: 1.2em;
+    border-top: 1px solid #ddd;
+    font-size: 0.85em;
+    color: #888;
+    text-align: center;
+  }
+
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+  @media print { .scroll-nav { display: none; } }
+</style>
+</head>
+<body>
+
+<h1>
+  PyRoll WebGUI – Documentation
+  <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll Icon">
+</h1>
+
+<p>
+  Interactive HTML guides for the <strong>PyRoll WebGUI</strong> desktop application.
+  All guides open directly in your browser — no installation required.
+</p>
+
+<h2>Guides</h2>
+<div class="card-grid">
+
+  <a class="card" href="InProfile_Guide.html">
+    <div class="card-icon">📐</div>
+    <div class="card-title">In Profile Guide</div>
+    <div class="card-desc">Define the input profile geometry, steel grade, and temperature for your rolling simulation.</div>
+  </a>
+
+  <a class="card" href="PassDesign_Guide.html">
+    <div class="card-icon">🔩</div>
+    <div class="card-title">Pass Design Guide</div>
+    <div class="card-desc">Configure the roll pass sequence including groove geometry and draft reductions.</div>
+  </a>
+
+  <a class="card" href="EngineConfiguration_Guide.html">
+    <div class="card-icon">⚙️</div>
+    <div class="card-title">Engine Configuration Guide</div>
+    <div class="card-desc">Select and configure PyRoll simulation engines and manage the engine library.</div>
+  </a>
+
+  <a class="card" href="GrooveLibrary_Guide.html">
+    <div class="card-icon">📚</div>
+    <div class="card-title">Groove Library Guide</div>
+    <div class="card-desc">Browse and manage the built-in groove library including spline and standard groove types.</div>
+  </a>
+
+  <a class="card" href="Results_Guide.html">
+    <div class="card-icon">📊</div>
+    <div class="card-title">Results Guide</div>
+    <div class="card-desc">Understand simulation results, charts, tables, and export options for roll pass data.</div>
+  </a>
+
+  <a class="card" href="PassPlots_Guide.html">
+    <div class="card-icon">🖼️</div>
+    <div class="card-title">Pass Plots Guide</div>
+    <div class="card-desc">Visualize individual roll pass cross-sections, temperature profiles, and interactive plots.</div>
+  </a>
+
+  <a class="card" href="OverallPlots_Guide.html">
+    <div class="card-icon">📈</div>
+    <div class="card-title">Overall Plots Guide</div>
+    <div class="card-desc">3D cross-section evolution, roll pass overview plots, and pass profile summaries.</div>
+  </a>
+
+  <a class="card" href="ElectronMenu_Guide.html">
+    <div class="card-icon">🖥️</div>
+    <div class="card-title">Application Menu Guide</div>
+    <div class="card-desc">Overview of all application menu entries, keyboard shortcuts, and dark/bright mode switching.</div>
+  </a>
+
+</div>
+
+<h2>Methods</h2>
+<div class="card-grid">
+
+  <a class="card" href="Interstand_Tension_Method.html">
+    <div class="card-icon">🔗</div>
+    <div class="card-title">Interstand Tension</div>
+    <div class="card-desc">Mathematical background for interstand tension calculation between roll passes.</div>
+  </a>
+
+  <a class="card" href="AsymmetricRollPass_Method.html">
+    <div class="card-icon">↕️</div>
+    <div class="card-title">Asymmetric Roll Pass</div>
+    <div class="card-desc">Theory and implementation of asymmetric roll pass decomposition into sub-passes.</div>
+  </a>
+
+  <a class="card" href="FlatRolling_Siebel_Method.html">
+    <div class="card-icon">📏</div>
+    <div class="card-title">Flat Rolling – Siebel</div>
+    <div class="card-desc">Siebel friction model and roll force calculation for flat rolling passes.</div>
+  </a>
+
+</div>
+
+<div class="reference-box">
+  <div class="ref-icon">📄</div>
+  <div class="ref-body">
+    <h3>Complete Reference</h3>
+    <p>All guides and methods combined in a single self-contained document with embedded images.<br>
+    <a href="PyRoll_WebGUI_Complete_Reference.html">Open Complete Reference →</a></p>
+  </div>
+</div>
+
+<footer>Michael Molter | PyRoll WebGUI Documentation | June 2026</footer>
+
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+
+</body>
+</html>

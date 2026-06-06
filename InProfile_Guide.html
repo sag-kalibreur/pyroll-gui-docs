@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>In Profile Guide – PyRoll GUI</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  h4 { color: #333; margin-top: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; color: #222; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  td:first-child, th:first-child { white-space: nowrap; }
+  .params-table td:nth-child(2), .params-table th:nth-child(2) { white-space: nowrap; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; margin: 0.8em 0; }
+  .info  { background: rgba(0,84,153,0.07); border: 1px solid rgba(0,84,153,0.25); border-radius: 4px; padding: 10px 14px; color: #003f73; margin: 0.8em 0; }
+  .tip   { background: rgba(0,160,80,0.07); border: 1px solid rgba(0,160,80,0.3); border-radius: 4px; padding: 10px 14px; color: #064e2c; margin: 0.8em 0; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  .ui-btn { display: inline-flex; align-items: center; gap: 5px; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 5px; padding: 3px 10px; font-size: 0.88em; font-family: 'Segoe UI', Arial, sans-serif; color: #333; vertical-align: middle; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.06); pointer-events: none; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  img.screenshot { max-width: 100%; border: 1px solid #ccc; border-radius: 6px; margin: 1.2em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
+  img.screenshot-half { max-width: 55%; border: 1px solid #ccc; border-radius: 6px; margin: 1.2em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.10); display: block; }
+  nav.toc { background: #fafafa; border: 1px solid #ddd; border-radius: 6px; padding: 16px 24px; margin-bottom: 2em; }
+  nav.toc h2 { margin-top: 0; border: none; padding: 0; font-size: 1em; color: #222; }
+  nav.toc ol { margin: 0.4em 0 0 1.2em; }
+  nav.toc li { margin-bottom: 0.2em; }
+  nav.toc a { color: #005499; text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  @media print {
+    h2 { break-before: page; }
+    h2:first-of-type { break-before: auto; }
+    h3, h4 { break-after: avoid; }
+    p { orphans: 3; widows: 3; }
+    table, .formula-box, .warn, .info, .tip { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+</style>
+</head>
+<body>
+
+<h1>In Profile Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+
+<hr>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#profile-type">Profile Type</a></li>
+    <li><a href="#parameters">Profile Parameters</a></li>
+    <li><a href="#steel-grade">Steel Grade</a>
+      <ol>
+        <li><a href="#standard-grades">Built-in Steel Grades and Flow Stress Models</a></li>
+        <li><a href="#expansion">Thermal Expansion Coefficients</a></li>
+        <li><a href="#custom-grade">Custom Steel Grade</a></li>
+      </ol>
+    </li>
+    <li><a href="#converter">Cold → Hot Dimension Converter</a></li>
+    <li><a href="#visualization">Profile Visualization</a></li>
+    <li><a href="#library">In Profile Library</a></li>
+    <li><a href="#load-save">Load and Save</a></li>
+  </ol>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="overview">1. Overview</h2>
+<p>
+  The <strong>In Profile</strong> tab defines the initial workpiece that enters the rolling schedule.
+  It specifies the cross-section geometry, temperature, material properties, and all physical
+  state variables required by the PyRolL solver.
+</p>
+<p>
+  The profile configuration is saved as part of the project file (<code>Ctrl+S</code>).
+  Profiles can also be stored independently in the <strong>In Profile Library</strong>
+  for reuse across different projects.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="profile-type">2. Profile Type</h2>
+<p>
+  Select the cross-section shape from the <strong>Type</strong> drop-down at the top of the
+  Profile Configuration card. The available types are:
+</p>
+<table>
+  <tr><th>Type</th><th>Description</th><th>Defining Parameters</th></tr>
+  <tr><td><strong>Round</strong></td><td>Circular cross-section (rod, bar)</td><td>Diameter</td></tr>
+  <tr><td><strong>Square</strong></td><td>Square billet with optional corner rounding</td><td>Side length, Corner Radius</td></tr>
+  <tr><td><strong>Box</strong></td><td>Rectangular billet with optional corner rounding</td><td>Height, Width, Corner Radius</td></tr>
+  <tr><td><strong>Hexagon</strong></td><td>Regular hexagonal cross-section</td><td>Width Across Flats (SW), Corner Radius</td></tr>
+</table>
+<p>
+  Changing the type resets the dimension fields to their defaults but retains the
+  material and thermal parameters.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="parameters">3. Profile Parameters</h2>
+<p>
+  All dimensions in the Profile Configuration card are <strong>hot dimensions</strong> —
+  the actual size of the workpiece at rolling temperature.
+  Use the <a href="#converter">Cold → Hot Converter</a> to derive them from cold (room-temperature) measurements.
+</p>
+
+<img class="screenshot" src="img/inprofile_input_parameters.png" alt="Profile Configuration card — Box profile with hot dimensions">
+
+<table class="params-table">
+  <tr><th>Parameter</th><th>Unit</th><th>Description</th></tr>
+  <tr><td>Height</td><td>mm</td><td>Cross-section height at rolling temperature (Box, Square)</td></tr>
+  <tr><td>Width</td><td>mm</td><td>Cross-section width at rolling temperature (Box)</td></tr>
+  <tr><td>Diameter</td><td>mm</td><td>Diameter at rolling temperature (Round)</td></tr>
+  <tr><td>SW (Width Across Flats)</td><td>mm</td><td>Inscribed circle diameter (Hexagon)</td></tr>
+  <tr><td>Corner Radius</td><td>mm</td><td>Rounding radius at billet corners; use 0 for sharp corners</td></tr>
+  <tr><td>Temperature</td><td>°C</td><td>Initial workpiece temperature at the entry of the first pass</td></tr>
+  <tr><td>Pre Strain</td><td>—</td><td>Accumulated equivalent plastic strain before the first pass (e.g. from prior rolling or forging); use 0.01 as default</td></tr>
+  <tr><td>Density</td><td>kg/m³</td><td>Material density; auto-filled when a Steel Grade is selected</td></tr>
+  <tr><td>Specific Heat Capacity</td><td>J/(kg·K)</td><td>Auto-filled from Steel Grade selection</td></tr>
+  <tr><td>Thermal Conductivity</td><td>W/(m·K)</td><td>Auto-filled from Steel Grade selection</td></tr>
+  <tr><td>Steel Grade</td><td>—</td><td>Selects the material preset; see <a href="#steel-grade">Section 4</a></td></tr>
+</table>
+
+<p>
+  The <code>✓ Apply from Converter</code> button appears when the
+  Cold → Hot Converter has computed values. Clicking it copies the
+  converted hot dimensions into the Height / Width / Corner Radius fields.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="steel-grade">4. Steel Grade</h2>
+<p>
+  The <strong>Steel Grade</strong> selector loads a complete material preset — thermal properties,
+  density, default temperature, and a flow stress model — with a single click.
+</p>
+
+<img class="screenshot-half" src="img/inprofile_select_steel_grade.png" alt="Steel Grade selector drop-down">
+
+<h3 id="standard-grades">4.1 Built-in Steel Grades and Flow Stress Models</h3>
+<p>
+  The following steel grades are included by default. All flow stress values follow the
+  <strong>Hensel–Spittel model</strong>:
+</p>
+
+<div class="formula-box">
+  \[
+    k_f = A \cdot e^{m_1 T} \cdot \varphi^{m_2} \cdot e^{m_3/\varphi} \cdot (1 + \varphi)^{m_4 T}
+         \cdot e^{m_5 \varphi} \cdot \dot\varphi^{m_6} \cdot T^{m_7}
+         \cdot \dot\varphi^{m_8 T} \cdot \varphi^{m_9 T}
+  \]
+  <p style="margin:0.4em 0 0 0; font-size:0.93em; color:#444;">
+    where \(T\) = temperature [°C], \(\varphi\) = true strain, \(\dot\varphi\) = strain rate [s⁻¹], \(A, m_1\ldots m_9\) = material constants.
+  </p>
+</div>
+
+<table>
+  <tr>
+    <th>Steel Grade</th>
+    <th>Default Temp. [°C]</th>
+    <th>Density [kg/m³]</th>
+    <th>c<sub>p</sub> [J/(kg·K)]</th>
+    <th>λ [W/(m·K)]</th>
+  </tr>
+  <tr><td>54SiCr6</td><td>1050</td><td>7700</td><td>490</td><td>47</td></tr>
+  <tr><td>100Cr6</td><td>1150</td><td>7371.9</td><td>695</td><td>28.25</td></tr>
+  <tr><td>11SMn30</td><td>1250</td><td>7500</td><td>690</td><td>23</td></tr>
+  <tr><td>C45</td><td>1150</td><td>7850</td><td>645</td><td>23</td></tr>
+  <tr><td>BST500</td><td>1250</td><td>7500</td><td>690</td><td>23</td></tr>
+  <tr><td>C56D</td><td>1250</td><td>7400</td><td>690</td><td>27</td></tr>
+</table>
+
+<p>
+  Selecting a grade also loads the corresponding Hensel–Spittel coefficients
+  (<em>A</em>, <em>m</em>1–<em>m</em>9, Base Strain, Base Strain Rate) which the solver
+  uses to compute the flow stress at each pass.
+</p>
+
+<h3 id="expansion">4.2 Thermal Expansion Coefficients</h3>
+<p>
+  For the six built-in steel grades the Cold → Hot Converter uses tabulated expansion
+  factors derived from material characterisation data. The factors are interpolated
+  linearly between the tabulated temperatures:
+</p>
+
+<table class="params-table">
+  <tr>
+    <th>Steel Grade</th>
+    <th>800 °C</th><th>900 °C</th><th>1000 °C</th><th>1100 °C</th><th>1200 °C</th>
+  </tr>
+  <tr><td>54SiCr6</td><td>1.0109</td><td>1.0126</td><td>1.0143</td><td>1.0162</td><td>1.0182</td></tr>
+  <tr><td>100Cr6</td><td>1.0113</td><td>1.0131</td><td>1.0150</td><td>1.0170</td><td>1.0190</td></tr>
+  <tr><td>11SMn30</td><td>1.0106</td><td>1.0122</td><td>1.0139</td><td>1.0158</td><td>1.0177</td></tr>
+  <tr><td>C45</td><td>1.0108</td><td>1.0125</td><td>1.0143</td><td>1.0162</td><td>1.0182</td></tr>
+  <tr><td>BST500</td><td>1.0105</td><td>1.0122</td><td>1.0140</td><td>1.0159</td><td>1.0178</td></tr>
+  <tr><td>C56D</td><td>1.0115</td><td>1.0134</td><td>1.0153</td><td>1.0173</td><td>1.0194</td></tr>
+</table>
+
+<p>
+  For custom materials or the <em>Other</em> grade a linear approximation is used:
+</p>
+
+<div class="formula-box">
+  \[
+    f = 1 + \alpha \cdot (T_\text{hot} - T_\text{ref})
+  \]
+  <p style="margin:0.4em 0 0 0; font-size:0.93em; color:#444;">
+    \(\alpha\) = thermal expansion coefficient [×10<sup>−6</sup>/K] &nbsp;|&nbsp;
+    \(T_\text{ref}\) = 20 °C &nbsp;|&nbsp;
+    Default: \(\alpha = 12 \times 10^{-6}\,\text{K}^{-1}\)
+  </p>
+</div>
+
+<h3 id="custom-grade">4.3 Custom Steel Grade</h3>
+<p>
+  Select <strong>Other</strong> in the Steel Grade drop-down to enter a custom material.
+  The <em>Custom Steel Grade Parameters</em> panel expands below the profile card.
+</p>
+
+<img class="screenshot-half" src="img/inprofile_costum_select_steel_grade_parameters.png" alt="Custom Steel Grade Parameters panel">
+
+<table class="params-table">
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td>Material Type (Short Name)</td><td>Identifier used in the project file and results (e.g. <code>CustomSteel</code>)</td></tr>
+  <tr><td>Expansion Coefficient α [×10⁻⁶/°C]</td><td>Used in the Cold → Hot Converter for this material. Default: 12</td></tr>
+  <tr><td>A</td><td>Hensel–Spittel coefficient A (pre-factor) [Pa]</td></tr>
+  <tr><td>m1 … m9</td><td>Hensel–Spittel exponents; leave blank if not relevant for the grade</td></tr>
+  <tr><td>Base Strain</td><td>Reference strain φ₀ for normalisation. Default: 0.1</td></tr>
+  <tr><td>Base Strain Rate</td><td>Reference strain rate φ̇₀ [s⁻¹]. Default: 0.1</td></tr>
+</table>
+
+<p>
+  Click <code>Save Material</code> to store the custom grade in the local browser storage.
+  It will appear in the Steel Grade selector for future sessions.
+</p>
+
+<div class="warn">
+  Custom materials are stored in the browser's localStorage / Electron app storage.
+  They are not part of the project file and must be re-entered on a different machine.
+  Use <em>Export JSON</em> in the In Profile Library to transfer profiles including material
+  settings to another system.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="converter">5. Cold → Hot Dimension Converter</h2>
+<p>
+  The <strong>Cold → Hot Dimension Converter</strong> is a collapsible utility panel
+  (click the header to expand). It converts room-temperature (cold) dimensions to
+  hot dimensions at the specified rolling temperature, applying the thermal expansion
+  factor for the selected steel grade.
+</p>
+
+<img class="screenshot" src="img/inprofile_cold_hot_converter.png" alt="Cold → Hot Dimension Converter — Box 180×180, 11SMn30 at 1200 °C">
+
+<table class="params-table">
+  <tr><th>Input Field</th><th>Description</th></tr>
+  <tr><td>Type</td><td>Profile shape (independent of the main profile type selector)</td></tr>
+  <tr><td>Steel Grade</td><td>Material for expansion factor look-up; defaults to the currently selected grade</td></tr>
+  <tr><td>Height / Width / Corner Radius (cold)</td><td>Measured cold dimensions [mm]</td></tr>
+  <tr><td>Hot Temp. [°C]</td><td>Target rolling temperature; determines the expansion factor</td></tr>
+</table>
+
+<p>
+  The result line below the inputs shows the expansion factor and the computed hot dimensions:
+</p>
+<p style="font-family: monospace; background: #f0f0f0; padding: 6px 12px; border-radius: 4px; display: inline-block;">
+  11SMn30 | f = 1.0177 → Height: 183.19 mm &nbsp; Width: 183.19 mm &nbsp; Corner Radius: 5.09 mm
+</p>
+<p>
+  Click <code>✓ Apply from Converter</code> in the Profile Parameters card to transfer
+  these values into the Height / Width / Corner Radius fields.
+</p>
+
+<div class="info">
+  The converter runs automatically as you type — no button press is required.
+  The expansion factor is interpolated from the tabulated values for built-in grades
+  (see <a href="#expansion">Section 4.2</a>) or computed from the custom α for <em>Other</em>.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="visualization">6. Profile Visualization</h2>
+<p>
+  The <strong>Input Profile</strong> plot on the right side of the tab shows the
+  cross-section of the workpiece in real time. The plot updates whenever a dimension,
+  corner radius, or type changes.
+</p>
+
+<img class="screenshot-half" src="img/inprofile_input_profile.png" alt="Input Profile visualization — Box 183×183 mm, 11SMn30">
+
+<p>
+  The fill colour of the profile reflects the current <strong>temperature</strong>:
+</p>
+<ul>
+  <li><strong>Cold (room temperature)</strong> — grey / dark blue tones</li>
+  <li><strong>Warm / hot (&gt; 800 °C)</strong> — yellow / orange tones</li>
+  <li><strong>Very hot (&gt; 1100 °C)</strong> — bright yellow</li>
+</ul>
+<p>
+  The colour changes continuously as you adjust the Temperature field, giving an immediate
+  visual impression of the thermal state. The corner radius is also reflected in the plot —
+  sharp corners at radius = 0, fully rounded transitions at larger values.
+</p>
+
+<div class="tip">
+  The profile visualization is purely illustrative and does not affect the simulation.
+  It helps to catch obvious input errors such as swapped height/width values or
+  unrealistically small corner radii.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="library">7. In Profile Library</h2>
+<p>
+  The <strong>In Profile Library</strong> stores named profile presets for quick reuse.
+  Open it via the <span class="ui-btn">📖 Library</span> button at the top of the In Profile tab.
+</p>
+
+<img class="screenshot" src="img/inprofile_library.png" alt="In Profile Library modal with saved profiles">
+
+<h4>Saving the current profile</h4>
+<ol>
+  <li>Enter a <strong>Profile Name</strong> (required) in the top row of the library dialog.</li>
+  <li>Optionally add <strong>Tags</strong> for easier filtering later (e.g. <code>Round, C45, Ø52mm</code>).</li>
+  <li>Click <code>💾 Save</code>. The profile is added to the list immediately.</li>
+</ol>
+
+<h4>Loading a saved profile</h4>
+<ol>
+  <li>Use the <strong>Search by name or tag</strong> field to find the entry.</li>
+  <li>Click <code>Load</code> on the desired entry — the profile parameters are applied immediately.</li>
+</ol>
+
+<h4>Managing library entries</h4>
+<table>
+  <tr><th>Button</th><th>Action</th></tr>
+  <tr><td><code>✏ (pencil)</code></td><td>Rename the entry or edit its tags</td></tr>
+  <tr><td><code>⬆ (arrow)</code></td><td>Overwrite the entry with the current profile state</td></tr>
+  <tr><td><code>🗑 Delete</code></td><td>Permanently remove the entry from the library</td></tr>
+</table>
+
+<p>
+  Each entry shows its profile shape, steel grade, temperature, and the date it was saved.
+  Tags are displayed as coloured badges for quick identification.
+</p>
+
+<div class="info">
+  The library is stored locally in the browser / Electron app storage.
+  Use <strong>Export JSON</strong> and <strong>Import JSON</strong> at the bottom of the
+  dialog to back up the entire library or transfer it between machines.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="load-save">8. Load and Save</h2>
+<p>
+  The <code>📂 Load</code> and <code>💾 Save</code> buttons at the top of the In Profile
+  tab let you exchange profile data independently of the full project file.
+  Clicking either button opens a choice dialog:
+</p>
+
+<table>
+  <tr><th>Action</th><th>Options</th></tr>
+  <tr>
+    <td><code>📂 Load In Profile</code></td>
+    <td>
+      <img class="screenshot-half" src="img/inprofile_load_from_xml_or_library.png" alt="Load In Profile dialog">
+      <ul style="margin-top:0.4em">
+        <li><strong>Load from Library</strong> — opens the In Profile Library modal (see <a href="#library">Section 7</a>)</li>
+        <li><strong>Import from XML File</strong> — reads a <code>.xml</code> profile file from disk
+            (compatible with legacy PyRolL project files)</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><code>💾 Save In Profile</code></td>
+    <td>
+      <img class="screenshot-half" src="img/inprofile_save_to_xml_or_library.png" alt="Save In Profile dialog">
+      <ul style="margin-top:0.4em">
+        <li><strong>Save to Library</strong> — opens the In Profile Library modal to store with name and tags</li>
+        <li><strong>Export to XML File</strong> — saves a standalone <code>.xml</code> profile file to disk</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+<div class="info">
+  The full project (<code>Ctrl+S</code> / <code>Ctrl+O</code>) always includes the complete
+  in-profile together with all sequences. Use <em>Load / Save In Profile</em> only when you
+  want to exchange the workpiece definition independently of the pass schedule.
+</div>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – In Profile Guide</p>
+
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+</body>
+</html>

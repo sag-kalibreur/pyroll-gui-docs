@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Overall Plots Guide – PyRoll GUI</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  h4 { color: #333; margin-top: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; color: #222; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  td:first-child { white-space: nowrap; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5);  border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; margin: 0.8em 0; }
+  .info  { background: rgba(0,84,153,0.07);  border: 1px solid rgba(0,84,153,0.25);  border-radius: 4px; padding: 10px 14px; color: #003f73; margin: 0.8em 0; }
+  .tip   { background: rgba(0,160,80,0.07);  border: 1px solid rgba(0,160,80,0.3);   border-radius: 4px; padding: 10px 14px; color: #064e2c; margin: 0.8em 0; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  .ui-btn { display:inline-flex; align-items:center; gap:5px; background:#f8f9fa; border:1px solid #ced4da; border-radius:5px; padding:3px 10px; font-size:0.88em; font-family:'Segoe UI',Arial,sans-serif; color:#333; vertical-align:middle; white-space:nowrap; box-shadow:0 1px 2px rgba(0,0,0,0.06); pointer-events:none; }
+  .ui-btn-yellow  { background:#FFDD00; border-color:#c9a800; color:#222; font-weight:bold; }
+  .ui-btn-blue    { background:#4a90d9; border-color:#2a6fa8; color:#fff; font-weight:bold; }
+  .ui-btn-red     { background:#c0392b; border-color:#922b21; color:#fff; font-weight:bold; }
+  .ui-btn-orange  { background:#e67e22; border-color:#b9640e; color:#fff; font-weight:bold; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  img.screenshot       { max-width:100%; border:1px solid #ccc; border-radius:6px; margin:1.2em 0; box-shadow:0 2px 8px rgba(0,0,0,0.10); }
+  img.screenshot-half  { max-width:60%; border:1px solid #ccc; border-radius:6px; margin:1.2em 0; box-shadow:0 2px 8px rgba(0,0,0,0.10); display:block; }
+  img.screenshot-small { max-width:38%; border:1px solid #ccc; border-radius:6px; margin:1.2em 0; box-shadow:0 2px 8px rgba(0,0,0,0.10); display:block; }
+  .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:1.2em 0; }
+  .three-col img { width:100%; border:1px solid #ccc; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.10); }
+  .three-col .col-label { text-align:center; font-size:0.82em; color:#555; margin-top:4px; }
+  nav.toc { background:#fafafa; border:1px solid #ddd; border-radius:6px; padding:16px 24px; margin-bottom:2em; }
+  nav.toc h2 { margin-top:0; border:none; padding:0; font-size:1em; color:#222; }
+  nav.toc ol { margin:0.4em 0 0 1.2em; }
+  nav.toc li { margin-bottom:0.2em; }
+  nav.toc a { color:#005499; text-decoration:none; }
+  nav.toc a:hover { text-decoration:underline; }
+
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+
+  @media print {
+    h2 { break-before: page; }
+    h2:first-of-type { break-before: auto; }
+    h3, h4 { break-after: avoid; }
+    p { orphans: 3; widows: 3; }
+    table, .warn, .info, .tip { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
+</head>
+<body>
+
+<h1>Overall Plots Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+
+<hr>
+
+<!-- ─── TABLE OF CONTENTS ──────────────────────────────────── -->
+<nav class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#sim-config">Simulation Configuration</a></li>
+    <li><a href="#cs-evolution">Cross-Section Evolution 3D Plot</a>
+      <ol>
+        <li><a href="#show-sequences">Show Sequences Filter</a></li>
+        <li><a href="#cs-interaction">Chart Interaction</a></li>
+      </ol>
+    </li>
+    <li><a href="#roll-pass-plots">Roll Pass Plots (All Passes)</a>
+      <ol>
+        <li><a href="#asymmetric-roll-pass-overall">Special Case: Asymmetric Roll Pass</a></li>
+      </ol>
+    </li>
+    <li><a href="#overview-modal">Pass Profile Overview</a></li>
+    <li><a href="#save-export">Save Results &amp; Export</a>
+      <ol>
+        <li><a href="#export-formats">Export Formats</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+
+<!-- ─── 1. OVERVIEW ──────────────────────────────────────────── -->
+<h2 id="overview">1. Overview</h2>
+<p>
+  The <strong>Overall Plots</strong> tab gives a complete, sequence-level view of the
+  simulation results. While the <em>Pass Plots</em> tab focuses on one pass at a time,
+  the Overall Plots tab displays all passes simultaneously — making it the primary place
+  to evaluate the overall forming behaviour, cross-section evolution, and consistency
+  across the entire rolling sequence.
+</p>
+<p>
+  The tab combines three complementary views:
+</p>
+<ul>
+  <li>A <strong>3D Cross-Section Evolution plot</strong> showing the shape change from
+    initial billet to finished product, colour-coded by outlet temperature.</li>
+  <li>A <strong>stacked list of Roll Pass Plots</strong> — one per pass — each with its
+    own Roll Pass Results and Simulation Settings panel on the right.</li>
+  <li>A <strong>Pass Profile Overview modal</strong> providing a compact tile view of
+    all in/out profiles across the sequence.</li>
+</ul>
+<div class="info">
+  Results are available both after a completed simulation run and after
+  <strong>loading a saved project file</strong> — no re-simulation is required.
+  When a project is opened, all previously computed results are restored automatically.
+</div>
+
+<!-- ─── 2. SIMULATION CONFIGURATION ───────────────────────── -->
+<h2 id="sim-config">2. Simulation Configuration</h2>
+<p>
+  At the top of the tab, a <strong>Simulation Configuration</strong> panel summarises
+  the key parameters used during the simulation run. These values are shown for
+  traceability and are read-only in this tab.
+</p>
+
+<img class="screenshot-small" src="img/overall_plots_simulation_configuration.png" alt="Simulation Configuration panel showing Steel Grade, Spreading Model, Coulomb Friction Coefficient and Solve Method">
+
+<table>
+  <thead>
+    <tr><th>Field</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Steel Grade</td>
+      <td>Material selected in the In-Profile tab. Determines the flow stress model and temperature-dependent material properties used throughout the sequence.</td>
+    </tr>
+    <tr>
+      <td>Spreading Model</td>
+      <td>The spreading model applied to all passes (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td>
+    </tr>
+    <tr>
+      <td>Coulomb Friction Coefficient</td>
+      <td>The friction coefficient used for roll force and torque calculations in every pass.</td>
+    </tr>
+    <tr>
+      <td>Solve Method</td>
+      <td><em>Forward Solve</em> — calculates out-profile from a given gap. <em>Backward Solve</em> — determines the gap from a target out-profile height.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ─── 3. CROSS-SECTION EVOLUTION 3D ────────────────────── -->
+<h2 id="cs-evolution">3. Cross-Section Evolution 3D Plot</h2>
+<p>
+  The <strong>Cross-Section Evolution (3D)</strong> chart is an interactive 3D visualisation
+  that stacks all out-profiles of the rolling sequence along the rolling direction (y-axis),
+  creating a three-dimensional picture of how the workpiece cross-section changes from pass
+  to pass.
+</p>
+
+<img class="screenshot" src="img/overall_plots_cross_section_evolution_3d.png" alt="Cross-Section Evolution 3D plot showing all pass profiles colour-coded from hot red to cold blue along the rolling direction">
+
+<p>
+  Each profile slice in the chart corresponds to one pass. The colour of each slice
+  encodes the <strong>outlet temperature</strong> of that pass:
+</p>
+<ul>
+  <li><strong>Red / orange</strong> — high outlet temperature (early passes, less cooling)</li>
+  <li><strong>Yellow / green</strong> — intermediate temperature (mid-sequence)</li>
+  <li><strong>Blue</strong> — lower outlet temperature (finishing passes, more cooling)</li>
+</ul>
+<p>
+  A colour bar at the top left (Cold ↔ Hot) provides the reference scale. The legend
+  on the right lists every pass by name together with its outlet temperature in °C.
+  The first entry in the legend is <em>In Profile</em> — the initial billet cross-section
+  before any rolling.
+</p>
+
+<h3 id="show-sequences">3.1 Show Sequences Filter</h3>
+<p>
+  In the top-right corner of the plot area, a <strong>Show</strong> dropdown allows
+  filtering which rolling sequences are displayed:
+</p>
+<ul>
+  <li><strong>All Sequences</strong> — shows every pass in the entire sequence (default).</li>
+  <li>Individual sequence names — when the pass design contains multiple named sequences
+    (e.g. a roughing group and a finishing block), each can be shown in isolation for
+    a clearer view of that sub-sequence's cross-section evolution.</li>
+</ul>
+<div class="tip">
+  Use the sequence filter to focus on the finishing block passes when evaluating the final
+  product dimensions, without the visual clutter of the upstream roughing passes.
+</div>
+
+<h3 id="cs-interaction">3.2 Chart Interaction</h3>
+<p>
+  The 3D plot is fully interactive. A toolbar in the top-right corner of the chart provides:
+</p>
+<table>
+  <thead>
+    <tr><th>Icon</th><th>Function</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>📷 Camera</td><td>Download the current view as a PNG image.</td></tr>
+    <tr><td>🔍 Zoom</td><td>Activate zoom mode — scroll or drag to zoom in/out.</td></tr>
+    <tr><td>✚ Pan</td><td>Activate pan mode — drag to move the view.</td></tr>
+    <tr><td>↺ Reset</td><td>Reset camera to the default 3D perspective.</td></tr>
+    <tr><td>⬇ Download</td><td>Download the chart data as SVG or PNG.</td></tr>
+    <tr><td>⌂ Home</td><td>Return to the initial view angle.</td></tr>
+  </tbody>
+</table>
+<p>
+  You can also <strong>click and drag</strong> directly on the 3D plot to rotate the view,
+  and <strong>scroll</strong> to zoom. Hovering over any profile slice shows a tooltip
+  with the pass name and outlet temperature.
+</p>
+
+<!-- ─── 4. ROLL PASS PLOTS (ALL) ──────────────────────────── -->
+<h2 id="roll-pass-plots">4. Roll Pass Plots (All Passes)</h2>
+<p>
+  Below the 3D chart, a scrollable list of <strong>Roll Pass Plots</strong> shows every
+  pass in the sequence — one plot per pass, in rolling order. This is the same
+  cross-section drawing used in the Pass Plots tab, but here all passes are rendered
+  together on a single page for a direct side-by-side comparison.
+</p>
+
+<img class="screenshot" src="img/overall_plots_roll_pass_plots.png" alt="Stacked Roll Pass Plots for Pass 1 and Pass 2, each with In Profile (blue), Out Profile (red), Groove (black) and Roll Pass Results sidebar">
+
+<p>Each plot shows:</p>
+<ul>
+  <li>The pass name as a bold label above the plot (e.g. <em>Pass 1</em>, <em>Pass 2</em>).</li>
+  <li>The cross-section drawing with <strong>In Profile (blue)</strong>,
+    <strong>Out Profile (red)</strong>, and <strong>Groove Contour (black)</strong>.</li>
+  <li>To the right: a <strong>Roll Pass Results</strong> panel with all calculated values
+    for that pass (Bite Angle, profile dimensions, area, reduction, strain, velocities,
+    roll force and torque, gap ratios).</li>
+  <li>Below the results: the <strong>Simulation Settings</strong> panel (Steel Grade,
+    Spreading Model, Coulomb Friction Coefficient, Solve Method) — identical for all
+    passes since these are sequence-level settings.</li>
+</ul>
+<div class="info">
+  The Roll Pass Results values shown here are identical to those in the Results tab table
+  and in the Pass Plots tab sidebar. All three views display the same simulation data.
+</div>
+<div class="tip">
+  Scroll through the pass list to quickly identify outlier passes — for example, a pass
+  with unusually high spread ratio or an out-profile that does not fully fill the groove.
+</div>
+
+<h3 id="asymmetric-roll-pass-overall">4.1 Special Case: Asymmetric Roll Pass</h3>
+<p>
+  When the rolling sequence contains one or more <strong>AsymmetricRollPass</strong> stands,
+  those passes are automatically expanded in the list to show <strong>three plots each</strong>:
+  the combined asymmetric pass result and the two equivalent symmetric sub-passes
+  (upper and lower).
+</p>
+
+<div class="three-col">
+  <div>
+    <img src="img/pass_plots_asymmetrical_roll_pass.png" alt="Asymmetric Roll Pass combined result">
+    <div class="col-label">Asymmetric Pass (combined)</div>
+  </div>
+  <div>
+    <img src="img/pass_plots_symmetrical_upper_roll_pass.png" alt="Symmetric sub-pass upper">
+    <div class="col-label">Symmetric Sub-Pass [upper]</div>
+  </div>
+  <div>
+    <img src="img/pass_plots_symmetrical_lower_roll_pass.png" alt="Symmetric sub-pass lower">
+    <div class="col-label">Symmetric Sub-Pass [lower]</div>
+  </div>
+</div>
+
+<p>
+  Directly below the three roll pass plots, a <strong>Lendl Pillar Cross-Section</strong>
+  panel is inserted for each asymmetric pass. It shows the symmetric upper/lower
+  sub-analysis side by side with the combined Lendl out-profile and spreading zones.
+</p>
+
+<img class="screenshot" src="img/pass_plots_lendl_pillar_crosssection.png" alt="Lendl Pillar Cross-Section with Symmetric Sub-Analyses (left) and Lendl Combined Cross-Section (right)">
+
+<div class="info">
+  The same 4 screenshots (asymmetric + upper + lower + Lendl) appear identically in
+  the Pass Plots tab when that specific pass is selected. The Overall Plots tab shows
+  them inline within the full sequence list.
+</div>
+
+<!-- ─── 5. PASS PROFILE OVERVIEW ─────────────────────────── -->
+<h2 id="overview-modal">5. Pass Profile Overview</h2>
+<p>
+  The <span class="ui-btn"><img src="" style="display:none"> Overview</span> button in the
+  top action bar opens the <strong>Pass Profile Overview</strong> modal — a compact
+  tile grid showing the in/out profile geometry for every pass at a glance.
+</p>
+
+<img class="screenshot" src="img/overall_plots_pass_profile_overview_modal.png" alt="Pass Profile Overview modal with one tile per pass, each showing In Profile (blue) and Out Profile (red) in a labelled grid">
+
+<p>
+  Each tile in the grid represents one pass and shows:
+</p>
+<ul>
+  <li>A <strong>yellow header</strong> with the pass number and stand name
+    (e.g. <em>1 · Stand 1</em>, <em>9 · K1</em>).</li>
+  <li>The <strong>In Profile</strong> (blue outline) and <strong>Out Profile</strong>
+    (red filled shape) drawn to scale within the tile.</li>
+  <li>The groove contour in black where applicable.</li>
+  <li>A small legend at the bottom: <span style="color:#4a90d9">● In</span>
+    <span style="color:#c0392b">● Out</span>.</li>
+</ul>
+<p>
+  The overview is particularly useful for quickly spotting:
+</p>
+<ul>
+  <li>Passes where the out-profile overfills or underfills the groove.</li>
+  <li>Profile shape transitions (e.g. square → oval → round → hexagon).</li>
+  <li>Passes with unusually large or small reductions relative to neighbouring passes.</li>
+</ul>
+
+<h3>Export from Overview</h3>
+<p>
+  An <span class="ui-btn ui-btn-blue">📤 Export PNG</span> button in the top-right corner
+  of the modal saves the entire Pass Profile Overview grid as a single PNG image.
+  Close the modal with the <strong>✕</strong> button.
+</p>
+
+<!-- ─── 6. SAVE RESULTS & EXPORT ─────────────────────────── -->
+<h2 id="save-export">6. Save Results &amp; Export</h2>
+<p>
+  The action bar at the top of the tab contains the <strong>Save Results</strong> button
+  for exporting the full simulation results as a document.
+</p>
+
+<p>
+  Click <span class="ui-btn ui-btn-yellow">💾 Save Results</span> to open the
+  <strong>Export Results</strong> dialog.
+</p>
+
+<h3 id="export-formats">6.1 Export Formats</h3>
+
+<img class="screenshot-half" src="img/overall_plots_export_results.png" alt="Export Results dialog with Single HTML, PDF and PowerPoint format options">
+
+<table>
+  <thead>
+    <tr><th>Format</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="ui-btn ui-btn-yellow">🗒 Single HTML</span></td>
+      <td>
+        Exports a self-contained HTML report with all result tables and plots embedded.
+        Can be opened in any web browser without an internet connection.
+        Ideal for archiving or sharing results with colleagues.
+      </td>
+    </tr>
+    <tr>
+      <td><span class="ui-btn ui-btn-red">📄 PDF</span></td>
+      <td>
+        Generates a print-ready PDF document with all result tables and plots.
+        Uses the browser's built-in PDF print engine.
+        Recommended for formal documentation.
+      </td>
+    </tr>
+    <tr>
+      <td><span class="ui-btn ui-btn-orange">📊 PowerPoint</span></td>
+      <td>
+        Creates a PPTX presentation file with one slide per plot or result section.
+        Useful for embedding results directly into engineering reports or presentations.
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="info">
+  The HTML and PDF exports capture all plots as images at screen resolution. For best
+  results, ensure the application window is fully visible and not partially obscured
+  by other windows during export.
+</div>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Overall Plots Guide</p>
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Interstand Tension – Calculation Method</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; }
+  .warn { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; }
+  .info { background: rgba(0,84,153,0.07); border: 1px solid rgba(0,84,153,0.25); border-radius: 4px; padding: 10px 14px; color: #003f73; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  .sign-table td:first-child { font-weight: 600; }
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+</style>
+</head>
+<body>
+
+<h1>Interstand Tension – Calculation Method <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: May 2026</em></p>
+
+<hr>
+
+<h2>1. Convention</h2>
+<p>All tension values are expressed as a signed percentage \(z\):</p>
+<table class="sign-table">
+  <tr><th>Sign of z</th><th>Physical meaning</th></tr>
+  <tr><td>z &lt; 0</td><td>Tension (Zug) – material is being stretched between stands</td></tr>
+  <tr><td>z = 0</td><td>No interstand force (perfect volumetric flow match)</td></tr>
+  <tr><td>z &gt; 0</td><td>Compression (Staudruck) – material is being pushed/accumulated</td></tr>
+</table>
+<p>
+  The signed convention is used consistently throughout all formulas:
+  tension values are negative, compression values are positive.
+</p>
+
+<hr>
+
+<h2>2. Standard Solve</h2>
+<p>
+  The tension value is <strong>calculated automatically</strong> from the volumetric flow
+  difference between adjacent stands.
+</p>
+
+<h3>2.1 Volumetric Flow</h3>
+<div class="formula-box">
+  \[
+    \dot{V}_j = v_j \cdot A_j
+  \]
+</div>
+<p>where \(v_j\) is the exit velocity and \(A_j\) is the exit cross-section area of stand \(j\).</p>
+
+<h3>2.2 Tension Percentage (adjacent-stand reference)</h3>
+<p>
+  The tension after stand \(j\) is calculated relative to the volumetric flow of the
+  <strong>immediately following</strong> stand \(j+1\):
+</p>
+<div class="formula-box">
+  \[
+    z_j = \frac{\dot{V}_j - \dot{V}_{j+1}}{\dot{V}_{j+1}} \cdot 100\,\%
+        = \frac{v_j \cdot A_j \;-\; v_{j+1} \cdot A_{j+1}}{v_{j+1} \cdot A_{j+1}} \cdot 100\,\%
+  \]
+</div>
+<p>
+  A negative value means stand \(j\) delivers less material than stand \(j+1\) demands
+  → the strand between them is under tension (Zug).
+  The last stand always receives \(z = \text{–}\) (no downstream stand).
+</p>
+
+<hr>
+
+<h2>3. Forward Solve / Backward Solve</h2>
+<p>
+  The tension value is <strong>entered manually by the user</strong> per stand
+  (<code>tension_after_pct</code> in %). The last stand has no input field
+  ("No next pass"). No calculation is performed – the entered value is used directly.
+</p>
+
+<hr>
+
+<h2>4. Post-Processing (all three solve methods)</h2>
+<p>
+  After the tension value \(z_j\) is determined (either calculated or entered),
+  the following corrections are applied as post-processing. They do <em>not</em>
+  change the PyRoll simulation itself.
+</p>
+
+<h3>4.1 Free-Strand Dimensions</h3>
+<p>
+  Between stand \(j\) and stand \(j+1\), the material travels without tool contact.
+  Height remains essentially constant; the signed tension \(z_j\) changes the width
+  and area proportionally (tension → narrower, compression → wider):
+</p>
+<div class="formula-box">
+  \[
+    h_{\text{free},j} = h_{\text{out},j}
+  \]
+  \[
+    b_{\text{free},j} = b_{\text{out},j} \cdot \left(1 + \frac{z_j}{100}\right)
+  \]
+  \[
+    A_{\text{free},j} = A_{\text{out},j} \cdot \left(1 + \frac{z_j}{100}\right)
+  \]
+</div>
+<p>
+  For tension (\(z_j &lt; 0\)) this yields a smaller free-strand width as expected.
+  For compression (\(z_j &gt; 0\)) the free-strand is slightly wider than the roll gap exit.
+</p>
+
+<h3>4.2 Corrected Roll Force, Torque and Power</h3>
+<p>
+  Both back tension (<em>Vorzug</em>, from the previous stand) and front tension
+  (<em>Nachzug</em>, this stand's own exit tension) modify the rolling force.
+  The combined correction factor uses the <strong>signed</strong> values:
+</p>
+<div class="formula-box">
+  \[
+    k_f = \left(1 + \frac{z_{j-1}}{100}\right) \cdot \left(1 + \frac{z_j}{100}\right)
+  \]
+  \[
+    F_{\text{corr},j} = F_j \cdot k_f
+  \]
+  \[
+    M_{\text{corr},j} = M_j \cdot k_f
+  \]
+  \[
+    P_{\text{corr},j} = n_{\text{rolls}} \cdot M_{\text{corr},j} \cdot \omega_j
+  \]
+</div>
+<p>
+  If only one side has tension/compression (first or last stand), the missing factor defaults to 1.
+  For pure tension (\(z &lt; 0\)) on both sides, \(k_f &lt; 1\) → force and torque are reduced.
+</p>
+
+<h3>4.3 Example – 3 % Tension Between All Stands (3-stand mill)</h3>
+<table>
+  <tr><th>Stand</th><th>Back tension \(z_{j-1}\)</th><th>Front tension \(z_j\)</th><th>\(k_f\)</th><th>Force change</th></tr>
+  <tr><td>1</td><td>–</td><td>–3 %</td><td>\(1.000 \times 0.970 = 0.970\)</td><td>–3.0 %</td></tr>
+  <tr><td>2</td><td>–3 %</td><td>–3 %</td><td>\(0.970 \times 0.970 = 0.941\)</td><td>–5.91 %</td></tr>
+  <tr><td>3</td><td>–3 %</td><td>–</td><td>\(0.970 \times 1.000 = 0.970\)</td><td>–3.0 %</td></tr>
+</table>
+
+<hr>
+
+<h2>5. Ideal RPM (Standard Solve only)</h2>
+<p>
+  For each stand the <strong>ideal roll RPM at zero interstand tension</strong> is computed
+  using the last stand's volumetric flow as reference:
+</p>
+<div class="formula-box">
+  \[
+    \dot{V}_{\text{ref}} = v_{\text{last}} \cdot A_{\text{last}}
+  \]
+  \[
+    v_{\text{ideal},j} = \frac{\dot{V}_{\text{ref}}}{A_j}
+  \]
+  \[
+    n_{\text{ideal},j} = \frac{v_{\text{ideal},j}}{2\,\pi\,r_{\text{work},j}} \cdot 60
+  \]
+</div>
+<p>
+  This value is shown in the results table as "Roll RPM (ideal, zero tension)" and represents
+  the RPM setting that would produce zero interstand tension with the given groove geometry.
+</p>
+
+<hr>
+
+<h2>6. Finishing Block – Gear Tension</h2>
+<p>
+  For passes inside a <strong>Finishing Block</strong> (fixed gear ratio), the actual roll
+  surface velocity is set by the gear ratio and cannot be adjusted individually.
+  The resulting deviation between roll surface velocity and material exit velocity is
+  reported as <em>gear tension</em>:
+</p>
+<div class="formula-box">
+  \[
+    v_{\text{roll},j} = n_j / 60 \cdot 2\,\pi\,r_{\text{work},j}
+  \]
+  \[
+    z_{\text{gear},j} = \frac{v_{\text{mat},j} - v_{\text{roll},j}}{v_{\text{mat},j}} \cdot 100\,\%
+  \]
+</div>
+<p>
+  Corrected free-strand dimensions for block passes are computed the same way as in
+  Section 4.1, using \(z_{\text{gear},j}\) instead of the user/simulated tension.
+</p>
+
+<hr>
+
+<h2>7. Approximation Note</h2>
+<div class="warn">
+  ⚠ <strong>Approximation:</strong> All corrected dimensions, forces, torques and RPM values
+  are computed as a post-processing step <em>after</em> the PyRoll simulation has finished.
+  The modified entry width of a downstream stand caused by interstand tension is
+  <strong>not fed back</strong> into the PyRoll simulation kernel. Therefore, the simulated
+  exit dimensions (h, b, A) of stands downstream of a tensioned interstand are slightly
+  over-estimated.
+  <br><br>
+  This approximation is acceptable for typical interstand tensions up to approximately
+  5 %. For values above 10 %, a full iterative re-simulation with corrected entry
+  profiles would be required.
+</div>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI Frontend Approximation Method</p>
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+</body>
+</html>

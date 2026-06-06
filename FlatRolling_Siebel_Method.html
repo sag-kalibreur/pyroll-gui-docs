@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flat Rolling Edge Deformation – Siebel Criterion</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; }
+  .info  { background: rgba(0,84,153,0.07);  border: 1px solid rgba(0,84,153,0.25);  border-radius: 4px; padding: 10px 14px; color: #003f73; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  .zone-bulge { color: #A82323; font-weight: 600; }
+  .zone-constr { color: #0030A0; font-weight: 600; }
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+</style>
+</head>
+<body>
+
+<h1>Flat Rolling Edge Deformation – Siebel Criterion <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: May 2026</em></p>
+
+<hr>
+
+<h2>1. Introduction</h2>
+<p>
+  During flat rolling, the free lateral edges of the workpiece deform in one of two
+  characteristic ways depending on the process geometry:
+</p>
+<ul>
+  <li>
+    <span class="zone-bulge">Bulging (Ausbauchung):</span> the edges bow outward,
+    forming a convex (barrel-shaped) lateral profile. This occurs when the contact
+    arc is long relative to the strip width — the material is squeezed strongly in
+    height and forced to spread sideways.
+  </li>
+  <li>
+    <span class="zone-constr">Constriction (Einschnürung):</span> the edges cave
+    inward, forming a concave lateral profile. This is typical for wide, thin strips
+    with small reductions, where the lateral free surface is pulled inward by the
+    tensile stress state at the edges.
+  </li>
+</ul>
+<p>
+  The <strong>Siebel criterion</strong> provides a simple, geometry-based rule to
+  predict which regime applies, using only the roll radius, the draft, and the entry
+  dimensions of the workpiece.
+</p>
+
+<hr>
+
+<h2>2. Geometric Parameters</h2>
+
+<h3>2.1 Contact Arc Length</h3>
+<p>
+  The projected contact arc length \(l_D\) (Kontaktbogenlänge) is approximated as:
+</p>
+<div class="formula-box">
+  \[
+    l_D = \sqrt{R \cdot \Delta h}
+  \]
+</div>
+<p>
+  where \(R\) is the working roll radius and
+  \(\Delta h = h_0 - s\) is the draft (entry height minus roll gap \(s\)).
+</p>
+
+<h3>2.2 Dimensionless Ratios</h3>
+<p>The diagram is built from two dimensionless ratios, both normalised by the entry height \(h_0\):</p>
+<div class="formula-box">
+  \[
+    \text{x-axis:} \quad \frac{l_D}{h_0} \qquad
+    \text{y-axis:} \quad \frac{b_0}{h_0}
+  \]
+</div>
+<p>
+  Normalising by \(h_0\) (entry height) rather than mean height makes the criterion
+  independent of the reduction level for a given entry geometry.
+</p>
+
+<hr>
+
+<h2>3. Siebel Boundary Curve</h2>
+<p>
+  The boundary between the two deformation zones is a rectangular hyperbola in the
+  \((l_D/h_0,\; b_0/h_0)\) plane:
+</p>
+<div class="formula-box">
+  \[
+    \frac{b_0}{h_0} = \frac{C}{l_D / h_0}
+    \qquad \Longleftrightarrow \qquad
+    l_D \cdot b_0 = C \cdot h_0^2
+  \]
+</div>
+<p>
+  The constant \(C\) is an empirically determined material/process factor.
+  The default value used in PyRoll GUI is \(C = 0.355\) (adjustable in the diagram
+  controls).
+</p>
+
+<h3>3.1 Decision Criterion</h3>
+<p>
+  For each flat pass, the deviation from the boundary is calculated as:
+</p>
+<div class="formula-box">
+  \[
+    \Delta = \frac{b_0}{h_0} - \frac{C}{l_D / h_0}
+  \]
+</div>
+<table>
+  <tr>
+    <th>Value of \(\Delta\)</th>
+    <th>Position in diagram</th>
+    <th>Edge deformation mode</th>
+  </tr>
+  <tr>
+    <td>\(\Delta > 0\)</td>
+    <td>Above boundary curve</td>
+    <td><span class="zone-bulge">▲ Bulging (Ausbauchung)</span> — wide, flat strips</td>
+  </tr>
+  <tr>
+    <td>\(\Delta = 0\)</td>
+    <td>On the curve</td>
+    <td>Neutral — plane lateral edges</td>
+  </tr>
+  <tr>
+    <td>\(\Delta < 0\)</td>
+    <td>Below boundary curve</td>
+    <td><span class="zone-constr">▼ Constriction (Einschnürung)</span> — narrow, thick strips</td>
+  </tr>
+</table>
+<p>
+  The magnitude of \(|\Delta|\) indicates how far the operating point deviates from
+  the neutral boundary — larger values indicate a more pronounced edge deformation.
+</p>
+
+<hr>
+
+<h2>4. Diagram Interpretation</h2>
+<img src="img/flat_rolling_siebel_diagram.png" alt="Siebel Diagram – Flat Rolling Edge Deformation (Bulging / Constriction)" style="max-width:100%;border-radius:6px;margin:1.2em 0;display:block;">
+<p>
+  In the PyRoll GUI, the Siebel diagram is displayed in the <strong>Results tab</strong>
+  for simulation sequences containing at least one flat pass
+  (<code>TwoRollPass</code> with <code>FlatGroove</code>).
+</p>
+<ul>
+  <li>
+    Each <span style="display:inline-block;width:14px;height:14px;background:#FFDD00;border:1.5px solid #222;border-radius:50%;vertical-align:middle;"></span>
+    <strong>yellow dot</strong> represents one flat pass, plotted at its
+    \((l_D/h_0,\; b_0/h_0)\) coordinates.
+  </li>
+  <li>
+    The <span class="zone-bulge">red boundary curve</span> is the Siebel hyperbola
+    for the selected constant \(C\).
+  </li>
+  <li>
+    The <span style="color:#A82323;">red-shaded region</span> (above) indicates the
+    bulging zone; the <span style="color:#0030A0;">blue-shaded region</span> (below)
+    indicates the constriction zone.
+  </li>
+  <li>
+    A dashed vertical line connects each operating point to its neutral position on
+    the curve, giving a visual measure of the distance from the boundary.
+  </li>
+  <li>
+    Each point is labelled with the pass label and the direction
+    (<strong>▲ Bulging</strong> / <strong>▼ Constriction</strong>) together with the
+    numerical \(\Delta\) value.
+  </li>
+</ul>
+<div class="info">
+  ℹ The constant \(C\) can be adjusted interactively in the diagram controls.
+  The curve and all classifications update immediately when \(C\) is changed.
+  Press <strong>Reset</strong> to return to the default value \(C = 0.355\).
+</div>
+
+<hr>
+
+<h2>5. Parameter Reference</h2>
+<table>
+  <tr><th>Symbol</th><th>Description</th><th>Unit</th></tr>
+  <tr><td>\(h_0\)</td><td>Entry height of the workpiece (in-profile height)</td><td>m</td></tr>
+  <tr><td>\(b_0\)</td><td>Entry width of the workpiece (in-profile width)</td><td>m</td></tr>
+  <tr><td>\(R\)</td><td>Working roll radius (or nominal radius if working radius not available)</td><td>m</td></tr>
+  <tr><td>\(s\)</td><td>Roll gap (gap between rolls)</td><td>m</td></tr>
+  <tr><td>\(\Delta h\)</td><td>Draft: \(h_0 - s\)</td><td>m</td></tr>
+  <tr><td>\(l_D\)</td><td>Projected contact arc length: \(\sqrt{R \cdot \Delta h}\)</td><td>m</td></tr>
+  <tr><td>\(l_D / h_0\)</td><td>Dimensionless contact length (x-axis)</td><td>–</td></tr>
+  <tr><td>\(b_0 / h_0\)</td><td>Dimensionless entry width (y-axis)</td><td>–</td></tr>
+  <tr><td>\(C\)</td><td>Siebel constant (default 0.355; adjustable)</td><td>–</td></tr>
+  <tr><td>\(\Delta\)</td><td>Deviation from boundary: \(b_0/h_0 - C\,/\,(l_D/h_0)\)</td><td>–</td></tr>
+</table>
+
+<hr>
+
+<h2>6. Notes &amp; Limitations</h2>
+<div class="warn">
+  ⚠ <strong>Applicability:</strong> The Siebel criterion applies exclusively to
+  <em>flat rolling passes</em> (<code>FlatGroove</code>). It is not valid for grooved
+  or shaped passes where the lateral constraint is provided by the groove geometry.
+</div>
+<div class="warn" style="margin-top: 0.8em;">
+  ⚠ <strong>Approximation:</strong> The criterion is purely geometric and does not
+  account for friction conditions, material flow stress, or temperature. The constant
+  \(C\) may need to be adjusted for different materials or process conditions.
+  The result should be regarded as a qualitative tendency indicator, not a quantitative
+  edge shape prediction.
+</div>
+<div class="info" style="margin-top: 0.8em;">
+  ℹ <strong>Literature:</strong> Siebel, E.: <em>Grundlagen zur Berechnung des Kraft-
+  und Arbeitsbedarfs beim Schmieden und Walzen</em>, Stahl und Eisen, 1925.
+  The criterion and its extensions are discussed in: Lange, K. (ed.):
+  <em>Umformtechnik, Vol. 2 – Massivumformung</em>, Springer, 1988.
+</div>
+
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+</body>
+</html>

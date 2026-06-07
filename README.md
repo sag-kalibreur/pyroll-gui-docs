@@ -102,4 +102,4 @@ GitHub Pages deploys automatically within ~1 minute after each push.
 
 ## Author
 
-Michael Molter — Institute for Metal Forming, TU Bergakademie Freiberg
+Michael Molter – Head of Roll Pass Design | Roll Materials | Roll Shop Operations, Saarstahl AG

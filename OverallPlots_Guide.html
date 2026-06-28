@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
 <title>Overall Plots Guide – PyRoll GUI</title>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
@@ -79,8 +80,6 @@
 </style>
 </head>
 <body>
-<div style="margin-bottom:1.2em;"><a href="index.html" style="color:#005499;font-size:0.92em;text-decoration:none;">&#8592; Back to Overview</a></div>
-
 
 <h1>Overall Plots Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
@@ -248,11 +247,13 @@
   together on a single page for a direct side-by-side comparison.
 </p>
 
-<img class="screenshot" src="img/overall_plots_roll_pass_plots.png" alt="Stacked Roll Pass Plots for Pass 1 and Pass 2, each with In Profile (blue), Out Profile (red), Groove (black) and Roll Pass Results sidebar">
+<img class="screenshot" src="img/overall_plots_roll_pass_plots.png" alt="Stacked Roll Pass Plots for Pass 1 and Pass 2, each with groove name in yellow title bar, In Profile (blue), Out Profile (red), Groove (black) and Roll Pass Results sidebar">
 
 <p>Each plot shows:</p>
 <ul>
   <li>The pass name as a bold label above the plot (e.g. <em>Pass 1</em>, <em>Pass 2</em>).</li>
+  <li>The groove name (if defined) displayed next to the pass label in the yellow title bar,
+    for direct identification of the groove geometry assigned to the pass.</li>
   <li>The cross-section drawing with <strong>In Profile (blue)</strong>,
     <strong>Out Profile (red)</strong>, and <strong>Groove Contour (black)</strong>.</li>
   <li>To the right: a <strong>Roll Pass Results</strong> panel with all calculated values

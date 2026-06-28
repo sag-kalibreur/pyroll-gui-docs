@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
 <title>Asymmetric Roll Pass – Method &amp; Results</title>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <style>
@@ -52,8 +53,6 @@
 </style>
 </head>
 <body>
-<div style="margin-bottom:1.2em;"><a href="index.html" style="color:#005499;font-size:0.92em;text-decoration:none;">&#8592; Back to Overview</a></div>
-
 
 <h1>Asymmetric Roll Pass – Method &amp; Results <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: May 2026</em></p>
@@ -312,10 +311,20 @@
 
 <h3>6.2 Roll Pass Result Plot (Pass Plots / Overall Plots tabs)</h3>
 <p>
-  Shows the combined result: roll contours (black), inlet profile (blue) and exit
+  Shows the combined result: roll contours (white/black), inlet profile (blue) and exit
   profile (red) in the technological display frame. The asymmetric exit shape
   produced by the Lendl analyser is clearly visible — one side follows the shaped
   groove, the other side is flatter or differently contoured.
+</p>
+<p>
+  <strong>Centre-of-mass reference frame:</strong> Unlike the Roll Pass Visualization
+  in the Pass Design tab (which centres on the geometric roll gap centre, y&nbsp;=&nbsp;0),
+  this plot centres on the <strong>centroid of all displayed data</strong> — roll contours,
+  inlet and outlet profiles combined. The dashed crosshair therefore marks the centre of
+  mass of the entire system. For a symmetric pass this coincides with the geometric centre;
+  for an asymmetric pass it reveals how far the material centre of mass deviates from the
+  groove mid-plane — a direct visual indicator of the degree of asymmetry and of whether
+  the material is being driven toward the upper or lower roll.
 </p>
 
 <h3>6.3 Pillar Fill Plot</h3>

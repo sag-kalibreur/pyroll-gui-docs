@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
 <title>Application Menu Guide – PyRoll GUI</title>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
@@ -79,6 +80,22 @@
   }
   .scroll-nav button:hover { background: #FFDD00; }
 
+  /* ── Pin button comparison ─────────────────────────────── */
+  .pin-compare { display:flex; gap:28px; justify-content:center; margin:1.4em 0; flex-wrap:wrap; }
+  .pin-box { text-align:center; }
+  .pin-box img { display:block; max-width:240px; width:auto; height:auto; border:1px solid #ccc; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.10); margin:0 auto; }
+  .pin-label { padding:6px 0; font-size:0.85em; text-align:center; color:#333; font-weight:400; }
+
+  /* ── Section footer ─────────────────────────────────────── */
+  .section-footer {
+    margin-top: 3em;
+    padding-top: 1em;
+    border-top: 2px solid #FFDD00;
+    text-align: center;
+    font-size: 0.85em;
+    color: #888;
+  }
+
   @media print {
     h2 { break-before: page; }
     h2:first-of-type { break-before: auto; }
@@ -92,8 +109,6 @@
 </style>
 </head>
 <body>
-<div style="margin-bottom:1.2em;"><a href="index.html" style="color:#005499;font-size:0.92em;text-decoration:none;">&#8592; Back to Overview</a></div>
-
 
 <h1>Application Menu Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
@@ -106,6 +121,7 @@
   <ol>
     <li><a href="#overview">Overview</a></li>
     <li><a href="#dark-mode">Dark / Bright Mode Switcher</a></li>
+    <li><a href="#pin-nav">Pinned Navigation Bar</a></li>
     <li><a href="#file">File Menu</a></li>
     <li><a href="#edit">Edit Menu</a></li>
     <li><a href="#view">View Menu</a></li>
@@ -182,8 +198,53 @@
   for screenshots and exports that will appear on white paper.
 </div>
 
-<!-- ─── 3. FILE MENU ──────────────────────────────────────────── -->
-<h2 id="file">3. File Menu</h2>
+<!-- ─── 3. PINNED NAVIGATION BAR ────────────────────────────── -->
+<h2 id="pin-nav">3. Pinned Navigation Bar</h2>
+<p>
+  The <strong>Pin button</strong> is located in the application toolbar, directly next to
+  the Dark / Bright Mode toggle. It allows you to <strong>pin the navigation tab bar</strong>
+  to a fixed position at the top of the window, keeping it accessible at all times &mdash;
+  even when scrolling down through long result pages or plot lists.
+</p>
+
+<div class="pin-compare">
+  <div class="pin-box">
+    <img src="img/electron_menu_pin_inactive.png" alt="Pin button in inactive state &ndash; unpin icon, regular background">
+    <div class="pin-label">Navigation bar <strong>not</strong> pinned</div>
+  </div>
+  <div class="pin-box">
+    <img src="img/electron_menu_pin_active.png" alt="Pin button in active state &ndash; pin icon, yellow background">
+    <div class="pin-label">Navigation bar <strong>pinned</strong> (active)</div>
+  </div>
+</div>
+
+<p>
+  When pinned, the navigation bar is rendered as a compact sticky bar fixed to the top of
+  the viewport. Each tab is represented by an icon button for quick one-click access.
+</p>
+
+<img class="screenshot" src="img/electron_menu_pinned_nav_bar.png" alt="Pinned navigation bar fixed at the top of the window showing tab icon buttons">
+
+<h3>Behaviour</h3>
+<ul>
+  <li><strong>Toggle:</strong> Click the pin button once to activate the pinned bar;
+    click again to deactivate it. The button turns yellow when the bar is active
+    (tooltip: <em>Unpin navigation bar</em> / <em>Pin navigation bar</em>).</li>
+  <li><strong>Persistence:</strong> The pinned state is saved to local storage and
+    restored automatically the next time the application is opened.</li>
+  <li><strong>Dynamic icons:</strong> The icons shown in the pinned bar always reflect
+    the <em>current navigation tab order</em>. If you rearrange the tabs in the
+    application, the pinned bar updates automatically to match the new order.</li>
+</ul>
+
+<div class="tip">
+  The pinned navigation bar is especially useful on the <strong>Overall Plots</strong>
+  and <strong>Results</strong> tabs, where the page content is long and scrolling back
+  to the tab bar repeatedly would interrupt the workflow.
+</div>
+
+<!-- ─── 4. FILE MENU ──────────────────────────────────────────── -->
+<h2 id="file">4. File Menu</h2>
 <p>
   The <strong>File</strong> menu contains all project file operations.
 </p>
@@ -227,8 +288,8 @@
   populated — no re-simulation required.
 </div>
 
-<!-- ─── 4. EDIT MENU ──────────────────────────────────────────── -->
-<h2 id="edit">4. Edit Menu</h2>
+<!-- ─── 5. EDIT MENU ──────────────────────────────────────────── -->
+<h2 id="edit">5. Edit Menu</h2>
 <p>
   The <strong>Edit</strong> menu provides standard text editing operations for
   input fields within the application.
@@ -254,8 +315,8 @@
   </tbody>
 </table>
 
-<!-- ─── 5. VIEW MENU ──────────────────────────────────────────── -->
-<h2 id="view">5. View Menu</h2>
+<!-- ─── 6. VIEW MENU ──────────────────────────────────────────── -->
+<h2 id="view">6. View Menu</h2>
 <p>
   The <strong>View</strong> menu controls the display scale of the application window
   and provides access to the theme toggle and developer tools.
@@ -313,8 +374,8 @@
   display — exported files are always at full resolution.
 </div>
 
-<!-- ─── 6. WINDOW MENU ────────────────────────────────────────── -->
-<h2 id="window">6. Window Menu</h2>
+<!-- ─── 7. WINDOW MENU ────────────────────────────────────────── -->
+<h2 id="window">7. Window Menu</h2>
 <p>
   The <strong>Window</strong> menu provides basic window management actions.
 </p>
@@ -340,8 +401,8 @@
   </tbody>
 </table>
 
-<!-- ─── 7. HELP MENU ──────────────────────────────────────────── -->
-<h2 id="help">7. Help Menu</h2>
+<!-- ─── 8. HELP MENU ──────────────────────────────────────────── -->
+<h2 id="help">8. Help Menu</h2>
 <p>
   The <strong>Help</strong> menu provides access to application information, the online
   PyRoll documentation, all built-in guide documents, and method reference documents.
@@ -359,7 +420,7 @@
   <div class="menu-item has-sub"><span>Methods</span></div>
 </div>
 
-<h3 id="help-info">7.1 Description, About &amp; Authors</h3>
+<h3 id="help-info">8.1 Description, About &amp; Authors</h3>
 
 <table>
   <thead><tr><th>Item</th><th>Description</th></tr></thead>
@@ -392,7 +453,7 @@
   </tbody>
 </table>
 
-<h3 id="help-guides">7.2 Guides Submenu</h3>
+<h3 id="help-guides">8.2 Guides Submenu</h3>
 <p>
   The <strong>Guides</strong> submenu opens the built-in HTML guide documents, each in
   its own separate window. Guides cover the main workflow tabs of the application.
@@ -452,7 +513,7 @@
   </tbody>
 </table>
 
-<h3 id="help-methods">7.3 Methods Submenu</h3>
+<h3 id="help-methods">8.3 Methods Submenu</h3>
 <p>
   The <strong>Methods</strong> submenu opens technical reference documents for the
   simulation methods and special models implemented in PyRoll WebGUI.
@@ -484,8 +545,8 @@
   </tbody>
 </table>
 
-<!-- ─── 8. KEYBOARD SHORTCUTS ────────────────────────────────── -->
-<h2 id="shortcuts">8. Keyboard Shortcuts Reference</h2>
+<!-- ─── 9. KEYBOARD SHORTCUTS ────────────────────────────────── -->
+<h2 id="shortcuts">9. Keyboard Shortcuts Reference</h2>
 <p>A complete overview of all keyboard shortcuts available in PyRoll WebGUI:</p>
 
 <table>
@@ -512,7 +573,7 @@
 </table>
 
 <hr>
-<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Application Menu Guide</p>
+<p class="section-footer">Michael Molter | PyRoll GUI – Application Menu Guide</p>
 <div class="scroll-nav">
   <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
   <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>

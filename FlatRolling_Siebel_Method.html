@@ -48,9 +48,40 @@
     color: #222;
   }
   .scroll-nav button:hover { background: #FFDD00; }
+
+  /* ── Guide navigation bar ───────────────────────── */
+  .guide-nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFDD00;
+    padding: 8px 18px;
+    border-radius: 6px;
+    margin-bottom: 1.5em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .guide-back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+  .guide-back-link:hover { text-decoration: underline; }
+  .guide-nav-icon { height: 32px; width: auto; }
 </style>
 </head>
 <body>
+
+<div class="guide-nav-bar">
+  <a href="index.html" class="guide-back-link">&#8592; zur&uuml;ck zur Guide-&Uuml;bersicht</a>
+  <img src="img/pyroll_icon.png" alt="PyRoll" class="guide-nav-icon">
+</div>
 
 <h1>Flat Rolling Edge Deformation – Siebel Criterion <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: May 2026</em></p>

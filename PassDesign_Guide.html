@@ -115,7 +115,7 @@
 </div>
 
 <h1>Pass Design Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: May 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: July 2026</em></p>
 
 <hr>
 
@@ -282,6 +282,14 @@
   <tr><td><code>Value</code></td><td>m/s or 1/s</td><td>Numeric value corresponding to the velocity definition selected above.</td></tr>
   <tr><td><code>Coulomb Friction Coefficient</code></td><td>—</td><td>Friction coefficient μ between workpiece and roll surface. Typical values: 0.2–0.4 for hot rolling.</td></tr>
   <tr><td><code>Orientation</code></td><td>—</td><td>Roll axis orientation: <em>horizontal</em> (rolls above/below) or <em>vertical</em> (rolls left/right).</td></tr>
+  <tr><td><code>Rotation Override</code></td><td>°</td><td>Optional additional rotation of the incoming profile <em>before</em> it enters this pass, in degrees. Equivalent to inserting a mechanical rotator between the preceding pass and this one.
+    <br><br>
+    <strong>Typical use:</strong> A value of <strong>45°</strong> is used when a square profile from a preceding pass should enter a flat groove on its side (flat-side first) rather than corner-first — which is the case in the classical oval&nbsp;→&nbsp;square&nbsp;→&nbsp;<em>rotated</em>&nbsp;→&nbsp;flat sequence. Without this rotation, PyRolL would compress the corner of the square instead of the flat face.
+    <br><br>
+    <strong>Effect on visualization:</strong> The Pass Sequence Visualization shows the incoming profile already in the rotated orientation relative to the roll gap, so it correctly reflects the physical deformation geometry.
+    <br><br>
+    Leave blank or set to <strong>0</strong> for no rotation (standard case).
+  </td></tr>
   <tr><td><code>Groove Type</code></td><td>—</td><td>Cross-sectional profile of the roll groove. See Section 6 for available types. The <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#1976d2;color:#fff;font-size:11px;font-weight:700;font-style:normal;line-height:1;vertical-align:middle;">i</span> button next to the selector opens a preview panel showing all groove types with their geometric parameters.</td></tr>
   <tr><td><code>Groove Parameters</code></td><td>mm</td><td>Geometry parameters specific to the selected groove type (radii, depths, widths). See Section 6. Use the <strong>Library</strong> button to load or save a groove directly from the Groove Library.</td></tr>
 </table>
@@ -703,6 +711,58 @@
   the block motor RPM serves as the velocity constraint.
 </div>
 
+<h3>10.3 Disk Element Count</h3>
+<p>
+  The <strong>Disk Element Count</strong> controls how finely PyRolL subdivides each pass
+  in the rolling direction for the thermal and mechanical computation. The roll bite is
+  divided into <em>n</em> equally spaced disk elements; the thermal ring model solves
+  the heat equation at each disk position. The setting is located in the sequence header
+  toolbar, next to the Spreading Equation selector.
+</p>
+
+<img src="img/pass_design_disc_element_count.png" alt="Disk Element Count selector in the sequence header toolbar" class="screenshot">
+
+<table class="params-table">
+  <tr><th>Value</th><th>Effect</th><th>Typical use</th></tr>
+  <tr>
+    <td><strong>5 – 10</strong></td>
+    <td>Very fast; coarse temperature / stress distribution along the bite</td>
+    <td>Quick parameter studies, large reduction passes with slow convergence</td>
+  </tr>
+  <tr>
+    <td><strong>15 – 20</strong></td>
+    <td>Good balance between speed and accuracy</td>
+    <td>Iterative calibration, multi-sequence schedules</td>
+  </tr>
+  <tr>
+    <td><strong>30</strong></td>
+    <td>Default — high spatial resolution; noticeable computation time per pass</td>
+    <td>Final validation simulations, accuracy-critical results</td>
+  </tr>
+  <tr>
+    <td><strong>50+</strong></td>
+    <td>Maximum resolution; significantly longer computation time</td>
+    <td>Research / publication; thermal gradient studies</td>
+  </tr>
+</table>
+
+<div class="warn">
+  <strong>Impact on computation time:</strong> The computation time per pass scales
+  <em>approximately linearly</em> with the disk element count. Reducing from 30 to 15
+  approximately halves the solve time per pass. For schedules where a pass hits the
+  maximum iteration count (convergence warning in the backend log), reducing the disk
+  element count is the fastest way to speed up the simulation — the physical result
+  changes only marginally at moderate reductions.
+</div>
+
+<div class="info">
+  <strong>Convergence warnings:</strong> If the backend log shows
+  <em>"Solution iteration … exceeded the maximum iteration count of 100"</em>, the
+  solver could not fully converge for that pass. This typically happens at very large
+  reductions (&gt; 50 % area reduction in one pass). Reducing the Disk Element Count
+  to 10–15 usually resolves the issue without significantly affecting result quality.
+</div>
+
 <hr>
 
 <h2>11. Spreading Models</h2>
@@ -797,7 +857,80 @@
   for flat and near-flat passes where the plane-strain assumption is approximately valid.
 </p>
 
-<h3>11.4 Choosing a Model</h3>
+<h3>11.4 Roux Spreading</h3>
+<p>
+  The <strong>Roux</strong> model (1976) takes a fundamentally different approach: instead of a
+  simple power law, it computes a <em>spread coefficient</em> from two intermediate
+  parameters derived from the equivalent height/width dimensions of the incoming profile.
+</p>
+<div class="formula-box">
+  $$\eta = 1 + \frac{\Delta h_{eq} \cdot F_2 \cdot F_3}{b_{eq,0}}$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    First Roux parameter:<br>
+    \(a = \left(1 + 5\left(0.35 - \dfrac{\Delta h_{eq}}{h_{eq,0}}\right)^{\!2}\right)\sqrt{\dfrac{h_{eq,0}}{\Delta h_{eq}} - 1}\)
+    &nbsp;&nbsp;&nbsp;
+    Second Roux parameter:<br>
+    \(b = \left(\dfrac{b_{eq,0}}{h_{eq,0}} - 1\right)\)<br><br>
+    Spread factor \(F_2\):<br>
+    \(F_2 = \dfrac{1}{\left(1 - \dfrac{\Delta h_{eq}}{h_{eq,0}}\right) + \dfrac{3a}{\left(\dfrac{2R}{h_{eq,0}}\right)^{3/4}}}\)
+    &nbsp;&nbsp;&nbsp;
+    Profile factor \(F_3\):<br>
+    \(F_3 = \dfrac{b_{eq,0}/h_{eq,0}}{1 + 0.57\,b}\)<br><br>
+    where \(h_{eq,0}, b_{eq,0}\) = equivalent height / width of incoming profile,
+    \(\Delta h_{eq}\) = equivalent height reduction, \(R\) = working roll radius.
+    Then \(b_1 = \eta \cdot b_0\).
+  </p>
+</div>
+<div class="note">
+  <strong>Friction / Velocity / Temperature — no effect with Roux:</strong> The default
+  implementation contains no correction factors for velocity, temperature, material or
+  friction. The spread result depends solely on the geometric ratio
+  \(b_{eq}/h_{eq}\) and the roll radius.
+</div>
+
+<h3>11.5 Sander Spreading</h3>
+<p>
+  The <strong>Sander</strong> model shares the same general power-law structure as
+  Wusatowski but uses a different exponent formula that explicitly accounts for the
+  ratio of workpiece width to contact arc length:
+</p>
+<div class="formula-box">
+  $$\frac{b_1}{b_0} = a_T \cdot a_v \cdot a_M \cdot a_f \cdot \left(\frac{h_0}{h_1}\right)^{\psi_S}$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    Sander exponent:<br>
+    \(\psi_S = 10^{\,-0.76\,\left(\frac{b_{eq}}{h_{eq}}\right)^{0.39}\,\left(\frac{b_{eq}}{\sqrt{R\,\Delta h_{eq}}}\right)^{0.12}\,\left(\frac{b_{eq}}{R}\right)^{0.59}}\)
+  </p>
+</div>
+<div class="info">
+  <strong>Velocity correction \(a_v\) with Sander:</strong> A velocity correction applies
+  when \(v \le 60\) m/s:
+  \(a_v = 1 - 0.0033 \cdot v \cdot \left(1 - \frac{b_0}{b_1}\right)\).
+  At high rolling speeds (\(v > 60\) m/s) the correction is set to 1 (no effect).
+</div>
+<div class="note">
+  <strong>Friction — no effect with Sander:</strong> The friction correction factor is
+  fixed at \(a_f = 1\).
+</div>
+
+<h3>11.6 Sparling Spreading</h3>
+<p>
+  The <strong>Sparling</strong> model adopts the Wusatowski-style power law but
+  introduces a distinctive exponential exponent formula:
+</p>
+<div class="formula-box">
+  $$\frac{b_1}{b_0} = \left(\frac{h_0}{h_1}\right)^{-\psi_{Sp} \cdot a_T \cdot a_{\dot\varepsilon} \cdot a_M \cdot a_{rs} \cdot a_{bs}}$$
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    Sparling exponent:<br>
+    \(\psi_{Sp} = 0.981 \cdot \exp\!\left(-0.6735 \cdot \dfrac{2.395\,b_{eq}^{\,0.9}}{R^{0.55}\,h_{eq}^{\,0.1}\,|\Delta h|^{0.25}}\right)\)<br><br>
+    All correction factors default to 1 in the standard implementation.
+  </p>
+</div>
+<div class="note">
+  <strong>Friction / Velocity / Temperature — no effect (default):</strong> All
+  correction factors default to 1.
+</div>
+
+<h3>11.7 Choosing a Model</h3>
 <table>
   <tr><th>Model</th><th>Best suited for</th><th>Friction effect</th><th>Velocity effect</th><th>Notes</th></tr>
   <tr>
@@ -820,6 +953,27 @@
     <td>Indirect (via friction in force/torque)</td>
     <td>None</td>
     <td>Analytically derived; less accurate for profiled grooves</td>
+  </tr>
+  <tr>
+    <td>Roux</td>
+    <td>Wide workpieces; cases where velocity/temperature data is uncertain</td>
+    <td>None</td>
+    <td>None</td>
+    <td>Physics-motivated derivation; no empirical correction factors</td>
+  </tr>
+  <tr>
+    <td>Sander</td>
+    <td>Wide flat passes, workpieces with large \(b/h\) ratio</td>
+    <td>None (constant \(a_f=1\))</td>
+    <td><strong>Yes</strong> — at \(v \le 60\) m/s</td>
+    <td>Exponent more sensitive to width-to-contact-arc ratio than Wusatowski</td>
+  </tr>
+  <tr>
+    <td>Sparling</td>
+    <td>High-reduction passes; comparison / validation studies</td>
+    <td>None (default)</td>
+    <td>None (default)</td>
+    <td>Exponential exponent form; sensitive to \(b/\sqrt{R\,|\Delta h|}\)</td>
   </tr>
 </table>
 

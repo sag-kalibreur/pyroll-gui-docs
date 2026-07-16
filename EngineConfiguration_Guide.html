@@ -109,7 +109,7 @@
 </div>
 
 <h1>Engine Configuration Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: July 2026</em></p>
 <hr>
 
 <nav class="toc">
@@ -118,7 +118,11 @@
     <li><a href="#overview">Overview</a></li>
     <li><a href="#engine-card">Engine Card</a></li>
     <li><a href="#engine-types">Engine Types: DC vs. AC</a></li>
-    <li><a href="#parameters">Engine Parameters</a></li>
+    <li><a href="#parameters">Engine Parameters</a>
+      <ul style="list-style:none; padding-left:1.2em; margin:0.2em 0;">
+        <li><a href="#gear-stages">4.1 Multi-Stage Gear Ratio</a></li>
+      </ul>
+    </li>
     <li><a href="#assign">Assign to Stands</a></li>
     <li><a href="#utilization">Engine Utilization Diagram</a></li>
     <li><a href="#actions">Card Actions: Save, Copy, Delete</a></li>
@@ -239,7 +243,7 @@
   <tr><td>RPM max</td><td>rpm</td><td>Maximum allowable motor speed (top of the field-weakening range for DC; inverter limit for AC)</td></tr>
   <tr><td>Base RPM <em>(DC)</em> / Rated RPM <em>(AC)</em></td><td>rpm</td><td>Speed at the rated operating point — transition between constant-torque and constant-power zones</td></tr>
   <tr><td>Power Factor cos φ</td><td>—</td><td><em>AC only.</em> Ratio of active to apparent power (typical: 0.85–0.95)</td></tr>
-  <tr><td>Gear Ratio</td><td>—</td><td>Overall gear ratio between motor shaft and roll: <em>i = n_motor / n_roll</em>. A higher gear ratio means the motor rotates faster than the roll.</td></tr>
+  <tr><td>Gear Ratio</td><td>—</td><td>Overall gear ratio between motor shaft and roll: <em>i = n_motor / n_roll</em>. A higher gear ratio means the motor rotates faster than the roll.<br>A <strong>+ Stages</strong> button below the field activates multi-stage gear ratio mode — see Section 4.1.</td></tr>
   <tr><td>Rated Power</td><td>kW</td><td>Continuous rated shaft power at the rated RPM point</td></tr>
   <tr><td>Efficiency η</td><td>—</td><td>Mechanical drive-train efficiency (gearbox + coupling losses). Typical: 0.90–0.97. The required motor power is divided by η to obtain the actual motor demand.</td></tr>
 </table>
@@ -247,6 +251,51 @@
 <div class="tip">
   Comma-separated decimal numbers (e.g. <code>18,053</code>) are accepted in all
   numeric fields — the comma is automatically converted to a decimal point.
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="gear-stages">4.1 Multi-Stage Gear Ratio</h2>
+<p>
+  Some roll stands have a switchable gearbox with two or three discrete gear ratios
+  (e.g. a two-speed or three-speed gearbox). The <strong>Multi-Stage Gear Ratio</strong>
+  feature lets you store all available gear ratios on the engine card and switch the
+  active stage without losing the other values.
+</p>
+
+<img class="screenshot" src="img/engine_configuration_engine_card_gear_stages.png" alt="Engine Card with Gear Stages expanded — three stage inputs and active-stage dropdown">
+
+<h4>Activating Gear Stages</h4>
+<p>
+  Click the small <strong>+ Stages</strong> button that appears below the
+  <em>Gear Ratio</em> input field. Three input fields appear side by side
+  (Stage&nbsp;1, Stage&nbsp;2, Stage&nbsp;3), pre-filled with the current single
+  gear ratio value. Edit each field to enter the corresponding gear ratio.
+</p>
+
+<h4>Selecting the Active Stage</h4>
+<p>
+  Use the <strong>Stage 1 / Stage 2 / Stage 3</strong> dropdown to choose which
+  gear stage is currently engaged. The selected stage is highlighted with a
+  yellow background. The value of the active stage is automatically written to
+  the <em>Gear Ratio</em> field that the simulation uses — no manual update needed.
+</p>
+
+<div class="info">
+  <strong>Compact workflow:</strong>
+  After configuring all three stage values you can collapse the stages panel
+  by clicking <strong>&minus; Stages</strong>. The card returns to the single
+  Gear Ratio view, showing the currently active value. To change the active stage,
+  simply click <strong>+ Stages (saved)</strong> again, pick a different stage,
+  then collapse again. The other stage values are never lost.
+</div>
+
+<div class="tip">
+  <strong>Simulation always uses the active stage.</strong>
+  The PyRolL solver reads only the <em>Gear Ratio</em> field — which is
+  automatically kept in sync with the selected active stage. Switching the active
+  stage before a simulation run is therefore sufficient to model different gearbox
+  positions without any other changes to the pass schedule.
 </div>
 
 

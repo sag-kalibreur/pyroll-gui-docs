@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="favicon.ico" type="image/x-icon">
 <title>Pass Design Guide – PyRoll GUI</title>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <style>
@@ -79,40 +78,9 @@
     color: #222;
   }
   .scroll-nav button:hover { background: #FFDD00; }
-
-  /* ── Guide navigation bar ───────────────────────── */
-  .guide-nav-bar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #FFDD00;
-    padding: 8px 18px;
-    border-radius: 6px;
-    margin-bottom: 1.5em;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
-  .guide-back-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #222;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95em;
-  }
-  .guide-back-link:hover { text-decoration: underline; }
-  .guide-nav-icon { height: 32px; width: auto; }
 </style>
 </head>
 <body>
-
-<div class="guide-nav-bar">
-  <a href="index.html" class="guide-back-link">&#8592; back to overview</a>
-  <img src="img/pyroll_icon.png" alt="PyRoll" class="guide-nav-icon">
-</div>
 
 <h1>Pass Design Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: July 2026</em></p>
@@ -259,6 +227,10 @@
     <td><span class="badge badge-fb">FinishingBlock</span></td>
     <td>Motor-driven block of multiple mechanically linked roll passes</td>
   </tr>
+  <tr>
+    <td><span class="badge badge-trans" style="background:#1a6e3c;color:#b6ffda;border-color:#2ecc71;">SeparatingGuide</span></td>
+    <td>Splits a figure-8 slitting profile into two single-strand half-ovals; models inter-strand transport cooling</td>
+  </tr>
 </table>
 
 <hr>
@@ -282,7 +254,7 @@
   <tr><td><code>Value</code></td><td>m/s or 1/s</td><td>Numeric value corresponding to the velocity definition selected above.</td></tr>
   <tr><td><code>Coulomb Friction Coefficient</code></td><td>—</td><td>Friction coefficient μ between workpiece and roll surface. Typical values: 0.2–0.4 for hot rolling.</td></tr>
   <tr><td><code>Orientation</code></td><td>—</td><td>Roll axis orientation: <em>horizontal</em> (rolls above/below) or <em>vertical</em> (rolls left/right).</td></tr>
-  <tr><td><code>Rotation Override</code></td><td>°</td><td>Optional additional rotation of the incoming profile <em>before</em> it enters this pass, in degrees. Equivalent to inserting a mechanical rotator between the preceding pass and this one.
+  <tr><td><code>Rotation Override</code></td><td>°</td><td>Optional additional rotation of the incoming profile <em>before</em> it enters this pass, in degrees. Equivalent to inserting a mechanical rotator between the preceding pass and this one. Positive values rotate counter-clockwise when viewed from the entry side.
     <br><br>
     <strong>Typical use:</strong> A value of <strong>45°</strong> is used when a square profile from a preceding pass should enter a flat groove on its side (flat-side first) rather than corner-first — which is the case in the classical oval&nbsp;→&nbsp;square&nbsp;→&nbsp;<em>rotated</em>&nbsp;→&nbsp;flat sequence. Without this rotation, PyRolL would compress the corner of the square instead of the flat face.
     <br><br>
@@ -324,11 +296,52 @@
   the groove fits the incoming cross-section without overfilling.
 </p>
 <p>
-  <em>Note:</em> In the Pass Design view, only the groove caliber outline is displayed —
+  <em>Note:</em> In the Pass Design view, only the groove caliber outline is displayed &mdash;
   without the incoming workpiece profile. The full visualization including the workpiece
   cross-section overlay is available after running the simulation in the
   <strong>Roll Pass Plots</strong> and <strong>Overall Plots</strong>.
 </p>
+
+<h3>3.4 Spread Correction</h3>
+<p>
+  The <strong>+ Spread Correction</strong> button adds a per-pass correction multiplier
+  to the width predicted by the spreading model. This is useful for special groove
+  geometries &mdash; such as slitting passes or figure-8 calibers &mdash; where the standard
+  spreading model systematically under- or overestimates the lateral spread.
+</p>
+<p>
+  Clicking <strong>+ Spread Correction</strong> shows an inline input field to the right
+  of the Rotation Override field. The value is a multiplier applied to the spreading
+  model’s out-profile width:
+</p>
+<table class="params-table">
+  <tr><th>Value</th><th>Effect</th></tr>
+  <tr><td><code>1.000</code></td><td>No correction &mdash; spreading model result used as-is (default)</td></tr>
+  <tr><td><code>&gt; 1.0</code></td><td>Increases the predicted out-profile width (e.g. 1.05 = +5&thinsp;%)</td></tr>
+  <tr><td><code>&lt; 1.0</code></td><td>Reduces the predicted out-profile width (e.g. 0.95 = &minus;5&thinsp;%)</td></tr>
+</table>
+<p>Remove the correction with the <strong>&minus;&thinsp;Spread Correction</strong> button to return to unmodified spreading model behaviour.</p>
+<div class="info">
+  The correction works with all six spreading models (Wusatowski, Marini, Hill, Roux, Sander,
+  Sparling) and affects the out-profile width used in all downstream calculations (area,
+  reduction, velocity).
+</div>
+
+<h3>3.5 Special Case: Dual Strand (post-Separating Guide)</h3>
+<p>
+  When a <strong>SeparatingGuide</strong> unit precedes one or more TwoRollPass stands in
+  the sequence, those subsequent passes automatically receive a <strong>×2 Dual Strand</strong>
+  badge to indicate that two identical strands are being rolled in parallel.
+</p>
+
+<img class="screenshot" src="img/pass_design_two_roll_pass_dual_strand.png" alt="TwoRollPass with ×2 Dual Strand badge indicating parallel rolling of two separated strands after a SeparatingGuide">
+
+<ul>
+  <li>The simulation computes <em>one strand only</em> &mdash; the second strand is physically identical.</li>
+  <li>The Roll Pass Visualization shows <em>both calibers side by side</em> to represent the actual mill layout.</li>
+  <li>All result values (roll force, torque, area, velocity) refer to a <em>single strand</em>. Multiply by 2 for total stand load.</li>
+  <li>The <strong>×2 Dual Strand</strong> badge persists automatically for every pass after the SeparatingGuide.</li>
+</ul>
 
 <hr>
 
@@ -367,7 +380,51 @@
 
 <hr>
 
-<h2>6. Transport</h2>
+<h2>6. SeparatingGuide</h2>
+<span class="badge badge-trans" style="background:#1a6e3c;color:#b6ffda;border-color:#2ecc71;">SeparatingGuide</span>
+
+<p>
+  The <strong>SeparatingGuide</strong> unit models the physical separation of a figure-8
+  (slitting) profile into two individual single-strand profiles. It is placed immediately
+  after a slitting TwoRollPass and before the first post-separation oval or round pass.
+</p>
+<p>
+  Physically, the guide splits the two connected strands at the slitting neck and directs
+  them into separate calibers. It also models thermal cooling during this transport section.
+</p>
+
+<h3>6.1 Parameters</h3>
+<table class="params-table">
+  <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
+  <tr><td><code>Label</code></td><td>&mdash;</td><td>Unique name for this unit (e.g. <em>Separating Guide</em>).</td></tr>
+  <tr><td><code>Define by</code></td><td>&mdash;</td><td>Whether to specify the guide section by <em>length</em> (metres) or <em>duration</em> (seconds).</td></tr>
+  <tr><td><code>Value</code></td><td>m or s</td><td>Length or duration of the guide section.</td></tr>
+  <tr><td><code>Environment Temperature</code></td><td>&deg;C</td><td>Ambient temperature used for radiation heat loss calculation.</td></tr>
+  <tr><td><code>Heat Transfer Coefficient</code></td><td>W/(m²·K)</td><td>Convective heat transfer coefficient between the workpiece surface and surrounding air.</td></tr>
+</table>
+
+<h3>6.2 Profile Splitting Logic</h3>
+<p>
+  The SeparatingGuide automatically splits the incoming figure-8 cross-section at
+  <strong>x&thinsp;=&thinsp;0</strong> (the vertical plane through the slitting neck).
+  The resulting half-oval is centered at x&thinsp;=&thinsp;0 so that it aligns correctly
+  with the symmetric roll groove of the following oval or round pass. The thermal state
+  (temperature, strain) is carried over from the slitting pass output.
+</p>
+<div class="info">
+  The SeparatingGuide must be placed <em>directly after</em> the slitting TwoRollPass in
+  the same sequence. All TwoRollPass and Transport units that follow it automatically
+  receive the <strong>×2 Dual Strand</strong> indicator (see Section 3.5).
+</div>
+<div class="tip">
+  Use a <strong>Rotation Override</strong> of 90&deg; on the first oval pass after the
+  SeparatingGuide if the separated profile should enter the caliber with its flat
+  (slitting) face oriented toward the roll gap rather than to the side.
+</div>
+
+<hr>
+
+<h2>7. Transport</h2>
 <span class="badge badge-trans">Transport</span>
 
 <p>
@@ -376,7 +433,7 @@
   the workpiece loses heat to the surrounding environment.
 </p>
 
-<h3>6.1 Parameters</h3>
+<h3>7.1 Parameters</h3>
 <table class="params-table">
   <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
   <tr><td><code>Label</code></td><td>—</td><td>Unique name for this transport section.</td></tr>
@@ -386,7 +443,7 @@
   <tr><td><code>Heat Transfer Coefficient</code></td><td>W/(m²·K)</td><td>Convective heat transfer coefficient between the workpiece surface and the environment. Typical range for free air convection during hot rolling: 10–30 W/(m²·K).</td></tr>
 </table>
 
-<h3>6.2 Thermal Calculation</h3>
+<h3>7.2 Thermal Calculation</h3>
 <p>
   PyRolL models the temperature evolution during transport using Newton's law of cooling.
   The surface heat flux \( q \) is:
@@ -412,7 +469,7 @@
 
 <hr>
 
-<h2>7. CoolingPipe</h2>
+<h2>8. CoolingPipe</h2>
 <span class="badge badge-cool">CoolingPipe</span>
 
 <p>
@@ -421,7 +478,7 @@
   flowing coolant, resulting in significantly stronger heat extraction than free-air transport.
 </p>
 
-<h3>7.1 Parameters</h3>
+<h3>8.1 Parameters</h3>
 <table class="params-table">
   <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
   <tr><td><code>Label</code></td><td>—</td><td>Unique name for this cooling section.</td></tr>
@@ -432,7 +489,7 @@
   <tr><td><code>Coolant Volume Flux</code></td><td>m³/s</td><td>Volumetric flow rate of the cooling water through the pipe. Controls the intensity of forced convection.</td></tr>
 </table>
 
-<h3>7.2 Difference to Transport</h3>
+<h3>8.2 Difference to Transport</h3>
 <p>
   Unlike a <em>Transport</em> unit (air cooling, low heat extraction), a <em>CoolingPipe</em>
   uses forced convection with water, resulting in heat transfer coefficients typically
@@ -448,7 +505,7 @@
 
 <hr>
 
-<h2>8. FinishingBlock</h2>
+<h2>9. FinishingBlock</h2>
 <span class="badge badge-fb">FinishingBlock</span>
 
 <p>
@@ -460,7 +517,7 @@
 
 <img class="screenshot" src="img/pass_design_finishing_block.png" alt="FinishingBlock with three sub-passes and transport-between elements">
 
-<h3>8.1 Block Parameters</h3>
+<h3>9.1 Block Parameters</h3>
 <table class="params-table">
   <tr><th>Field</th><th>Unit</th><th>Description</th></tr>
   <tr><td><code>Block Name</code></td><td>—</td><td>Label for the entire finishing block (e.g. <em>Finishing Block</em>).</td></tr>
@@ -468,7 +525,7 @@
   <tr><td><code>Motor RPM</code></td><td>rpm</td><td>Rotational speed of the drive motor. This single value controls the velocity of all sub-passes through their respective gear ratios.</td></tr>
 </table>
 
-<h3>8.2 Sub-Pass Parameters</h3>
+<h3>9.2 Sub-Pass Parameters</h3>
 <p>
   Each sub-pass within the FinishingBlock is a <em>TwoRollPass</em> with the following differences:
 </p>
@@ -485,7 +542,7 @@
   <tr><td><code>Groove Type / Parameters</code></td><td>—/mm</td><td>Same as for a standalone TwoRollPass (see Section 3).</td></tr>
 </table>
 
-<h3>8.3 Velocity Calculation</h3>
+<h3>9.3 Velocity Calculation</h3>
 <p>
   The roll surface velocity for each sub-pass is computed as:
 </p>
@@ -506,7 +563,7 @@
   between consecutive sub-passes within the FinishingBlock, based on the resulting velocity and cross-section profile.
 </p>
 
-<h3>8.4 Transport-Between Elements</h3>
+<h3>9.4 Transport-Between Elements</h3>
 <p>
   Between sub-passes inside a FinishingBlock, optional <strong>Transport-between</strong> elements
   (shown with a yellow border in the UI) can be added to model short transport sections
@@ -514,7 +571,7 @@
   These follow the same logic as standalone <em>Transport</em> units (see Section 6).
 </p>
 
-<h3>8.5 Adding and Removing Sub-Passes</h3>
+<h3>9.5 Adding and Removing Sub-Passes</h3>
 <ul>
   <li><strong>Add Sub-Pass</strong> — appends a new sub-pass at the end of the block</li>
   <li><strong>× (Remove)</strong> button on each sub-pass row — removes that sub-pass</li>
@@ -528,7 +585,7 @@
 
 <hr>
 
-<h2>9. Groove Profiles</h2>
+<h2>10. Groove Profiles</h2>
 
 <p>
   A groove profile defines the cross-sectional shape of the roll caliber. The groove type
@@ -539,77 +596,77 @@
 <div class="groove-gallery">
 
   <div class="groove-card">
-    <img src="grooves/circular_oval.svg" alt="CircularOvalGroove">
+    <img src="../grooves/circular_oval.svg" alt="CircularOvalGroove">
     <div class="groove-name">CircularOvalGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/oval_3radii.svg" alt="Oval3RadiiGroove">
+    <img src="../grooves/oval_3radii.svg" alt="Oval3RadiiGroove">
     <div class="groove-name">Oval3RadiiGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/oval_3radii_flanked.svg" alt="Oval3RadiiFlankedGroove">
+    <img src="../grooves/oval_3radii_flanked.svg" alt="Oval3RadiiFlankedGroove">
     <div class="groove-name">Oval3Radii­FlankedGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/swedish_oval.svg" alt="SwedishOvalGroove">
+    <img src="../grooves/swedish_oval.svg" alt="SwedishOvalGroove">
     <div class="groove-name">SwedishOvalGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/constricted_swedish_oval.svg" alt="ConstrictedSwedishOvalGroove">
+    <img src="../grooves/constricted_swedish_oval.svg" alt="ConstrictedSwedishOvalGroove">
     <div class="groove-name">Constricted­SwedishOvalGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/flat_oval.svg" alt="FlatOvalGroove">
+    <img src="../grooves/flat_oval.svg" alt="FlatOvalGroove">
     <div class="groove-name">FlatOvalGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/upset_oval.svg" alt="UpsetOvalGroove">
+    <img src="../grooves/upset_oval.svg" alt="UpsetOvalGroove">
     <div class="groove-name">UpsetOvalGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/round.svg" alt="RoundGroove">
+    <img src="../grooves/round.svg" alt="RoundGroove">
     <div class="groove-name">RoundGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/false_round.svg" alt="FalseRoundGroove">
+    <img src="../grooves/false_round.svg" alt="FalseRoundGroove">
     <div class="groove-name">FalseRoundGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/box.svg" alt="BoxGroove">
+    <img src="../grooves/box.svg" alt="BoxGroove">
     <div class="groove-name">BoxGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/constricted_box.svg" alt="ConstrictedBoxGroove">
+    <img src="../grooves/constricted_box.svg" alt="ConstrictedBoxGroove">
     <div class="groove-name">Constricted­BoxGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/diamond.svg" alt="DiamondGroove">
+    <img src="../grooves/diamond.svg" alt="DiamondGroove">
     <div class="groove-name">DiamondGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/square.svg" alt="SquareGroove">
+    <img src="../grooves/square.svg" alt="SquareGroove">
     <div class="groove-name">SquareGroove</div>
   </div>
 
   <div class="groove-card">
-    <img src="grooves/gothic.svg" alt="GothicGroove">
+    <img src="../grooves/gothic.svg" alt="GothicGroove">
     <div class="groove-name">GothicGroove</div>
   </div>
-
+  
   <div class="groove-card">
-    <img src="grooves/edgebox.svg" alt="EdgeBoxGroove">
+    <img src="../grooves/edgebox.svg" alt="EdgeBoxGroove">
     <div class="groove-name">EdgeBox­Groove</div>
   </div>
 
@@ -625,13 +682,13 @@
 
 </div>
 
-<h3>9.1 FlatGroove</h3>
+<h3>10.1 FlatGroove</h3>
 <p>
   A <code>FlatGroove</code> has a perfectly flat bottom (no curvature). It is used for flat rolling passes
   or as one side of an asymmetric roll pass (see Section 5). Only the groove width is specified.
 </p>
 
-<h3>9.2 SplineGroove</h3>
+<h3>10.2 SplineGroove</h3>
 <p>
   A <code>SplineGroove</code> is a custom free-form groove defined by a set of
   control points. This type is used when none of the standard geometric profiles accurately
@@ -639,7 +696,7 @@
   (y, z) coordinate pairs describing the groove contour.
 </p>
 
-<h3>9.3 ConstrictedCircularOvalGroove</h3>
+<h3>10.3 ConstrictedCircularOvalGroove</h3>
 <p>
   A variant of the <code>CircularOvalGroove</code> with an additional constriction
   (reduced width at the groove exit plane), used to improve material confinement.
@@ -649,7 +706,7 @@
 
 <hr>
 
-<h2>10. Solve Methods</h2>
+<h2>11. Solve Methods</h2>
 
 <p>
   The <strong>Solve Method</strong> defines how PyRolL distributes and iterates the velocities
@@ -685,7 +742,7 @@
   </tr>
 </table>
 
-<h3>10.1 Velocity Continuity</h3>
+<h3>11.1 Velocity Continuity</h3>
 <p>
   All three methods respect the law of mass continuity between passes:
 </p>
@@ -697,7 +754,7 @@
   </p>
 </div>
 
-<h3>10.2 Velocity Seed Requirement</h3>
+<h3>11.2 Velocity Seed Requirement</h3>
 <p>
   For <em>Forward Solve</em> and <em>Backward Solve</em>, every roll pass in the
   schedule must have a positive velocity seed value (&gt; 0). This allows the solver
@@ -711,7 +768,7 @@
   the block motor RPM serves as the velocity constraint.
 </div>
 
-<h3>10.3 Disk Element Count</h3>
+<h3>11.3 Disk Element Count</h3>
 <p>
   The <strong>Disk Element Count</strong> controls how finely PyRolL subdivides each pass
   in the rolling direction for the thermal and mechanical computation. The roll bite is
@@ -765,11 +822,11 @@
 
 <hr>
 
-<h2>11. Spreading Models</h2>
+<h2>12. Spreading Models</h2>
 
 <p>
   <strong>Lateral spreading</strong> describes the increase in workpiece width during rolling
-  caused by material flowing sideways (in addition to elongation). PyRolL GUI offers three
+  caused by material flowing sideways (in addition to elongation). PyRolL GUI offers six
   empirical spreading models, selectable in the toolbar area of the Pass Design tab.
 </p>
 
@@ -779,7 +836,7 @@
   Default: <strong>Wusatowski</strong>.
 </div>
 
-<h3>11.1 Wusatowski Spreading</h3>
+<h3>12.1 Wusatowski Spreading</h3>
 <p>
   The <strong>Wusatowski</strong> model (1969) is the default spreading model.
   It describes lateral spreading through an empirical power law based on the
@@ -817,7 +874,7 @@
   sub-models (force, torque, gripping analysis).
 </div>
 
-<h3>11.2 Marini Spreading</h3>
+<h3>12.2 Marini Spreading</h3>
 <p>
   The <strong>Marini</strong> model (1979) extends the power-law approach with
   additional consideration of the groove caliber geometry. It provides improved
@@ -849,7 +906,7 @@
   on the Marini spreading result.
 </div>
 
-<h3>11.3 Hill Spreading</h3>
+<h3>12.3 Hill Spreading</h3>
 <p>
   The <strong>Hill</strong> model is based on the analytical theory of plasticity
   (R. Hill, 1950) and derives spreading from the plane-strain deformation assumption.
@@ -857,7 +914,7 @@
   for flat and near-flat passes where the plane-strain assumption is approximately valid.
 </p>
 
-<h3>11.4 Roux Spreading</h3>
+<h3>12.4 Roux Spreading</h3>
 <p>
   The <strong>Roux</strong> model (1976) takes a fundamentally different approach: instead of a
   simple power law, it computes a <em>spread coefficient</em> from two intermediate
@@ -881,6 +938,12 @@
     Then \(b_1 = \eta \cdot b_0\).
   </p>
 </div>
+<p>
+  Roux is the only available model that computes both the <strong>spread</strong>
+  coefficient and the <strong>width</strong> output from a physically motivated
+  derivation without correction factors for velocity, temperature or material —
+  making it independent of those parameters in its default implementation.
+</p>
 <div class="note">
   <strong>Friction / Velocity / Temperature — no effect with Roux:</strong> The default
   implementation contains no correction factors for velocity, temperature, material or
@@ -888,7 +951,7 @@
   \(b_{eq}/h_{eq}\) and the roll radius.
 </div>
 
-<h3>11.5 Sander Spreading</h3>
+<h3>12.5 Sander Spreading</h3>
 <p>
   The <strong>Sander</strong> model shares the same general power-law structure as
   Wusatowski but uses a different exponent formula that explicitly accounts for the
@@ -901,36 +964,54 @@
     \(\psi_S = 10^{\,-0.76\,\left(\frac{b_{eq}}{h_{eq}}\right)^{0.39}\,\left(\frac{b_{eq}}{\sqrt{R\,\Delta h_{eq}}}\right)^{0.12}\,\left(\frac{b_{eq}}{R}\right)^{0.59}}\)
   </p>
 </div>
+<p>
+  The Sander exponent grows more sensitive to the relative workpiece width (\(b/h\) ratio)
+  and the roll-contact geometry compared to Wusatowski, making it particularly suited to
+  wider workpieces and flat passes with large width-to-height ratios.
+</p>
 <div class="info">
   <strong>Velocity correction \(a_v\) with Sander:</strong> A velocity correction applies
   when \(v \le 60\) m/s:
   \(a_v = 1 - 0.0033 \cdot v \cdot \left(1 - \frac{b_0}{b_1}\right)\).
   At high rolling speeds (\(v > 60\) m/s) the correction is set to 1 (no effect).
+  The roll velocity entered in the pass parameters therefore influences the Sander result
+  at typical hot-rolling speeds.
 </div>
 <div class="note">
   <strong>Friction — no effect with Sander:</strong> The friction correction factor is
-  fixed at \(a_f = 1\).
+  fixed at \(a_f = 1\). Coulomb friction has no direct influence on the Sander spreading
+  result.
 </div>
 
-<h3>11.6 Sparling Spreading</h3>
+<h3>12.6 Sparling Spreading</h3>
 <p>
-  The <strong>Sparling</strong> model adopts the Wusatowski-style power law but
-  introduces a distinctive exponential exponent formula:
+  The <strong>Sparling</strong> model also adopts the Wusatowski-style power law but
+  introduces a distinctive exponential exponent formula that captures the interaction
+  between workpiece width, roll radius, and height reduction:
 </p>
 <div class="formula-box">
   $$\frac{b_1}{b_0} = \left(\frac{h_0}{h_1}\right)^{-\psi_{Sp} \cdot a_T \cdot a_{\dot\varepsilon} \cdot a_M \cdot a_{rs} \cdot a_{bs}}$$
   <p style="margin:0.5em 0 0 0; font-size:0.92em;">
     Sparling exponent:<br>
     \(\psi_{Sp} = 0.981 \cdot \exp\!\left(-0.6735 \cdot \dfrac{2.395\,b_{eq}^{\,0.9}}{R^{0.55}\,h_{eq}^{\,0.1}\,|\Delta h|^{0.25}}\right)\)<br><br>
-    All correction factors default to 1 in the standard implementation.
+    where \(a_T\) = temperature factor, \(a_{\dot\varepsilon}\) = strain-rate factor,
+    \(a_M\) = material factor, \(a_{rs}\) = roll surface factor, \(a_{bs}\) = bar surface factor.
+    All default to 1 in the standard implementation.
   </p>
 </div>
+<p>
+  The exponential form makes the Sparling exponent particularly sensitive to the
+  relative width \(b_{eq}/\sqrt{R \cdot |\Delta h|}\) — a dimensionless measure of
+  the deformation zone geometry. At moderate reductions the Sparling model tends to
+  predict lower spread than Wusatowski; at high reductions it may predict higher spread.
+</p>
 <div class="note">
   <strong>Friction / Velocity / Temperature — no effect (default):</strong> All
-  correction factors default to 1.
+  correction factors default to 1. Only the geometric exponent \(\psi_{Sp}\) is active
+  in the standard implementation.
 </div>
 
-<h3>11.7 Choosing a Model</h3>
+<h3>12.7 Choosing a Model</h3>
 <table>
   <tr><th>Model</th><th>Best suited for</th><th>Friction effect</th><th>Velocity effect</th><th>Notes</th></tr>
   <tr>
@@ -959,7 +1040,7 @@
     <td>Wide workpieces; cases where velocity/temperature data is uncertain</td>
     <td>None</td>
     <td>None</td>
-    <td>Physics-motivated derivation; no empirical correction factors</td>
+    <td>Physics-motivated derivation; no empirical correction factors; unique two-parameter structure</td>
   </tr>
   <tr>
     <td>Sander</td>
@@ -973,7 +1054,7 @@
     <td>High-reduction passes; comparison / validation studies</td>
     <td>None (default)</td>
     <td>None (default)</td>
-    <td>Exponential exponent form; sensitive to \(b/\sqrt{R\,|\Delta h|}\)</td>
+    <td>Exponential exponent form; sensitive to \(b/\sqrt{R\,|\Delta h|}\); tends to diverge from Wusatowski at extreme reductions</td>
   </tr>
 </table>
 
@@ -985,7 +1066,7 @@
 
 <hr>
 
-<h2>12. Tips and Common Mistakes</h2>
+<h2>13. Tips and Common Mistakes</h2>
 
 <h3>10.1 Label Uniqueness</h3>
 <p>

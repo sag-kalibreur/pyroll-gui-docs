@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="favicon.ico" type="image/x-icon">
 <title>Pass Plots Guide – PyRoll GUI</title>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
@@ -69,32 +68,6 @@
   }
   .scroll-nav button:hover { background: #FFDD00; }
 
-  /* ── Guide navigation bar ───────────────────────── */
-  .guide-nav-bar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #FFDD00;
-    padding: 8px 18px;
-    border-radius: 6px;
-    margin-bottom: 1.5em;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
-  .guide-back-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #222;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95em;
-  }
-  .guide-back-link:hover { text-decoration: underline; }
-  .guide-nav-icon { height: 32px; width: auto; }
-
   @media print {
     h2 { break-before: page; }
     h2:first-of-type { break-before: auto; }
@@ -109,11 +82,6 @@
 </style>
 </head>
 <body>
-
-<div class="guide-nav-bar">
-  <a href="index.html" class="guide-back-link">&#8592; back to overview</a>
-  <img src="img/pyroll_icon.png" alt="PyRoll" class="guide-nav-icon">
-</div>
 
 <h1>Pass Plots Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
@@ -374,6 +342,27 @@
   The Lendl Combined plot is the key output for asymmetric passes — the red spreading
   areas on both sides indicate how much material flows laterally beyond the groove,
   and the Lendl out-profile represents the predicted final cross-section.
+</div>
+
+<!-- ─── 3.4 SEPARATING GUIDE ─────────────────────────────── -->
+<h3 id="separating-guide-pass">3.4 Special Case: Separating Guide</h3>
+<p>
+  When a <strong>SeparatingGuide</strong> unit is selected from the pass dropdown (identified
+  by the &#9986; prefix in its label), the Roll Pass Visualization section expands to show
+  the figure-8 splitting sequence instead of a standard roll pass plot.
+</p>
+
+<img class="screenshot" src="img/pass_plots_separating_guide.png" alt="SeparatingGuide pass view with figure-8 input profile, scissors arrow, dual-strand output, transport data panel, and single-strand detail plot below">
+
+<p>Three elements are displayed:</p>
+<ul>
+  <li><strong>Input (figure-8)</strong>: the complete figure-8 out-profile from the preceding slitting pass.</li>
+  <li><strong>Output (&times;2 strands)</strong>: both separated half-ovals displayed side by side, representing the two parallel strands after separation.</li>
+  <li><strong>Single-strand detail plot</strong>: a standard cross-section plot below showing the individual half-oval with its dimensional data (height, width, area, temperature, duration/length).</li>
+</ul>
+<div class="info">
+  The SeparatingGuide entry appears in the pass dropdown in the natural rolling order,
+  between the slitting pass and the first post-separation oval or round pass.
 </div>
 
 <!-- ─── 4. TEMPERATURE PROFILE PLOT ──────────────────────── -->

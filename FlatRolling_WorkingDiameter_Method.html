@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<title>Working Diameter – Flat Rolling Correction</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; }
+  .warn { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; }
+  .info { background: rgba(0,84,153,0.07); border: 1px solid rgba(0,84,153,0.25); border-radius: 4px; padding: 10px 14px; color: #003f73; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+
+  /* ── Guide navigation bar ───────────────────────── */
+  .guide-nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFDD00;
+    padding: 8px 18px;
+    border-radius: 6px;
+    margin-bottom: 1.5em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .guide-back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+  .guide-back-link:hover { text-decoration: underline; }
+  .guide-nav-icon { height: 32px; width: auto; }
+</style>
+</head>
+<body>
+
+<div class="guide-nav-bar">
+  <a href="index.html" class="guide-back-link">&#8592; back to overview</a>
+  <img src="img/pyroll_icon.png" alt="PyRoll" class="guide-nav-icon">
+</div>
+
+<h1>Working Diameter – Flat Rolling Correction <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: September 2026</em></p>
+
+<hr>
+
+<h2>1. Introduction</h2>
+<p>
+  For a flat pass (<code>FlatGroove</code>, i.e. a pass without any lateral groove
+  shape), PyRolL Core's standard formula for the working radius is:
+</p>
+<div class="formula-box">
+  \[
+    r_{\text{work}} = r_{\text{nominal}} - \text{groove\_factor}
+  \]
+</div>
+<p>
+  For a <code>FlatGroove</code>, <code>groove_factor</code> is always \(0\) (the
+  groove contour is a flat line at \(y = 0\)), so this reduces to
+  \(r_{\text{work}} = r_{\text{nominal}}\) — the working radius equals the nominal
+  roll radius, unmodified.
+</p>
+<p>
+  This overestimates the effective rolling radius: the actual contact between roll
+  and workpiece happens <em>below</em> the nominal roll surface, at roughly half the
+  height reduction. Left uncorrected, this error propagates into the contact length,
+  elongation, roll force and roll torque (typically 2–5&nbsp;% for reductions above
+  10&nbsp;mm). PyRoll WebGUI therefore applies a dedicated correction for flat passes.
+</p>
+
+<hr>
+
+<h2>2. Corrected Working Radius</h2>
+<p>
+  The correction subtracts half of the total height reduction \(\Delta h\) from the
+  nominal radius:
+</p>
+<div class="formula-box">
+  \[
+    r_{\text{work}} = r_{\text{nominal}} - \frac{\Delta h}{2}
+    \qquad \text{where} \qquad
+    \Delta h = h_{\text{in}} - g
+  \]
+</div>
+<p>
+  where \(g\) is the roll gap and \(h_{\text{in}}\) is the <strong>equivalent
+  incoming bar height</strong> of the in-profile (see Section 3). If \(\Delta h \le 0\)
+  (gap at or above the incoming height, i.e. no reduction), no correction is applied
+  and PyRolL's default formula is used instead.
+</p>
+<p>The working diameter shown in the Results table is simply \(D_{\text{work}} = 2 \, r_{\text{work}}\).</p>
+
+<hr>
+
+<h2>3. Equivalent Height — Which Formula Applies?</h2>
+<p>
+  PyRolL Core defines a generic <code>equivalent_height</code> for any profile as:
+</p>
+<div class="formula-box">
+  \[
+    h_{\text{in}} = \sqrt{ A \cdot \frac{h}{w} }
+  \]
+</div>
+<p>
+  where \(A\) is the cross-section area and \(h\), \(w\) are the profile's bounding
+  height and width. For a round profile (\(h = w = D\)), this reduces to
+  \(h_{\text{in}} = \sqrt{A}\).
+</p>
+<div class="info">
+  ℹ <strong>Important:</strong> this generic formula is <em>not</em> what applies
+  once a profile is the in-profile or out-profile of an actual roll pass. In that
+  context, the <code>pyroll-lendl-equivalent-method</code> plugin overrides
+  <code>equivalent_height</code> with the <strong>Lendl equivalent-height method</strong>,
+  which derives it from the actual filled (pillar-model) cross-section area instead
+  of the simple \(\sqrt{A \cdot h/w}\) approximation:
+  \[
+    h_{\text{in}} = \frac{A_{\text{Lendl}}}{w_{\text{Lendl}}}
+  \]
+  Since every in-profile/out-profile inside a simulated pass is a roll-pass profile,
+  this Lendl-based value is what the flat-pass working-diameter correction above
+  actually uses — not the generic formula. The two values are usually close but not
+  identical; see the worked example below.
+</div>
+
+<hr>
+
+<h2>4. Worked Example</h2>
+<p>
+  A round bar of 50&nbsp;mm diameter enters a flat pass with a roll gap of 35&nbsp;mm
+  and a nominal roll diameter of 450&nbsp;mm (nominal radius 225&nbsp;mm):
+</p>
+<table>
+  <tr><th>Quantity</th><th>Value</th></tr>
+  <tr><td>Nominal radius \(r_{\text{nominal}}\)</td><td>225.00&nbsp;mm</td></tr>
+  <tr><td>Roll gap \(g\)</td><td>35.00&nbsp;mm</td></tr>
+  <tr><td>Equivalent incoming height \(h_{\text{in}}\) (Lendl method)</td><td>45.31&nbsp;mm</td></tr>
+  <tr><td>Height reduction \(\Delta h = h_{\text{in}} - g\)</td><td>10.31&nbsp;mm</td></tr>
+  <tr><td>Working radius \(r_{\text{work}} = r_{\text{nominal}} - \Delta h / 2\)</td><td>219.85&nbsp;mm</td></tr>
+  <tr><td><strong>Working diameter \(D_{\text{work}}\)</strong></td><td><strong>439.69&nbsp;mm</strong></td></tr>
+</table>
+<p>
+  For reference, the generic \(\sqrt{A}\) formula (not the one actually applied)
+  would give \(h_{\text{in}} \approx 44.28\)&nbsp;mm and a working diameter of
+  \(\approx 440.72\)&nbsp;mm — about 1&nbsp;mm higher. This small difference is
+  expected and explained entirely by Section 3, not by any inaccuracy in the
+  correction itself.
+</p>
+
+<hr>
+
+<h2>5. Applicability</h2>
+<div class="warn">
+  ⚠ <strong>FlatGroove only:</strong> this correction applies exclusively to passes
+  using a <code>FlatGroove</code>. For all other groove types (round, oval, square,
+  diamond, box, spline, …) PyRolL Core's standard
+  \(r_{\text{work}} = r_{\text{nominal}} - \text{groove\_factor}\) formula is used
+  unmodified, since those groove shapes already yield a meaningful, non-zero
+  <code>groove_factor</code>.
+</div>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Working Diameter Method</p>
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+</body>
+</html>

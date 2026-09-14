@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<title>Groove Calculator Guide – PyRoll GUI</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  h4 { color: #333; margin-top: 1.2em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; color: #222; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; font-family: 'Courier New', monospace; font-size: 0.95em; }
+  .warn  { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5);  border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; margin: 0.8em 0; }
+  .info  { background: rgba(0,84,153,0.07);  border: 1px solid rgba(0,84,153,0.25);  border-radius: 4px; padding: 10px 14px; color: #003f73; margin: 0.8em 0; }
+  .tip   { background: rgba(0,160,80,0.07);  border: 1px solid rgba(0,160,80,0.3);   border-radius: 4px; padding: 10px 14px; color: #064e2c; margin: 0.8em 0; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  .ui-btn { display: inline-flex; align-items: center; gap: 5px; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 5px; padding: 3px 10px; font-size: 0.88em; font-family: 'Segoe UI', Arial, sans-serif; color: #333; vertical-align: middle; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.06); pointer-events: none; }
+  .ui-btn-yellow { background: #FFDD00; border-color: #c9a800; color: #222; font-weight: bold; }
+  ul { margin: 0.4em 0 0.8em 1.4em; }
+  li { margin-bottom: 0.3em; }
+  img.screenshot      { max-width: 100%; border: 1px solid #ccc; border-radius: 6px; margin: 1.2em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
+  img.screenshot-half { max-width: 55%; border: 1px solid #ccc; border-radius: 6px; margin: 1.2em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.10); display: block; }
+  nav.toc { background: #fafafa; border: 1px solid #ddd; border-radius: 6px; padding: 16px 24px; margin-bottom: 2em; }
+  nav.toc h2 { margin-top: 0; border: none; padding: 0; font-size: 1em; color: #222; }
+  nav.toc ol { margin: 0.4em 0 0 1.2em; }
+  nav.toc li { margin-bottom: 0.2em; }
+  nav.toc a { color: #005499; text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+
+  /* ── Guide navigation bar ───────────────────────── */
+  .guide-nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFDD00;
+    padding: 8px 18px;
+    border-radius: 6px;
+    margin-bottom: 1.5em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .guide-back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+  .guide-back-link:hover { text-decoration: underline; }
+  .guide-nav-icon { height: 32px; width: auto; }
+
+  @media print {
+    h2 { break-before: page; }
+    h2:first-of-type { break-before: auto; }
+    h3, h4 { break-after: avoid; }
+    p { orphans: 3; widows: 3; }
+    table, .formula-box, .warn, .info, .tip { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
+</head>
+<body>
+
+<div class="guide-nav-bar">
+  <a href="index.html" class="guide-back-link">&#8592; back to overview</a>
+  <img src="img/pyroll_icon.png" alt="PyRoll" class="guide-nav-icon">
+</div>
+
+<h1>Groove Calculator Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: September 2026</em></p>
+<hr>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#switcher">Round&nbsp;&#8596; Oval vs. Square&nbsp;&#8596; Diamond</a></li>
+    <li><a href="#main-params">Main Parameters</a></li>
+    <li><a href="#groove-factors">Round / Square Groove Factors</a></li>
+    <li><a href="#inter-factors">Oval / Diamond Groove Factors (Intermediate)</a></li>
+    <li><a href="#calculate">Calculate</a></li>
+    <li><a href="#results">Result Tables</a></li>
+    <li><a href="#plots">Groove Preview Plots</a></li>
+    <li><a href="#save-library">Save to Groove Library</a></li>
+    <li><a href="#use-pass-design">Use in Pass Design</a></li>
+    <li><a href="#reset">Reset</a></li>
+  </ol>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="overview">1. Overview</h2>
+<p>
+  The <strong>Groove Calculator</strong> tab computes a complete, pass-by-pass
+  <strong>elongation distribution</strong> for a groove series, given only the
+  initial and final cross-section area, a distribution factor \(Z\), and the
+  number of passes \(n\). It replaces manual, iterative groove-by-groove
+  calculations with a single calculation covering the whole series at once.
+</p>
+<p>
+  Two series types are supported:
+</p>
+<ul>
+  <li><strong>Round &#8596; Oval series</strong>: main passes use round grooves, intermediate passes use oval grooves.</li>
+  <li><strong>Square &#8596; Diamond series</strong>: main passes use square grooves, intermediate passes use diamond grooves.</li>
+</ul>
+<p>
+  For each mode, the tab shows a result table and groove preview plots for both the
+  main passes and the intermediate passes, and can transfer the calculated series
+  directly into <strong>Pass Design</strong> or save individual grooves into the
+  <strong>Groove Library</strong>.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="switcher">2. Round &#8596; Oval vs. Square &#8596; Diamond</h2>
+<p>
+  The mode switch at the top of the tab selects which groove series is calculated.
+  Switching modes only changes which parameter panels, result tables and plots are
+  shown &mdash; the <strong>Main Parameters</strong> (\(A_0\), \(A_E\), \(Z\), \(n\))
+  are remembered separately for each mode, so switching back and forth does not lose
+  previously entered values.
+</p>
+
+<img class="screenshot" src="img/groove_calc_switcher.png" alt="Round to Oval series / Square to Diamond series mode switch buttons">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="main-params">3. Main Parameters</h2>
+<p>
+  The <strong>Main Parameters</strong> panel defines the overall elongation task:
+</p>
+<table>
+  <tr><th>Field</th><th>Meaning</th></tr>
+  <tr><td>\(A_0\) [mm&sup2;]</td><td>Initial cross-section area (input stock)</td></tr>
+  <tr><td>\(l_0\) &Oslash; / &#9633; [mm]</td><td>Equivalent initial diameter (Round mode) or side length (Square mode) &mdash; bidirectionally linked to \(A_0\)</td></tr>
+  <tr><td>\(A_E\) [mm&sup2;]</td><td>Final (target) cross-section area</td></tr>
+  <tr><td>\(l_1\) &Oslash; / &#9633; [mm]</td><td>Equivalent final diameter / side length &mdash; bidirectionally linked to \(A_E\)</td></tr>
+  <tr><td>\(Z\)</td><td>Distribution / degression factor (\(Z = 1\) gives a uniform elongation distribution across all passes)</td></tr>
+  <tr><td>\(n\) (passes)</td><td>Number of main passes in the series</td></tr>
+</table>
+<p>
+  Editing \(A_0\)/\(A_E\) automatically updates the equivalent diameter/side length
+  fields and vice versa. Below the inputs, a live preview shows
+  \(\lambda_{\text{total}}\), \(\lambda_m\) (mean elongation per pass) and
+  \(\varepsilon_{Am}\) (mean logarithmic strain per pass) &mdash; updated as you type,
+  even before pressing <span class="ui-btn">Calculate &#9654;</span>.
+</p>
+
+<img class="screenshot" src="img/groove_calc_round_oval_setup.png" alt="Main Parameters, Round Groove Factors and Oval Groove Factors panels (Round mode)">
+<p><em>Round &#8596; Oval mode: Main Parameters, Round Groove Factors, and Oval Groove Factors (intermediate).</em></p>
+
+<img class="screenshot" src="img/groove_calc_square_diamond_setup.png" alt="Main Parameters, Square Groove Factors and Diamond Groove Factors panels (Square mode)">
+<p><em>Square &#8596; Diamond mode: Main Parameters, Square Groove Factors, and Diamond Groove Factors (intermediate).</em></p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="groove-factors">4. Round / Square Groove Factors</h2>
+<p>These design ratios control the main-pass groove geometry:</p>
+<h3>Round mode</h3>
+<table>
+  <tr><th>Factor</th><th>Meaning</th></tr>
+  <tr><td>\(2 \cdot r_2 / d\)</td><td>Main contour radius \(r_2\) relative to the equivalent diameter</td></tr>
+  <tr><td>\(r_1/s\)</td><td>Edge radius \(r_1\) relative to the groove gap \(s\)</td></tr>
+  <tr><td>\(s/d\)</td><td>Groove gap \(s\) relative to the equivalent diameter</td></tr>
+  <tr><td>\(\alpha\) [&deg;]</td><td>Flank angle</td></tr>
+</table>
+<h3>Square mode</h3>
+<table>
+  <tr><th>Factor</th><th>Meaning</th></tr>
+  <tr><td>\(s/l\)</td><td>Groove gap \(s\) relative to the equivalent side length</td></tr>
+  <tr><td>\(R_{\text{start}}\), \(R_{\text{end}}\) [mm]</td><td>Main corner radius \(r_2\) of the first and last pass; interpolated linearly in between</td></tr>
+  <tr><td>\(r_1/s\)</td><td>Edge radius \(r_1\) relative to the groove gap \(s\)</td></tr>
+  <tr><td>\(\alpha\) [&deg;]</td><td>Flank angle</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="inter-factors">5. Oval / Diamond Groove Factors (Intermediate)</h2>
+<p>
+  Intermediate passes (Oval between round passes, Diamond between square passes)
+  are estimated from the geometric mean of the two adjacent main-pass areas,
+  combined with a Wusatowski area form factor. Their geometry is controlled by:
+</p>
+<h3>Oval (Round mode)</h3>
+<table>
+  <tr><th>Factor</th><th>Meaning</th></tr>
+  <tr><td>\(b/h\)</td><td>Width-to-height aspect ratio of the oval</td></tr>
+  <tr><td>\(r_2/h\)</td><td>Main contour radius \(r_2\) relative to the oval height</td></tr>
+  <tr><td>\(r_1/s\)</td><td>Edge radius \(r_1\) relative to the groove gap \(s\)</td></tr>
+  <tr><td>\(s/h\)</td><td>Groove gap \(s\) relative to the oval height</td></tr>
+</table>
+<h3>Diamond (Square mode)</h3>
+<table>
+  <tr><th>Factor</th><th>Meaning</th></tr>
+  <tr><td>\(w/h\)</td><td>Diagonal aspect ratio of the idealised diamond (rhombus) cross-section</td></tr>
+  <tr><td>\(R_{\text{start}}\), \(R_{\text{end}}\) [mm]</td><td>Main corner radius \(r_2\) of the first and last intermediate pass; interpolated linearly in between</td></tr>
+  <tr><td>\(r_1/s\)</td><td>Edge radius \(r_1\) relative to the groove gap \(s\)</td></tr>
+  <tr><td>\(s/h\)</td><td>Groove gap \(s\) relative to the diamond diagonal \(h\)</td></tr>
+</table>
+<div class="info">
+  &#8505; The diamond tip angle is <strong>not</strong> a free input &mdash; it is
+  computed directly from the \(w/h\) diagonal ratio
+  (\(\alpha = 2 \cdot \arctan(w/h)\)), since for an idealised rhombus cross-section
+  the two are geometrically coupled.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="calculate">6. Calculate</h2>
+<p>
+  Press <span class="ui-btn ui-btn-yellow">Calculate &#9654;</span> to compute the
+  full pass-by-pass elongation distribution using the current parameters.
+  Both result tables and both plot galleries (main and intermediate passes) are
+  populated at once.
+</p>
+<img class="screenshot-half" src="img/groove_calc_calculate.png" alt="Calculate button">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="results">7. Result Tables</h2>
+<p>
+  The <strong>main passes</strong> table lists, for each pass: the distribution
+  exponent \(Z^y\), elongation \(\lambda_i\), cross-section area \(A_s\), equivalent
+  diameter/side length, groove edge/main radii \(r_1\)/\(r_2\), groove gap \(s\), and
+  flank angle \(\alpha\).
+</p>
+<img class="screenshot" src="img/groove_calc_round_results.png" alt="Round Passes result table">
+
+<p>
+  The <strong>intermediate passes</strong> table lists the same geometry columns for
+  the Oval/Diamond grooves between each pair of main passes (including the initial
+  "0&nbsp;&#8594;&nbsp;1" step from the input stock to the first main pass), using
+  \(w\)/\(h\) instead of the equivalent diameter/side length.
+</p>
+<img class="screenshot" src="img/groove_calc_oval_results.png" alt="Oval Passes (intermediate) result table">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="plots">8. Groove Preview Plots</h2>
+<p>
+  Below each result table, a gallery of groove preview plots is shown &mdash; one per
+  pass. Click any thumbnail to open it enlarged in a full-screen gallery view, with
+  &lsaquo;/&rsaquo; arrow buttons (or the arrow keys / <kbd>Esc</kbd>) to navigate
+  between grooves without closing the gallery.
+</p>
+<img class="screenshot" src="img/groove_calc_round_plots.png" alt="Round Passes groove preview plot gallery">
+<img class="screenshot" src="img/groove_calc_oval_plots.png" alt="Oval Passes (intermediate) groove preview plot gallery">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="save-library">9. Save to Groove Library</h2>
+<p>
+  <span class="ui-btn ui-btn-yellow">&#128190; Save to Groove Library</span> opens a
+  modal listing every calculated groove (main and intermediate passes) as a
+  selectable row, with an editable name, its type, gap, and a live preview plot.
+  Select any subset, choose a target library (or create a new one on the fly with
+  <strong>+ New Library</strong>), and save &mdash; existing names are flagged with a
+  confirmation prompt before being overwritten.
+</p>
+<img class="screenshot" src="img/groove_calc_save_to_library_modal.png" alt="Save to Groove Library modal with selectable grooves and preview">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="use-pass-design">10. Use in Pass Design</h2>
+<p>
+  <span class="ui-btn ui-btn-yellow">&#9654; Use in Pass Design</span> builds a
+  complete Pass Design sequence from the calculated series, alternating intermediate
+  and main passes in the correct order (e.g. Oval&nbsp;&#8594;&nbsp;Round&nbsp;&#8594;&nbsp;Oval&nbsp;&#8594;&nbsp;Round&hellip;),
+  using the <strong>Start Roll &Oslash;</strong> field as the nominal roll diameter
+  for every pass. The app then switches to the Pass Design tab so roll diameter and
+  friction can be fine-tuned per pass before simulating.
+</p>
+<img class="screenshot" src="img/groove_calc_footer_bar.png" alt="Save to Groove Library, Start Roll diameter field, Use in Pass Design and Reset buttons">
+<img class="screenshot-half" src="img/groove_calc_use_in_pass_design_button.png" alt="Use in Pass Design button">
+<ul>
+  <li>
+    If <strong>Sequence 1</strong> is still untouched (the default, empty first row),
+    it is silently replaced with the new sequence.
+  </li>
+  <li>
+    Otherwise you are asked to confirm &mdash; overwrite Sequence 1, or add the new
+    passes as an additional sequence instead.
+  </li>
+  <li>
+    The calculated starting size (\(l_0\)) can also be transferred to the
+    <strong>In Profile</strong> tab: if its shape already matches the calculated
+    series it is updated silently, otherwise you are asked to confirm before the
+    shape/value is overwritten.
+  </li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="reset">11. Reset</h2>
+<p>
+  <span class="ui-btn">&#8635; Reset</span> restores every field in the Groove
+  Calculator tab to its default values and clears the result tables and plots.
+  All fields are also automatically reset whenever a new project is started
+  (<code>File &#8594; New</code>).
+</p>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Groove Calculator Guide</p>
+
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+
+</body>
+</html>

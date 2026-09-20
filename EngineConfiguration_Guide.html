@@ -109,7 +109,7 @@
 </div>
 
 <h1>Engine Configuration Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: July 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: September 2026</em></p>
 <hr>
 
 <nav class="toc">
@@ -123,7 +123,7 @@
         <li><a href="#gear-stages">4.1 Multi-Stage Gear Ratio</a></li>
       </ul>
     </li>
-    <li><a href="#assign">Assign to Stands</a></li>
+    <li><a href="#assign">Assign to Stand</a></li>
     <li><a href="#utilization">Engine Utilization Diagram</a></li>
     <li><a href="#actions">Card Actions: Save, Copy, Delete</a></li>
     <li><a href="#drag-drop">Drag &amp; Drop — Reorder Cards</a></li>
@@ -147,7 +147,7 @@
 <p>
   Each engine is represented by an <strong>Engine Card</strong>. Cards are listed vertically
   and can be freely reordered by dragging. Multiple engines can be configured independently;
-  each engine can be assigned to one or more stands.
+  each engine can be assigned to a single stand (or drive multiple stands via a Finishing Block).
 </p>
 <p>
   Engine configurations are saved as part of the project file
@@ -163,7 +163,7 @@
   badge, the engine name, and the action buttons.
 </p>
 
-<img class="screenshot" src="img/engine_configuration_engine_card.png" alt="Engine Card — DC Engine 01 with parameters and Assign to Stands">
+<img class="screenshot" src="img/engine_configuration_engine_card.png" alt="Engine Card — DC Engine 01 with parameters and Assign to Stand">
 
 <p>
   An <strong>orange border</strong> and the label <em>● Unsaved</em> in the header
@@ -173,7 +173,7 @@
 </p>
 <p>
   If the engine is the drive for a <strong>Finishing Block</strong>, the
-  <em>Assign to Stands</em> section is replaced by a read-only
+  <em>Assign to Stand</em> section is replaced by a read-only
   <em>Finishing Block Motor</em> panel showing the block label and the individual
   sub-pass gear ratios.
 </p>
@@ -300,23 +300,31 @@
 
 
 <!-- ═══════════════════════════════════════════════════════════ -->
-<h2 id="assign">5. Assign to Stands</h2>
+<h2 id="assign">5. Assign to Stand</h2>
 <p>
-  The <strong>Assign to Stands</strong> section appears at the bottom of the card
+  The <strong>Assign to Stand</strong> section appears at the bottom of the card
   (unless the engine drives a Finishing Block).
-  A row of checkboxes lists all currently defined stands.
-  Check every stand that this motor drives.
+  A dropdown lists all currently defined stands — select the single stand
+  that this motor drives, or <em>– Not assigned –</em> to leave it unassigned.
 </p>
+
+<img class="screenshot" src="img/engine_configuration_assign_to_stand.png" alt="Assign to Stand — dropdown with Stand 1 selected">
+
 <p>
-  One stand can be assigned to at most one engine.
-  Assigning a stand that is already assigned to another engine removes the assignment
+  A stand can only be assigned to one engine at a time.
+  Selecting a stand that is already assigned to another engine removes the assignment
   from the previous engine automatically when the project is next saved.
 </p>
 <p>
   Stand names (e.g. <em>Stand 1</em>, <em>K1</em>) are taken directly from the
   Pass Design tab. Adding or renaming stands in the Pass Design tab automatically
-  updates the checkbox list here.
+  updates the dropdown list here.
 </p>
+<div class="tip">
+  One motor shared by several stands? Use a <strong>Finishing Block</strong> instead —
+  it correctly derives each stand's velocity from the shared motor RPM and its own
+  gear ratio, which a single stand assignment cannot represent.
+</div>
 <div class="info">
   For Finishing Blocks the engine assignment is set inside the Pass Design tab
   (field <em>Engine</em> on the FinishingBlock row). The card then shows the
@@ -415,7 +423,7 @@
 </p>
 <div class="tip">
   Reordering cards has no effect on the simulation — engines are matched to stands
-  by their <em>Assign to Stands</em> selection, not by their position in the list.
+  by their <em>Assign to Stand</em> selection, not by their position in the list.
 </div>
 
 

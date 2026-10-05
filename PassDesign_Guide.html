@@ -101,7 +101,7 @@
 </div>
 
 <h1>Pass Design Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: July 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: October 2026</em></p>
 
 <hr>
 
@@ -839,6 +839,38 @@
   to 10–15 usually resolves the issue without significantly affecting result quality.
 </div>
 
+<h3>11.4 RPM Basis</h3>
+<p>
+  The <strong>RPM Basis</strong> selector, next to Disk Element Count, controls which diameter is used
+  to convert the simulated rolling velocity into a displayed <em>Roll RPM (actual)</em> / <em>Motor RPM</em>
+  for velocity-defined stands (Standard, Forward, and Backward Solve):
+</p>
+
+<img src="img/pass_design_disc_element_count.png" alt="RPM Basis selector next to Disk Element Count in the sequence header toolbar" class="screenshot">
+
+<table class="params-table">
+  <tr><th>Option</th><th>Effect</th></tr>
+  <tr>
+    <td><strong>Working Diameter</strong> (default)</td>
+    <td>RPM is computed from the geometric working diameter — the previous, unchanged behavior.</td>
+  </tr>
+  <tr>
+    <td><strong>Effective Diameter (Ekelund)</strong></td>
+    <td>RPM is computed from the forward-slip-corrected effective diameter (Ekelund's formula),
+    so the displayed RPM accounts for the small speed difference between the roll surface and
+    the material at the neutral point.</td>
+  </tr>
+</table>
+
+<div class="warn">
+  <strong>Does not affect simulated rolling velocity:</strong> PyRolL's own mass-conservation solve
+  always uses the geometric working diameter internally — switching this option only changes how
+  that unchanged velocity is converted into an RPM figure for display. It also does not apply to
+  Finishing Block sub-passes, which keep their prescribed motor RPM as the authoritative input
+  either way. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a>
+  for the full background and the comparison against PyRolL's built-in neutral-angle model.
+</div>
+
 <hr>
 
 <h2>12. Spreading Models</h2>
@@ -1124,7 +1156,7 @@
 
 <hr>
 <p style="font-size:0.85em; color:#888; margin-top:2em;">
-  Michael Molter &nbsp;|&nbsp; PyRoll GUI — Pass Design Guide &nbsp;|&nbsp; July 2026
+  Michael Molter &nbsp;|&nbsp; PyRoll GUI — Pass Design Guide &nbsp;|&nbsp; October 2026
 </p>
 
 <div class="scroll-nav">

@@ -114,7 +114,7 @@
 </div>
 
 <h1>Results Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: October 2026</em></p>
 
 <hr>
 
@@ -186,9 +186,10 @@
 <table>
   <tr><th>Field</th><th>Description</th></tr>
   <tr><td>Steel Grade</td><td>Material identifier taken from the In Profile tab (e.g. <code>11SMn30</code>).</td></tr>
+  <tr><td>Initial Temperature</td><td>Incoming bar temperature as configured in the In Profile tab.</td></tr>
   <tr><td>Spreading Model</td><td>The spreading law used by PyRolL for width calculation (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td></tr>
   <tr><td>Solve Method</td><td>Forward Solve, Backward Solve, or Standard Solve — determines the direction of the numerical iteration.</td></tr>
-  <tr><td>Coulomb Friction Coefficient</td><td>The global friction coefficient applied in the simulation.</td></tr>
+  <tr><td>RPM Basis</td><td><em>Working Diameter</em> (default) or <em>Effective Diameter (Ekelund)</em> — selects which diameter is used to convert simulated velocity into Roll RPM / Motor RPM for velocity-defined stands. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a> for details.</td></tr>
 </table>
 
 <div class="info">
@@ -221,6 +222,8 @@
   <tr><td>Reduction</td><td>%</td><td>Fractional area reduction: (A_in − A_out) / A_in × 100.</td></tr>
   <tr><td>Roll Diameter</td><td>mm</td><td>Nominal roll diameter (2 × nominal radius).</td></tr>
   <tr><td>Working Diameter</td><td>mm</td><td>Effective working diameter at the groove base (2 × working radius).</td></tr>
+  <tr><td>Effective Diameter</td><td>mm</td><td>Forward-slip-corrected diameter per Ekelund's classical formula, using the pass's own friction coefficient, working radius, and equivalent height. Not available for Asymmetric Roll Pass. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a>.</td></tr>
+  <tr><td>Forward Slip</td><td>%</td><td>Forward slip percentage corresponding to the Effective Diameter above: (Effective Diameter / Working Diameter − 1) × 100.</td></tr>
   <tr><td>Roll RPM (actual)</td><td>rpm</td><td>Actual rotational speed of the roll as set in the Pass Design.</td></tr>
   <tr><td>Roll RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal RPM calculated for zero interstand tension.</td></tr>
   <tr><td>Motor RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal motor RPM (after gear ratio) for zero tension condition.</td></tr>
@@ -282,6 +285,12 @@
   <li><em>Roll Force (corrected)</em>, <em>Roll Torque (corrected)</em>, and <em>Power (corrected)</em> are calculated with the gear tension taken into account.</li>
   <li>For block passes the <em>Roll RPM (ideal)</em> and <em>Motor RPM (ideal)</em> represent the tension-free ideal values used for gear ratio setup.</li>
 </ul>
+
+<div class="info">
+  The <strong>RPM Basis</strong> switch (Working Diameter vs. Effective Diameter) only affects velocity-defined
+  stands. Finishing Block sub-passes always keep their prescribed motor RPM as the authoritative value,
+  since that is a hard physical input rather than something derived from simulated velocity.
+</div>
 
 <!-- ─── 4. ENGINE EVALUATION ──────────────────────────────── -->
 <h2 id="engine-eval">4. Engine Evaluation</h2>

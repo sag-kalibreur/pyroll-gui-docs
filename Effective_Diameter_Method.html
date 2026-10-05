@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<title>Effective Diameter – Forward Slip (Ekelund)</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
+  h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; display: flex; justify-content: space-between; align-items: center; }
+  h2 { border-left: 5px solid #FFDD00; padding-left: 12px; margin-top: 2em; }
+  h3 { color: #005499; margin-top: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th { background: #FFDD00; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .formula-box { background: #f4f8ff; border: 1px solid #b8d0f0; border-radius: 6px; padding: 14px 20px; margin: 1em 0; }
+  .warn { background: rgba(255,200,0,0.18); border: 1px solid rgba(255,180,0,0.5); border-radius: 4px; padding: 10px 14px; font-style: italic; color: #7a5800; }
+  .info { background: rgba(0,84,153,0.07); border: 1px solid rgba(0,84,153,0.25); border-radius: 4px; padding: 10px 14px; color: #003f73; }
+  .tip  { background: rgba(0,160,80,0.07); border: 1px solid rgba(0,160,80,0.3); border-radius: 4px; padding: 10px 14px; color: #064e2c; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.93em; }
+  /* ── Scroll nav buttons ──────────────────────────── */
+  .scroll-nav {
+    position: fixed;
+    right: 24px;
+    bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+  }
+  .scroll-nav button {
+    background: #fff;
+    border: 3px solid #FFDD00;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    color: #222;
+  }
+  .scroll-nav button:hover { background: #FFDD00; }
+
+  /* ── Guide navigation bar ───────────────────────── */
+  .guide-nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFDD00;
+    padding: 8px 18px;
+    border-radius: 6px;
+    margin-bottom: 1.5em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .guide-back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+  .guide-back-link:hover { text-decoration: underline; }
+  .guide-nav-icon { height: 32px; width: auto; }
+</style>
+</head>
+<body>
+
+<div class="guide-nav-bar">
+  <a href="index.html" class="guide-back-link">&#8592; back to overview</a>
+  <img src="img/pyroll_icon.png" alt="PyRoll" class="guide-nav-icon">
+</div>
+
+<h1>Effective Diameter – Forward Slip (Ekelund) <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: October 2026</em></p>
+
+<hr>
+
+<h2>1. Introduction</h2>
+<p>
+  During rolling, the material at the <strong>neutral point</strong> moves slightly faster than the
+  geometric roll surface speed implied by the working diameter alone — an effect known as
+  <strong>forward slip</strong>. Converting a simulated strip velocity into a real motor/roll RPM
+  without accounting for this effect systematically understates the true rotational speed required.
+</p>
+<p>
+  PyRoll WebGUI computes an <strong>Effective Diameter</strong> and the corresponding
+  <strong>Forward Slip</strong> percentage for every <code>TwoRollPass</code>/<code>ThreeRollPass</code>
+  stand, shown in the Results table directly under Working Diameter, and offers an optional
+  <strong>RPM Basis</strong> switch in Pass Design to use this corrected diameter for RPM calculations.
+</p>
+
+<hr>
+
+<h2>2. Ekelund's Formula</h2>
+<p>
+  The classical, empirically validated method by Ekelund derives the forward slip from the
+  bite geometry and the friction coefficient:
+</p>
+<div class="formula-box">
+  \[
+    \alpha_n = \sqrt{\frac{\Delta h}{R}} - \frac{\mu}{2}
+  \]
+  \[
+    \text{FWS} = \frac{R \cdot \alpha_n^2}{2 \cdot h_{1,\text{eq}}}
+  \]
+  \[
+    D_{\text{eff}} = D_{\text{work}} \cdot (1 + \text{FWS})
+  \]
+</div>
+<table>
+  <tr><th>Symbol</th><th>Meaning</th><th>Source in PyRoll WebGUI</th></tr>
+  <tr><td>\(R\)</td><td>Working radius</td><td><code>unit.roll.working_radius</code> (same value shown as "Working Diameter" / 2)</td></tr>
+  <tr><td>\(\Delta h\)</td><td>Equivalent height reduction</td><td><code>in_profile.equivalent_height − out_profile.equivalent_height</code></td></tr>
+  <tr><td>\(h_{1,\text{eq}}\)</td><td>Equivalent outgoing height</td><td><code>out_profile.equivalent_height</code></td></tr>
+  <tr><td>\(\mu\)</td><td>Coulomb friction coefficient</td><td><code>unit.coulomb_friction_coefficient</code> — the per-pass value entered in Pass Design, same value used for roll force/torque/spread</td></tr>
+</table>
+<p>
+  <code>equivalent_height</code> is PyRolL Core's groove-agnostic
+  \(h_{\text{eq}} = \sqrt{A \cdot h / w}\) hook (overridden by the Lendl equivalent-height method
+  for actual roll-pass profiles — see the
+  <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a> method page), so this
+  calculation works for any groove type, not just flat/box passes. If \(\Delta h \le 0\) (no real
+  reduction) the result is left undefined and the Results table shows "—".
+</p>
+
+<hr>
+
+<h2>3. Why Ekelund, Not PyRolL's Built-In Neutral-Angle Model</h2>
+<p>
+  PyRolL Core ships a tension-aware neutral-angle hook (Lippmann-Mahrenholz,
+  <code>pyroll.lippmann_mahrenholz_force_torque</code>) that is already active in the app for
+  roll force/torque calculations. It was evaluated as an alternative source for forward slip
+  before this feature was implemented.
+</p>
+<p>
+  Cross-checking PyRolL's <code>relative_neutral_angle</code> function directly (not an
+  approximation) against a reference case with 35.2&nbsp;% reduction and \(\mu = 0.343\) gave:
+</p>
+<table>
+  <tr><th>Model</th><th>Forward Slip</th></tr>
+  <tr><td>PyRolL (Lippmann-Mahrenholz), zero interstand tension</td><td>≈ 0.45&nbsp;%</td></tr>
+  <tr><td>Ekelund (same input data)</td><td>≈ 4.65&nbsp;%</td></tr>
+</table>
+<p>
+  A roughly 10× gap. The root cause: PyRolL computes
+  \(\text{neutral\_angle} = \text{entry\_angle} \times \text{relative\_neutral\_angle}\), where
+  <code>relative_neutral_angle</code> came out to only ≈ 0.32 in this example — the model scales
+  the angle down by a fraction rather than computing it directly, as Ekelund's formula does.
+  This is not a bug; it is an inherent property of how this particular PyRolL plugin formulates
+  the neutral point. But for a figure meant to be compared directly against real nameplate/drive
+  RPM data, we chose the formula with the longer, better-documented empirical track record.
+</p>
+<div class="info">
+  <strong>Note:</strong> PyRolL's neutral-angle model notably does <em>not</em> use the friction
+  coefficient directly — it derives the neutral point from draught, equivalent height, and
+  (if present) interstand tension instead. It may still be the more appropriate model for
+  tension-aware force/torque corrections, which is unaffected by this change — only forward
+  slip/RPM uses Ekelund's formula.
+</div>
+
+<hr>
+
+<h2>4. The "RPM Basis" Switch</h2>
+<p>
+  Pass Design offers a per-sequence <strong>RPM Basis</strong> selector (next to Disk Element Count):
+</p>
+<table>
+  <tr><th>Option</th><th>Effect</th></tr>
+  <tr><td><strong>Working Diameter</strong> (default)</td><td>Roll RPM / Motor RPM computed from the geometric working diameter, unchanged from previous versions.</td></tr>
+  <tr><td><strong>Effective Diameter (Ekelund)</strong></td><td>Roll RPM / Motor RPM computed from the forward-slip-corrected effective diameter above.</td></tr>
+</table>
+<div class="warn">
+  <strong>Scope:</strong> the switch only applies to <em>velocity-defined</em> stands (Standard,
+  Forward, and Backward Solve). Finishing Block sub-passes keep their prescribed motor RPM as the
+  authoritative input regardless of this setting — that RPM is a hard physical input (from
+  motor RPM / gear ratio), not something derived from simulated velocity that forward slip could
+  correct.
+</div>
+<div class="info">
+  <strong>Does not affect simulated rolling velocity:</strong> PyRolL's own mass-conservation
+  solve always uses the working diameter internally to relate velocity and rotational frequency.
+  This switch only changes how an already-simulated, unchanged velocity is converted into a
+  displayed RPM figure — it does not feed back into profile dimensions, roll force, torque, power,
+  or temperature results.
+</div>
+<p>
+  The default remains Working Diameter — nothing changes for existing projects unless the switch
+  is explicitly changed. We recommend validating Effective Diameter against real measured motor
+  RPM for your own mill before relying on it operationally, since forward slip depends strongly
+  on friction, reduction, and contact geometry that vary between mills.
+</p>
+
+<hr>
+<p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI — Effective Diameter Method</p>
+<div class="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
+  <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
+</div>
+</body>
+</html>

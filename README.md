@@ -18,6 +18,7 @@ The guides are hosted via **GitHub Pages** and can be viewed directly in any bro
 | [Pass Design Guide](PassDesign_Guide.html) | Configure roll pass sequences and groove geometry |
 | [Engine Configuration Guide](EngineConfiguration_Guide.html) | Select and configure PyRoll simulation engines |
 | [Groove Library Guide](GrooveLibrary_Guide.html) | Manage the built-in groove library |
+| [Groove Calculator Guide](GrooveCalculator_Guide.html) | Calculate a full pass-by-pass elongation distribution for Round↔Oval or Square↔Diamond groove series |
 | [Results Guide](Results_Guide.html) | Simulation results, charts, tables, and export options |
 | [Pass Plots Guide](PassPlots_Guide.html) | Visualize individual roll pass cross-sections and temperature profiles |
 | [Overall Plots Guide](OverallPlots_Guide.html) | 3D cross-section evolution and pass profile summaries |
@@ -30,6 +31,8 @@ The guides are hosted via **GitHub Pages** and can be viewed directly in any bro
 | [Interstand Tension](Interstand_Tension_Method.html) | Mathematical background for interstand tension calculation |
 | [Asymmetric Roll Pass](AsymmetricRollPass_Method.html) | Theory of asymmetric roll pass decomposition into sub-passes |
 | [Flat Rolling – Siebel](FlatRolling_Siebel_Method.html) | Siebel friction model and roll force calculation |
+| [Working Diameter – Flat Rolling](FlatRolling_WorkingDiameter_Method.html) | Working radius/diameter correction for flat passes and the Lendl equivalent-height method |
+| [Effective Diameter – Forward Slip (Ekelund)](Effective_Diameter_Method.html) | Forward slip and effective diameter per Ekelund's formula, and the RPM Basis switch |
 
 ### Complete Reference
 

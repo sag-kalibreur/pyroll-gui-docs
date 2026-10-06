@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <link rel="icon" href="favicon.ico" type="image/x-icon">
 <title>Groove Calculator Guide – PyRoll GUI</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
   h1 { background: #FFDD00; padding: 12px 18px; border-radius: 6px; font-size: 1.5em; color: #222; display: flex; justify-content: space-between; align-items: center; }
@@ -106,7 +107,7 @@
 </div>
 
 <h1>Groove Calculator Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: September 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: October 2026</em></p>
 <hr>
 
 <nav class="toc">
@@ -123,6 +124,7 @@
     <li><a href="#save-library">Save to Groove Library</a></li>
     <li><a href="#use-pass-design">Use in Pass Design</a></li>
     <li><a href="#reset">Reset</a></li>
+    <li><a href="#box-series">Box series (Kastenkaliber)</a></li>
   </ol>
 </nav>
 
@@ -136,11 +138,12 @@
   calculations with a single calculation covering the whole series at once.
 </p>
 <p>
-  Two series types are supported:
+  Three series types are supported:
 </p>
 <ul>
   <li><strong>Round &#8596; Oval series</strong>: main passes use round grooves, intermediate passes use oval grooves.</li>
   <li><strong>Square &#8596; Diamond series</strong>: main passes use square grooves, intermediate passes use diamond grooves.</li>
+  <li><strong>Box series</strong>: all passes use box grooves with alternating H/V orientation (see <a href="#box-series">section 12</a>).</li>
 </ul>
 <p>
   For each mode, the tab shows a result table and groove preview plots for both the
@@ -155,8 +158,11 @@
   The mode switch at the top of the tab selects which groove series is calculated.
   Switching modes only changes which parameter panels, result tables and plots are
   shown &mdash; the <strong>Main Parameters</strong> (\(A_0\), \(A_E\), \(Z\), \(n\))
-  are remembered separately for each mode, so switching back and forth does not lose
-  previously entered values.
+  and the <strong>Start Roll &Oslash;</strong> are remembered separately for each mode, so switching back and forth does
+  not lose previously entered values. The default roll diameter is 400&nbsp;mm for the Round and Square series
+  (typical for intermediate mills) and 700&nbsp;mm for the Box series. The third button,
+  <span class="ui-btn">&#128230; Box series</span>, selects the roughing-mill box sequence
+  described in <a href="#box-series">section 12</a>.
 </p>
 
 <img class="screenshot" src="img/groove_calc_switcher.png" alt="Round to Oval series / Square to Diamond series mode switch buttons">
@@ -164,7 +170,8 @@
 <!-- ═══════════════════════════════════════════════════════════ -->
 <h2 id="main-params">3. Main Parameters</h2>
 <p>
-  The <strong>Main Parameters</strong> panel defines the overall elongation task:
+  The <strong>Main Parameters</strong> panel defines the overall elongation task
+  (the Box series has additional fields, see <a href="#box-series">section 12</a>):
 </p>
 <table>
   <tr><th>Field</th><th>Meaning</th></tr>
@@ -297,7 +304,7 @@
   complete Pass Design sequence from the calculated series, alternating intermediate
   and main passes in the correct order (e.g. Oval&nbsp;&#8594;&nbsp;Round&nbsp;&#8594;&nbsp;Oval&nbsp;&#8594;&nbsp;Round&hellip;),
   using the <strong>Start Roll &Oslash;</strong> field as the nominal roll diameter
-  for every pass. The app then switches to the Pass Design tab so roll diameter and
+  for every pass (a Box series uses one groove type with alternating H/V orientation). The app then switches to the Pass Design tab so roll diameter and
   friction can be fine-tuned per pass before simulating.
 </p>
 <img class="screenshot" src="img/groove_calc_footer_bar.png" alt="Save to Groove Library, Start Roll diameter field, Use in Pass Design and Reset buttons">
@@ -327,6 +334,125 @@
   All fields are also automatically reset whenever a new project is started
   (<code>File &#8594; New</code>).
 </p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="box-series">12. Box series (Kastenkaliber)</h2>
+<p>
+  The third mode, <strong>&#128230; Box series</strong>, calculates a roughing-mill
+  sequence in which <em>all</em> passes use the same groove type (<code>BoxGroove</code>)
+  and only the orientation alternates between horizontal (H) and vertical (V). After
+  every pass the bar is turned by 90&deg;, so the next pass reduces the width of the
+  previous one. There are no intermediate grooves &mdash; one parameter set, one result
+  table and one plot gallery.
+</p>
+<p>
+  Unlike round or square bars, a box bar has an independent width and height. The area
+  chain \(A_0 \rightarrow A_E\) is therefore only the first step; each pass additionally
+  has to be split into a height \(h_1\) (the reduced dimension) and a width \(b_1\) (the
+  spread).
+</p>
+
+<h3>12.1 Calculation</h3>
+<ol>
+  <li>The target area of every pass follows from \(A_0\), \(A_E\), \(Z\) and \(n\) exactly as in the other modes.</li>
+  <li>The logarithmic area reduction is re-weighted with \(k_V\) (see 12.3); the total \(A_0 \rightarrow A_E\) is unchanged.</li>
+  <li>For each pass, \(h_1\) is found by bisection so that the resulting bar area equals the target area, with the width given by Wusatowski's spread law &mdash; offline and instant, no backend call.</li>
+</ol>
+<div class="formula-box">
+  \(b_1 = b_0 \cdot (h_1/h_0)^{-w}\)<br>
+  \(w = 10^{-1.269\,(h_0/2R)^{0.556}\,b_0/h_0}\) &nbsp; for \(h_1/h_0 \ge 0.5\)<br>
+  \(w = 10^{-3.457\,(h_0/2R)^{0.968}\,b_0/h_0}\) &nbsp; for \(h_1/h_0 &lt; 0.5\)<br>
+  \(A = b_1 h_1 - (4-\pi)\,r_2^2\), &nbsp; \(R = D/2 - 0.46 \cdot \text{depth}\)
+</div>
+<p>
+  This is the same closed formula the Pass Design simulation uses for box passes
+  when the Wusatowski spreading equation is selected. The calculator sets the velocity coefficient to
+  \(c = 1\); PyRolL's own value is about 0.99, so a following simulation typically gives a
+  width about 1&ndash;2&nbsp;% smaller and an area up to about 1.6&nbsp;% smaller than the
+  calculated one. The pass heights agree to better than 0.1&nbsp;%.
+</p>
+
+<h3>12.2 Parameters</h3>
+<table>
+  <tr><th>Field</th><th>Meaning</th></tr>
+  <tr><td>\(A_0\), \(b_0\), \(h_0\), \(r_0\) [mm]</td><td>Start bar: width, height and corner radius. \(h_0\) is the dimension reduced in the first pass. The fields are linked: changing \(A_0\) rescales \(b_0\) and \(h_0\) at the current ratio, changing \(b_0\)/\(h_0\)/\(r_0\) recalculates \(A_0 = b_0 h_0 - (4-\pi) r_0^2\).</td></tr>
+  <tr><td>\(A_E\) [mm&sup2;]</td><td>Target end area. The final \(b \times h\) is a result, not an input.</td></tr>
+  <tr><td>\(Z\), \(n\)</td><td>As in the other modes (\(n \ge 2\)).</td></tr>
+  <tr><td>\(k_V\) (V/H)</td><td>Share of a V pass in the logarithmic area reduction relative to an H pass (default 0.8).</td></tr>
+  <tr><td>Start Roll &Oslash; [mm]</td><td>Nominal roll diameter for all passes, needed for the spread (default 700 mm; 400 mm in the Round and Square modes).</td></tr>
+  <tr><td>First pass</td><td>Orientation of pass 1 (H or V); the following passes alternate.</td></tr>
+</table>
+<p>The <strong>Box Groove Factors</strong> panel derives the groove of each pass from \(h_1\) and \(b_1\):</p>
+<table>
+  <tr><th>Factor</th><th>Meaning</th></tr>
+  <tr><td>\(s/h\)</td><td>Roll gap \(s\) relative to the pass height \(h_1\); the depth is \((h_1 - s)/2\) (default 0.38)</td></tr>
+  <tr><td>\(r_2/h\)</td><td>Corner radius \(r_2\) (flank/ground) relative to \(h_1\) (default 0.13)</td></tr>
+  <tr><td>\(r_1/s\)</td><td>Edge radius \(r_1\) relative to the gap \(s\) (default 0.2)</td></tr>
+  <tr><td>\(\alpha\) [&deg;]</td><td>Flank angle against the horizontal &mdash; a steep flank is a large angle (default 77&deg;)</td></tr>
+  <tr><td>\(w_u/b\)</td><td>Usable groove width relative to the expected bar width \(b_1\), &ge; 1 (default 1.1)</td></tr>
+</table>
+<p>
+  The ground width follows as \(w_{\text{ground}} = w_u - 2 \cdot \text{depth}/\tan\alpha\).
+  The defaults are taken from real roughing-mill box grooves
+  (\(\alpha \approx 70\)&ndash;76&deg;, \(s/h \approx 0.37\)&ndash;0.38).
+</p>
+
+<img class="screenshot" src="img/groove_calc_box_setup.png" alt="Box series: Main Parameters and Box Groove Factors panels">
+<p><em>Box series: Main Parameters (with \(k_V\), Start Roll &Oslash; and First pass) and Box Groove Factors.</em></p>
+
+<h3>12.3 Steering the end shape with \(k_V\)</h3>
+<p>
+  In practice an H pass mainly flattens the bar and widens it, while a V pass pushes it
+  back towards a square. With equal reductions in every pass (\(k_V = 1\)) a sequence
+  that ends with a V pass therefore still ends too wide. \(k_V &lt; 1\) makes the V passes
+  lighter and the H passes heavier, which moves the end profile towards a square;
+  \(k_V &gt; 1\) does the opposite. The weights apply to the pass orientation, not to the
+  pass number, so the effect is the same for an H start or a V start.
+</p>
+<p>Example with the defaults (180 &times; 180, \(A_E = 14000\) mm&sup2;, \(n = 4\), H first, \(D = 700\) mm):</p>
+<table>
+  <tr><th>\(k_V\)</th><th>Reduction per pass (H / V / H / V)</th><th>Final bar</th><th>\(b/h\)</th></tr>
+  <tr><td>1.0</td><td>18.9 / 18.9 / 18.9 / 18.9 %</td><td>109.6 &times; 129.4</td><td>1.18</td></tr>
+  <tr><td>0.9</td><td>19.8 / 18.0 / 19.8 / 18.0 %</td><td>113.2 &times; 125.3</td><td>1.11</td></tr>
+  <tr><td>0.8</td><td>20.8 / 17.0 / 20.8 / 17.0 %</td><td>117.4 &times; 120.9</td><td>1.03</td></tr>
+  <tr><td>0.7</td><td>21.9 / 15.9 / 21.9 / 15.9 %</td><td>122.5 &times; 116.1</td><td>0.95</td></tr>
+</table>
+<div class="info">
+  &#8505; Small differences in the reductions are enough to change the end shape clearly.
+  A sequence that ends with an <strong>H</strong> pass (e.g. \(n = 3\), H first) ends wider
+  than high even at \(k_V = 0.8\) (about 91.7 &times; 154.0, \(b/h \approx 1.68\)) &mdash; that
+  is typical for such a sequence. A V-first sequence works the same way; an odd pass count
+  such as 7 passes ends with a V pass again.
+</div>
+
+<h3>12.4 Result table, warnings and plots</h3>
+<img class="screenshot" src="img/groove_calc_box_results.png" alt="Box Passes result table">
+
+<p>
+  The result table contains, per pass: orientation (H/V), \(Z^y\), \(\lambda_i\) (including
+  the \(k_V\) weighting), \(A_s\), \(h_1\), \(b_1\), \(b_1/h_1\), draught \(h_1/h_0\), spread
+  \(b_1/b_0\) and the groove data \(r_1\), \(r_2\), gap \(s\), depth, usable and ground
+  width and \(\alpha\). Warnings are shown below the table:
+</p>
+<ul>
+  <li><strong>Target area not smaller than the incoming bar</strong> &mdash; no reduction possible; check \(A_E\), \(Z\) and the start size.</li>
+  <li><strong>Ground width not positive</strong> &mdash; increase \(w_u/b\) or \(\alpha\), or lower the depth (error).</li>
+  <li><strong>Ground width smaller than the incoming width</strong> &mdash; the bar enters touching the flanks.</li>
+  <li><strong>Step of the spread law at \(h_1/h_0 = 0.5\)</strong> &mdash; the target area lies in the jump of the formula; the closest solution is used.</li>
+</ul>
+<p>The groove preview plots work as in the other modes (click for the enlarged gallery view).</p>
+<img class="screenshot" src="img/groove_calc_box_plots.png" alt="Box Passes groove preview plot gallery">
+
+<h3>12.5 Save to Groove Library and Use in Pass Design</h3>
+<ul>
+  <li><strong>Save to Groove Library</strong> stores the selected passes as <code>BoxGroove</code> entries.</li>
+  <li><strong>Use in Pass Design</strong> builds the sequence with alternating orientation, starting with the chosen first pass, using the Start Roll &Oslash; for every pass. The <strong>In Profile</strong> is set to the box shape (width, height, corner radius); for a V-first sequence width and height are swapped accordingly, so that \(h_0\) is the dimension reduced in the first pass.</li>
+  <li><strong>Reset</strong> restores all box fields, including \(k_V\) and the roll diameter.</li>
+</ul>
+<div class="tip">
+  &#128161; The calculation is a design estimate. For the final tuning run the simulation in
+  Pass Design and, if needed, use its spread correction.
+</div>
 
 <hr>
 <p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI – Groove Calculator Guide</p>

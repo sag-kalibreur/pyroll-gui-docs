@@ -247,7 +247,7 @@ nav.toc a:hover { text-decoration:underline; }
       <li><a href="#sec-asym">Asymmetric Roll Pass – Method & Results</a></li>
       <li><a href="#sec-flatrolling">Flat Rolling Edge Deformation</a></li>
       <li><a href="#sec-workingdiameter">Working Diameter – Flat Rolling</a></li>
-      <li><a href="#sec-effdiameter">Effective Diameter – Forward Slip (Ekelund)</a></li>
+      <li><a href="#sec-effdiameter">Effective Diameter – Forward Slip</a></li>
     </ol>
   </div>
 </div>
@@ -675,7 +675,7 @@ nav.toc a:hover { text-decoration:underline; }
     <div class="menu-item"><span>Asymmetric Roll Pass</span></div>
     <div class="menu-item"><span>Flat Rolling Edge Deformation</span></div>
     <div class="menu-item"><span>Working Diameter (Flat Rolling)</span></div>
-    <div class="menu-item"><span>Effective Diameter – Forward Slip (Ekelund)</span></div>
+    <div class="menu-item"><span>Effective Diameter – Forward Slip</span></div>
   </div>
 </div>
 
@@ -699,8 +699,8 @@ nav.toc a:hover { text-decoration:underline; }
       <td>How PyRoll WebGUI corrects the working radius/diameter for flat passes, and the Lendl equivalent-height method behind it.</td>
     </tr>
     <tr>
-      <td>Effective Diameter – Forward Slip (Ekelund)</td>
-      <td>Forward slip and effective diameter per Ekelund's formula, why it was chosen over PyRolL's built-in neutral-angle model, and the scope of the RPM Basis switch.</td>
+      <td>Effective Diameter – Forward Slip</td>
+      <td>Forward slip and effective diameter from the reduced zone and a temperature-based friction, why the forward slip is not taken from PyRolL's built-in neutral-angle model, and the scope of the RPM Basis switch.</td>
     </tr>
   </tbody>
 </table>
@@ -1850,22 +1850,24 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><th>Option</th><th>Effect</th></tr>
   <tr>
     <td><strong>Working Diameter</strong> (default)</td>
-    <td>RPM is computed from the geometric working diameter — the previous, unchanged behavior.</td>
+    <td>RPM is computed from the PyRolL working diameter.</td>
   </tr>
   <tr>
-    <td><strong>Effective Diameter (Ekelund)</strong></td>
-    <td>RPM is computed from the forward-slip-corrected effective diameter (Ekelund's formula),
-    so the displayed RPM accounts for the small speed difference between the roll surface and
-    the material at the neutral point.</td>
+    <td><strong>Effective Diameter</strong></td>
+    <td>RPM is computed from the forward-slip-corrected effective diameter (PyRolL working diameter
+    &times; (1 + forward slip)), so the displayed RPM accounts for the small speed difference between
+    the roll surface and the material at the neutral point.</td>
   </tr>
 </table>
 
 <div class="warn">
   <strong>Does not affect simulated rolling velocity:</strong> PyRolL's own mass-conservation solve
   always uses the geometric working diameter internally — switching this option only changes how
-  that unchanged velocity is converted into an RPM figure for display. It also does not apply to
-  Finishing Block sub-passes, which keep their prescribed motor RPM as the authoritative input
-  either way. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a>
+  that unchanged velocity is converted into an RPM figure for display. Finishing Block
+  sub-passes follow the switch in Forward and Backward Solve (their velocity comes from the entered
+  start/end velocity); only a block motor RPM prescribed in Standard Solve is used as entered.
+  Stands without a forward slip result use the working diameter; the ideal RPM values and
+  the Engine Evaluation follow the switch. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip</a>
   for the full background and the comparison against PyRolL's built-in neutral-angle model.
 </div>
 
@@ -3393,7 +3395,7 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td>Initial Temperature</td><td>Incoming bar temperature as configured in the In Profile tab.</td></tr>
   <tr><td>Spreading Model</td><td>The spreading law used by PyRolL for width calculation (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td></tr>
   <tr><td>Solve Method</td><td>Forward Solve, Backward Solve, or Standard Solve — determines the direction of the numerical iteration.</td></tr>
-  <tr><td>RPM Basis</td><td><em>Working Diameter</em> (default) or <em>Effective Diameter (Ekelund)</em> — selects which diameter is used to convert simulated velocity into Roll RPM / Motor RPM for velocity-defined stands. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a> for details.</td></tr>
+  <tr><td>RPM Basis</td><td><em>Working Diameter</em> (default) or <em>Effective Diameter</em> — selects which diameter is used to convert simulated velocity into Roll RPM / Motor RPM (and the ideal RPM values) for velocity-defined stands. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip</a> for details.</td></tr>
 </table>
 
 <div class="info">
@@ -3425,12 +3427,14 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td>Bar Area (corrected)</td><td>mm²</td><td>Cross-section area corrected for tension effects. Shown only when tension data is available.</td></tr>
   <tr><td>Reduction</td><td>%</td><td>Fractional area reduction: (A_in − A_out) / A_in × 100.</td></tr>
   <tr><td>Roll Diameter</td><td>mm</td><td>Nominal roll diameter (2 × nominal radius).</td></tr>
-  <tr><td>Working Diameter</td><td>mm</td><td>Effective working diameter at the groove base (2 × working radius).</td></tr>
-  <tr><td>Effective Diameter</td><td>mm</td><td>Forward-slip-corrected diameter per Ekelund's classical formula, using the pass's own friction coefficient, working radius, and equivalent height. Not available for Asymmetric Roll Pass. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a>.</td></tr>
-  <tr><td>Forward Slip</td><td>%</td><td>Forward slip percentage corresponding to the Effective Diameter above: (Effective Diameter / Working Diameter − 1) × 100.</td></tr>
-  <tr><td>Roll RPM (actual)</td><td>rpm</td><td>Actual rotational speed of the roll as set in the Pass Design.</td></tr>
-  <tr><td>Roll RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal RPM calculated for zero interstand tension.</td></tr>
-  <tr><td>Motor RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal motor RPM (after gear ratio) for zero tension condition.</td></tr>
+  <tr><td>Working Diameter</td><td>mm</td><td>Working diameter calculated by PyRolL (2 × working radius); basis of the forward slip calculation.</td></tr>
+  <tr><td>Effective Diameter</td><td>mm</td><td>Forward-slip-corrected diameter: Working Diameter &times; (1 + forward slip). Available for Two-Roll and Three-Roll passes; shown as &ndash; for Asymmetric passes. See <a href="Effective_Diameter_Method.html">Effective Diameter &ndash; Forward Slip</a>.</td></tr>
+  <tr><td>Forward Slip</td><td>%</td><td>Forward slip of the pass, calculated from the equivalent heights (reduced zone for Two-Roll passes), the neutral angle and a temperature-based friction.</td></tr>
+  <tr><td>Groove Factor</td><td>mm</td><td>Nominal roll diameter minus Effective Diameter: the deduction a mill control that only receives the nominal diameter has to apply to obtain the effective diameter.</td></tr>
+  <tr><td>Forward Slip Friction</td><td>&ndash;</td><td>Friction used for the forward slip: roll diameter and speed factors &times; (1.05 &minus; 0.0005 &times; bar temperature).</td></tr>
+  <tr><td>Roll RPM (actual)</td><td>rpm</td><td>Rotational speed of the roll: strip velocity divided by the Effective Diameter (or the Working Diameter, depending on the RPM Basis). A block motor RPM prescribed in Standard Solve is used as is.</td></tr>
+  <tr><td>Roll RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal RPM calculated for zero interstand tension, based on the same diameter as Roll RPM (actual).</td></tr>
+  <tr><td>Motor RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal motor RPM (after gear ratio) for zero tension condition, based on the same diameter as Roll RPM (actual).</td></tr>
   <tr><td>In Profile Velocity</td><td>m/s</td><td>Bar speed at the entry of the roll pass.</td></tr>
   <tr><td>Out Profile Velocity</td><td>m/s</td><td>Bar speed at the exit of the roll pass.</td></tr>
   <tr><td>Transport Duration</td><td>s</td><td>Time the bar spends in the transport section following this pass. Shown as <em>x.xx s / y.yy m</em>.</td></tr>
@@ -3492,8 +3496,9 @@ nav.toc a:hover { text-decoration:underline; }
 
 <div class="info">
   The <strong>RPM Basis</strong> switch (Working Diameter vs. Effective Diameter) only affects velocity-defined
-  stands. Finishing Block sub-passes always keep their prescribed motor RPM as the authoritative value,
-  since that is a hard physical input rather than something derived from simulated velocity.
+  stands (Standard Solve with velocity input, Forward and Backward Solve, including Finishing Block
+  sub-passes). Only a Finishing Block motor RPM prescribed in Standard Solve is used as entered, since
+  that is a hard physical input rather than something derived from a simulated velocity.
 </div>
 
 <!-- ─── 4. ENGINE EVALUATION ──────────────────────────────── -->
@@ -3514,7 +3519,7 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td>Typ</td><td>Motor type: <strong>DC</strong> (grey badge) or <strong>AC</strong> (blue badge).</td></tr>
   <tr><td>Assigned Stands</td><td>The roll pass labels that are driven by this engine.</td></tr>
   <tr><td>Max Engine RPM</td><td>Maximum mechanical speed at the roll (engine max RPM after gear ratio).</td></tr>
-  <tr><td>Calculated Engine RPM</td><td>The highest RPM required by any assigned stand in the simulation. Highlighted green (OK) or red (OVERLOAD).</td></tr>
+  <tr><td>Calculated Engine RPM</td><td>The highest RPM required by any assigned stand in the simulation (based on the Roll RPM of the Results table, i.e. on the selected RPM Basis). Highlighted green (OK) or red (OVERLOAD).</td></tr>
   <tr><td>Aggregated Required kW</td><td>Sum of power demands from all stands assigned to this engine.</td></tr>
   <tr><td>Rated kW</td><td>Rated continuous power of the engine as configured.</td></tr>
   <tr><td>Available Power kW</td><td>Derated power available at the actual operating RPM (AC motor characteristic).</td></tr>
@@ -5640,7 +5645,7 @@ nav.toc a:hover { text-decoration:underline; }
   <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>
   <button onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Scroll to bottom">&#9660;</button>
 </div>
-</div><div class="section-divider" id="sec-effdiameter"><img src="data:image/png;base64,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" alt="PyRoll"><span>Effective Diameter – Forward Slip (Ekelund)</span><div class="section-divider-line"></div></div>
+</div><div class="section-divider" id="sec-effdiameter"><img src="data:image/png;base64,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" alt="PyRoll"><span>Effective Diameter – Forward Slip</span><div class="section-divider-line"></div></div>
 <div class="doc-section">
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: October 2026</em></p>
 
@@ -5651,83 +5656,114 @@ nav.toc a:hover { text-decoration:underline; }
   During rolling, the material at the <strong>neutral point</strong> moves slightly faster than the
   geometric roll surface speed implied by the working diameter alone — an effect known as
   <strong>forward slip</strong>. Converting a simulated strip velocity into a real motor/roll RPM
-  without accounting for this effect systematically understates the true rotational speed required.
+  without accounting for this effect systematically overstates the rotational speed the roll actually needs.
 </p>
 <p>
   PyRoll WebGUI computes an <strong>Effective Diameter</strong> and the corresponding
-  <strong>Forward Slip</strong> percentage for every <code>TwoRollPass</code>/<code>ThreeRollPass</code>
-  stand, shown in the Results table directly under Working Diameter, and offers an optional
-  <strong>RPM Basis</strong> switch in Pass Design to use this corrected diameter for RPM calculations.
+  <strong>Forward Slip</strong> percentage for every <code>TwoRollPass</code> and
+  <code>ThreeRollPass</code> stand, shown in the Results table directly under Working Diameter.
+  The <strong>RPM Basis</strong> switch in Pass Design (default: Working Diameter) allows to compute the
+  Roll RPM and Motor RPM from this effective diameter instead.
 </p>
 
 <hr>
 
-<h2>2. Ekelund's Formula</h2>
+<h2>2. How the Forward Slip Is Calculated</h2>
 <p>
-  The classical, empirically validated method by Ekelund derives the forward slip from the
-  bite geometry and the friction coefficient:
+  The forward slip is calculated from the equivalent heights of the pass, the <strong>working diameter
+  of PyRolL</strong>, the classical neutral angle and a temperature-based friction. All inputs are available
+  from the simulation, no measurement or CAD drawing is needed.
+</p>
+
+<h3>2.1 Reduced zone and equivalent heights</h3>
+<p>
+  The entry and the exit contour of the pass are laid over each other. The zone in which the entry
+  profile is thicker than the exit profile is the part of the bar that is actually reduced. It is
+  bounded by the two points where the contours cross (for a round bar in an oval groove these are the
+  points where the bar outline meets the groove arcs). Only this strip counts: its width is
+  \(b_l\), and the equivalent heights are the profile areas inside the strip divided by \(b_l\):
 </p>
 <div class="formula-box">
   \[
-    \alpha_n = \sqrt{\frac{\Delta h}{R}} - \frac{\mu}{2}
+    h_{0,\text{eq}} = \frac{A_{0m}}{b_l}, \qquad
+    h_{1,\text{eq}} = \frac{A_{1m}}{b_l}, \qquad
+    \Delta h = h_{0,\text{eq}} - h_{1,\text{eq}}
+  \]
+</div>
+<p>
+  The strip is found automatically from the calculated entry and exit cross-sections, so the method
+  works for any groove type (round, oval, box, square, diamond, &hellip;).
+</p>
+<p>
+  For <code>ThreeRollPass</code> stands the strip method is not applicable (the rolls are arranged at 120&deg;).
+  There \(h_{0,\text{eq}}\) and \(h_{1,\text{eq}}\) are the equivalent heights of the entry and exit profile
+  calculated by PyRolL. This variant has not yet been validated against measured data.
+</p>
+
+<h3>2.2 Forward slip and effective diameter</h3>
+<div class="formula-box">
+  \[
+    D_w = 2 \cdot r_w, \qquad
+    x = \frac{\Delta h}{2\,D_w}, \qquad
+    \xi = \sqrt{x} - \frac{x}{\mu}
   \]
   \[
-    \text{FWS} = \frac{R \cdot \alpha_n^2}{2 \cdot h_{1,\text{eq}}}
+    \text{FWS} = 0.75 \cdot \frac{\xi^2}{2} \cdot \left(\frac{D_w}{h_{1,\text{eq}}} - 1\right)
   \]
   \[
-    D_{\text{eff}} = D_{\text{work}} \cdot (1 + \text{FWS})
+    D_{\text{eff}} = D_w \cdot (1 + \text{FWS}), \qquad
+    \text{GF} = D - D_{\text{eff}}, \qquad
+    n = \frac{60\,000 \cdot v}{\pi \cdot D_{\text{eff}}}
   \]
 </div>
 <table>
-  <tr><th>Symbol</th><th>Meaning</th><th>Source in PyRoll WebGUI</th></tr>
-  <tr><td>\(R\)</td><td>Working radius</td><td><code>unit.roll.working_radius</code> (same value shown as "Working Diameter" / 2)</td></tr>
-  <tr><td>\(\Delta h\)</td><td>Equivalent height reduction</td><td><code>in_profile.equivalent_height − out_profile.equivalent_height</code></td></tr>
-  <tr><td>\(h_{1,\text{eq}}\)</td><td>Equivalent outgoing height</td><td><code>out_profile.equivalent_height</code></td></tr>
-  <tr><td>\(\mu\)</td><td>Coulomb friction coefficient</td><td><code>unit.coulomb_friction_coefficient</code> — the per-pass value entered in Pass Design, same value used for roll force/torque/spread</td></tr>
+  <tr><th>Symbol</th><th>Meaning</th></tr>
+  <tr><td>\(D\)</td><td>Nominal roll diameter (Roll Diameter in the Results table)</td></tr>
+  <tr><td>\(r_w\)</td><td>Working radius of PyRolL</td></tr>
+  <tr><td>\(v\)</td><td>Exit speed of the bar [m/s]</td></tr>
+  <tr><td>\(\mu\)</td><td>Friction used for the forward slip, see section 3</td></tr>
+  <tr><td>\(D_w\)</td><td>Working diameter of PyRolL ("Working Diameter" row of the Results table)</td></tr>
+  <tr><td>GF</td><td>Groove Factor: nominal roll diameter minus effective diameter [mm]. This is the deduction a mill control that only receives the nominal diameter has to apply to obtain the effective diameter</td></tr>
+  <tr><td>\(n\)</td><td>Roll speed [rpm] when the effective diameter is used as RPM basis</td></tr>
 </table>
-<p>
-  <code>equivalent_height</code> is PyRolL Core's groove-agnostic
-  \(h_{\text{eq}} = \sqrt{A \cdot h / w}\) hook (overridden by the Lendl equivalent-height method
-  for actual roll-pass profiles — see the
-  <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a> method page), so this
-  calculation works for any groove type, not just flat/box passes. If \(\Delta h \le 0\) (no real
-  reduction) the result is left undefined and the Results table shows "—".
-</p>
+<div class="info">
+  The effective diameter is always the <em>Working Diameter</em> row of the Results table &times; (1 + FWS),
+  so it is never smaller than the Working Diameter. The <em>Groove Factor</em> row is the nominal roll
+  diameter minus the effective diameter, not PyRolL's internal groove factor.
+</div>
+
+<h3>Worked example (box pass)</h3>
+<table>
+  <tr><th>Input</th><th>Value</th><th>Result</th><th>Value</th></tr>
+  <tr><td>Roll diameter \(D\)</td><td>655 mm</td><td>\(h_{0,\text{eq}}\) / \(h_{1,\text{eq}}\)</td><td>183.1 / 139.6 mm</td></tr>
+  <tr><td>Working diameter \(D_w\) (PyRolL)</td><td>602.31 mm</td><td>\(\mu\)</td><td>0.383</td></tr>
+  <tr><td>Bar temperature</td><td>1250 &deg;C</td><td>Forward slip</td><td>1.14 %</td></tr>
+  <tr><td>Exit speed</td><td>0.357 m/s</td><td>\(D_{\text{eff}}\) / Groove Factor</td><td>609.2 mm / 45.8 mm</td></tr>
+  <tr><td></td><td></td><td>Roll RPM (Effective / Working Diameter)</td><td>11.20 / 11.33</td></tr>
+</table>
 
 <hr>
 
-<h2>3. Why Ekelund, Not PyRolL's Built-In Neutral-Angle Model</h2>
+<h2>3. Friction</h2>
 <p>
-  PyRolL Core ships a tension-aware neutral-angle hook (Lippmann-Mahrenholz,
-  <code>pyroll.lippmann_mahrenholz_force_torque</code>) that is already active in the app for
-  roll force/torque calculations. It was evaluated as an alternative source for forward slip
-  before this feature was implemented.
+  The friction used for the forward slip depends on the bar temperature, the roll diameter and the
+  roll speed. It is <strong>independent</strong> of the Coulomb friction coefficient of the pass,
+  which continues to be used for roll force, torque and spreading:
 </p>
-<p>
-  Cross-checking PyRolL's <code>relative_neutral_angle</code> function directly (not an
-  approximation) against a reference case with 35.2&nbsp;% reduction and \(\mu = 0.343\) gave:
-</p>
+<div class="formula-box">
+  \[
+    \mu = Q_1 \cdot Q_2 \cdot (1.05 - 0.0005\,T)
+  \]
+</div>
 <table>
-  <tr><th>Model</th><th>Forward Slip</th></tr>
-  <tr><td>PyRolL (Lippmann-Mahrenholz), zero interstand tension</td><td>≈ 0.45&nbsp;%</td></tr>
-  <tr><td>Ekelund (same input data)</td><td>≈ 4.65&nbsp;%</td></tr>
+  <tr><th>Factor</th><th>Value</th></tr>
+  <tr><td>\(T\)</td><td>Mean bar temperature at the entry of the pass, per stand, in &deg;C</td></tr>
+  <tr><td>\(Q_1\) (roll diameter)</td><td>0.8 for \(D &lt; 250\) mm, otherwise 0.9 (for \(T \ge 400\) &deg;C; below 400 &deg;C \(Q_1 = 1\) for \(D \ge 250\) mm)</td></tr>
+  <tr><td>\(Q_2\) (roll speed)</td><td>1 for \(D &lt; 250\) mm or \(v \le 2\) m/s, otherwise \(0.4 + 0.6\,e^{-0.2\,(v-2)}\)</td></tr>
 </table>
 <p>
-  A roughly 10× gap. The root cause: PyRolL computes
-  \(\text{neutral\_angle} = \text{entry\_angle} \times \text{relative\_neutral\_angle}\), where
-  <code>relative_neutral_angle</code> came out to only ≈ 0.32 in this example — the model scales
-  the angle down by a fraction rather than computing it directly, as Ekelund's formula does.
-  This is not a bug; it is an inherent property of how this particular PyRolL plugin formulates
-  the neutral point. But for a figure meant to be compared directly against real nameplate/drive
-  RPM data, we chose the formula with the longer, better-documented empirical track record.
+  A colder bar has a higher friction and therefore a higher forward slip; a hotter bar the opposite.
 </p>
-<div class="info">
-  <strong>Note:</strong> PyRolL's neutral-angle model notably does <em>not</em> use the friction
-  coefficient directly — it derives the neutral point from draught, equivalent height, and
-  (if present) interstand tension instead. It may still be the more appropriate model for
-  tension-aware force/torque corrections, which is unaffected by this change — only forward
-  slip/RPM uses Ekelund's formula.
-</div>
 
 <hr>
 
@@ -5737,29 +5773,50 @@ nav.toc a:hover { text-decoration:underline; }
 </p>
 <table>
   <tr><th>Option</th><th>Effect</th></tr>
-  <tr><td><strong>Working Diameter</strong> (default)</td><td>Roll RPM / Motor RPM computed from the geometric working diameter, unchanged from previous versions.</td></tr>
-  <tr><td><strong>Effective Diameter (Ekelund)</strong></td><td>Roll RPM / Motor RPM computed from the forward-slip-corrected effective diameter above.</td></tr>
+  <tr><td><strong>Working Diameter</strong> (default)</td><td>Roll RPM / Motor RPM computed from the PyRolL working diameter.</td></tr>
+  <tr><td><strong>Effective Diameter</strong></td><td>Roll RPM / Motor RPM, the ideal RPM (Roll RPM and Motor RPM, zero tension) and the gear tension of Finishing Blocks are computed from the forward-slip-corrected effective diameter (section 2). Stands without a forward slip result use the working diameter.</td></tr>
 </table>
 <div class="warn">
-  <strong>Scope:</strong> the switch only applies to <em>velocity-defined</em> stands (Standard,
-  Forward, and Backward Solve). Finishing Block sub-passes keep their prescribed motor RPM as the
-  authoritative input regardless of this setting — that RPM is a hard physical input (from
-  motor RPM / gear ratio), not something derived from simulated velocity that forward slip could
-  correct.
+  <strong>Scope:</strong> the switch applies to all stands whose velocity is given or solved
+  (Standard Solve with velocity input, Forward and Backward Solve), including Finishing Block
+  sub-passes, whose velocities follow from the entered start/end velocity and the gear ratios.
+  Only a Finishing Block motor RPM prescribed in <em>Standard Solve</em> is used as entered &mdash;
+  that RPM is a hard physical input, not something derived from a simulated velocity that
+  forward slip could correct.
 </div>
 <div class="info">
   <strong>Does not affect simulated rolling velocity:</strong> PyRolL's own mass-conservation
   solve always uses the working diameter internally to relate velocity and rotational frequency.
   This switch only changes how an already-simulated, unchanged velocity is converted into a
   displayed RPM figure — it does not feed back into profile dimensions, roll force, torque, power,
-  or temperature results.
+  or temperature results. The power and torque values themselves stay PyRolL's values; only the
+  tension-corrected powers use the displayed RPM and are therefore lower by about the forward slip
+  when the effective diameter is the RPM basis.
 </div>
 <p>
-  The default remains Working Diameter — nothing changes for existing projects unless the switch
-  is explicitly changed. We recommend validating Effective Diameter against real measured motor
-  RPM for your own mill before relying on it operationally, since forward slip depends strongly
-  on friction, reduction, and contact geometry that vary between mills.
+  The Engine Evaluation uses the Roll RPM of the Results and therefore follows the RPM Basis. The default
+  is the Working Diameter. We recommend validating the Effective Diameter against real measured motor
+  RPM for your own mill, since forward slip depends strongly on friction, reduction, and contact
+  geometry that vary between mills.
 </p>
+
+<hr>
+
+<h2>5. Scope and Validity</h2>
+<ul>
+  <li>The forward slip is calculated for <code>TwoRollPass</code> and <code>ThreeRollPass</code> stands.
+      For Asymmetric Roll Passes the Results table shows "&mdash;" and the RPM basis falls back to the
+      working diameter.</li>
+  <li>If the entry profile is not thicker than the exit profile (no reduction), the result is left
+      undefined ("&mdash;"). The forward slip is never negative.</li>
+  <li>The factors of the method were established for round &ndash; oval &ndash; round wire rod rolling.
+      Other groove shapes (box, square, diamond, &hellip;) and Three-Roll passes use the same formulas
+      but have not yet been verified against measured data. Please compare with your own mill data
+      before relying on them operationally.</li>
+  <li>PyRolL's built-in neutral-angle model (Lippmann-Mahrenholz) is not used for the forward slip:
+      it does not use friction directly and gave roughly ten times lower forward slip than the values
+      measured in rolling mills. It is still used for the tension-aware force and torque calculations.</li>
+</ul>
 
 <hr>
 

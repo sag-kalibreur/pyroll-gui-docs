@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <link rel="icon" href="favicon.ico" type="image/x-icon">
-<title>Effective Diameter – Forward Slip (Ekelund)</title>
+<title>Effective Diameter – Forward Slip</title>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.7; }
@@ -80,7 +80,7 @@
   <img src="img/pyroll_icon.png" alt="PyRoll" class="guide-nav-icon">
 </div>
 
-<h1>Effective Diameter – Forward Slip (Ekelund) <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
+<h1>Effective Diameter – Forward Slip <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
 <p><em>PyRoll GUI &nbsp;|&nbsp; Date: October 2026</em></p>
 
 <hr>
@@ -90,83 +90,114 @@
   During rolling, the material at the <strong>neutral point</strong> moves slightly faster than the
   geometric roll surface speed implied by the working diameter alone — an effect known as
   <strong>forward slip</strong>. Converting a simulated strip velocity into a real motor/roll RPM
-  without accounting for this effect systematically understates the true rotational speed required.
+  without accounting for this effect systematically overstates the rotational speed the roll actually needs.
 </p>
 <p>
   PyRoll WebGUI computes an <strong>Effective Diameter</strong> and the corresponding
-  <strong>Forward Slip</strong> percentage for every <code>TwoRollPass</code>/<code>ThreeRollPass</code>
-  stand, shown in the Results table directly under Working Diameter, and offers an optional
-  <strong>RPM Basis</strong> switch in Pass Design to use this corrected diameter for RPM calculations.
+  <strong>Forward Slip</strong> percentage for every <code>TwoRollPass</code> and
+  <code>ThreeRollPass</code> stand, shown in the Results table directly under Working Diameter.
+  The <strong>RPM Basis</strong> switch in Pass Design (default: Working Diameter) allows to compute the
+  Roll RPM and Motor RPM from this effective diameter instead.
 </p>
 
 <hr>
 
-<h2>2. Ekelund's Formula</h2>
+<h2>2. How the Forward Slip Is Calculated</h2>
 <p>
-  The classical, empirically validated method by Ekelund derives the forward slip from the
-  bite geometry and the friction coefficient:
+  The forward slip is calculated from the equivalent heights of the pass, the <strong>working diameter
+  of PyRolL</strong>, the classical neutral angle and a temperature-based friction. All inputs are available
+  from the simulation, no measurement or CAD drawing is needed.
+</p>
+
+<h3>2.1 Reduced zone and equivalent heights</h3>
+<p>
+  The entry and the exit contour of the pass are laid over each other. The zone in which the entry
+  profile is thicker than the exit profile is the part of the bar that is actually reduced. It is
+  bounded by the two points where the contours cross (for a round bar in an oval groove these are the
+  points where the bar outline meets the groove arcs). Only this strip counts: its width is
+  \(b_l\), and the equivalent heights are the profile areas inside the strip divided by \(b_l\):
 </p>
 <div class="formula-box">
   \[
-    \alpha_n = \sqrt{\frac{\Delta h}{R}} - \frac{\mu}{2}
+    h_{0,\text{eq}} = \frac{A_{0m}}{b_l}, \qquad
+    h_{1,\text{eq}} = \frac{A_{1m}}{b_l}, \qquad
+    \Delta h = h_{0,\text{eq}} - h_{1,\text{eq}}
+  \]
+</div>
+<p>
+  The strip is found automatically from the calculated entry and exit cross-sections, so the method
+  works for any groove type (round, oval, box, square, diamond, &hellip;).
+</p>
+<p>
+  For <code>ThreeRollPass</code> stands the strip method is not applicable (the rolls are arranged at 120&deg;).
+  There \(h_{0,\text{eq}}\) and \(h_{1,\text{eq}}\) are the equivalent heights of the entry and exit profile
+  calculated by PyRolL. This variant has not yet been validated against measured data.
+</p>
+
+<h3>2.2 Forward slip and effective diameter</h3>
+<div class="formula-box">
+  \[
+    D_w = 2 \cdot r_w, \qquad
+    x = \frac{\Delta h}{2\,D_w}, \qquad
+    \xi = \sqrt{x} - \frac{x}{\mu}
   \]
   \[
-    \text{FWS} = \frac{R \cdot \alpha_n^2}{2 \cdot h_{1,\text{eq}}}
+    \text{FWS} = 0.75 \cdot \frac{\xi^2}{2} \cdot \left(\frac{D_w}{h_{1,\text{eq}}} - 1\right)
   \]
   \[
-    D_{\text{eff}} = D_{\text{work}} \cdot (1 + \text{FWS})
+    D_{\text{eff}} = D_w \cdot (1 + \text{FWS}), \qquad
+    \text{GF} = D - D_{\text{eff}}, \qquad
+    n = \frac{60\,000 \cdot v}{\pi \cdot D_{\text{eff}}}
   \]
 </div>
 <table>
-  <tr><th>Symbol</th><th>Meaning</th><th>Source in PyRoll WebGUI</th></tr>
-  <tr><td>\(R\)</td><td>Working radius</td><td><code>unit.roll.working_radius</code> (same value shown as "Working Diameter" / 2)</td></tr>
-  <tr><td>\(\Delta h\)</td><td>Equivalent height reduction</td><td><code>in_profile.equivalent_height − out_profile.equivalent_height</code></td></tr>
-  <tr><td>\(h_{1,\text{eq}}\)</td><td>Equivalent outgoing height</td><td><code>out_profile.equivalent_height</code></td></tr>
-  <tr><td>\(\mu\)</td><td>Coulomb friction coefficient</td><td><code>unit.coulomb_friction_coefficient</code> — the per-pass value entered in Pass Design, same value used for roll force/torque/spread</td></tr>
+  <tr><th>Symbol</th><th>Meaning</th></tr>
+  <tr><td>\(D\)</td><td>Nominal roll diameter (Roll Diameter in the Results table)</td></tr>
+  <tr><td>\(r_w\)</td><td>Working radius of PyRolL</td></tr>
+  <tr><td>\(v\)</td><td>Exit speed of the bar [m/s]</td></tr>
+  <tr><td>\(\mu\)</td><td>Friction used for the forward slip, see section 3</td></tr>
+  <tr><td>\(D_w\)</td><td>Working diameter of PyRolL ("Working Diameter" row of the Results table)</td></tr>
+  <tr><td>GF</td><td>Groove Factor: nominal roll diameter minus effective diameter [mm]. This is the deduction a mill control that only receives the nominal diameter has to apply to obtain the effective diameter</td></tr>
+  <tr><td>\(n\)</td><td>Roll speed [rpm] when the effective diameter is used as RPM basis</td></tr>
 </table>
-<p>
-  <code>equivalent_height</code> is PyRolL Core's groove-agnostic
-  \(h_{\text{eq}} = \sqrt{A \cdot h / w}\) hook (overridden by the Lendl equivalent-height method
-  for actual roll-pass profiles — see the
-  <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a> method page), so this
-  calculation works for any groove type, not just flat/box passes. If \(\Delta h \le 0\) (no real
-  reduction) the result is left undefined and the Results table shows "—".
-</p>
+<div class="info">
+  The effective diameter is always the <em>Working Diameter</em> row of the Results table &times; (1 + FWS),
+  so it is never smaller than the Working Diameter. The <em>Groove Factor</em> row is the nominal roll
+  diameter minus the effective diameter, not PyRolL's internal groove factor.
+</div>
+
+<h3>Worked example (box pass)</h3>
+<table>
+  <tr><th>Input</th><th>Value</th><th>Result</th><th>Value</th></tr>
+  <tr><td>Roll diameter \(D\)</td><td>655 mm</td><td>\(h_{0,\text{eq}}\) / \(h_{1,\text{eq}}\)</td><td>183.1 / 139.6 mm</td></tr>
+  <tr><td>Working diameter \(D_w\) (PyRolL)</td><td>602.31 mm</td><td>\(\mu\)</td><td>0.383</td></tr>
+  <tr><td>Bar temperature</td><td>1250 &deg;C</td><td>Forward slip</td><td>1.14 %</td></tr>
+  <tr><td>Exit speed</td><td>0.357 m/s</td><td>\(D_{\text{eff}}\) / Groove Factor</td><td>609.2 mm / 45.8 mm</td></tr>
+  <tr><td></td><td></td><td>Roll RPM (Effective / Working Diameter)</td><td>11.20 / 11.33</td></tr>
+</table>
 
 <hr>
 
-<h2>3. Why Ekelund, Not PyRolL's Built-In Neutral-Angle Model</h2>
+<h2>3. Friction</h2>
 <p>
-  PyRolL Core ships a tension-aware neutral-angle hook (Lippmann-Mahrenholz,
-  <code>pyroll.lippmann_mahrenholz_force_torque</code>) that is already active in the app for
-  roll force/torque calculations. It was evaluated as an alternative source for forward slip
-  before this feature was implemented.
+  The friction used for the forward slip depends on the bar temperature, the roll diameter and the
+  roll speed. It is <strong>independent</strong> of the Coulomb friction coefficient of the pass,
+  which continues to be used for roll force, torque and spreading:
 </p>
-<p>
-  Cross-checking PyRolL's <code>relative_neutral_angle</code> function directly (not an
-  approximation) against a reference case with 35.2&nbsp;% reduction and \(\mu = 0.343\) gave:
-</p>
+<div class="formula-box">
+  \[
+    \mu = Q_1 \cdot Q_2 \cdot (1.05 - 0.0005\,T)
+  \]
+</div>
 <table>
-  <tr><th>Model</th><th>Forward Slip</th></tr>
-  <tr><td>PyRolL (Lippmann-Mahrenholz), zero interstand tension</td><td>≈ 0.45&nbsp;%</td></tr>
-  <tr><td>Ekelund (same input data)</td><td>≈ 4.65&nbsp;%</td></tr>
+  <tr><th>Factor</th><th>Value</th></tr>
+  <tr><td>\(T\)</td><td>Mean bar temperature at the entry of the pass, per stand, in &deg;C</td></tr>
+  <tr><td>\(Q_1\) (roll diameter)</td><td>0.8 for \(D &lt; 250\) mm, otherwise 0.9 (for \(T \ge 400\) &deg;C; below 400 &deg;C \(Q_1 = 1\) for \(D \ge 250\) mm)</td></tr>
+  <tr><td>\(Q_2\) (roll speed)</td><td>1 for \(D &lt; 250\) mm or \(v \le 2\) m/s, otherwise \(0.4 + 0.6\,e^{-0.2\,(v-2)}\)</td></tr>
 </table>
 <p>
-  A roughly 10× gap. The root cause: PyRolL computes
-  \(\text{neutral\_angle} = \text{entry\_angle} \times \text{relative\_neutral\_angle}\), where
-  <code>relative_neutral_angle</code> came out to only ≈ 0.32 in this example — the model scales
-  the angle down by a fraction rather than computing it directly, as Ekelund's formula does.
-  This is not a bug; it is an inherent property of how this particular PyRolL plugin formulates
-  the neutral point. But for a figure meant to be compared directly against real nameplate/drive
-  RPM data, we chose the formula with the longer, better-documented empirical track record.
+  A colder bar has a higher friction and therefore a higher forward slip; a hotter bar the opposite.
 </p>
-<div class="info">
-  <strong>Note:</strong> PyRolL's neutral-angle model notably does <em>not</em> use the friction
-  coefficient directly — it derives the neutral point from draught, equivalent height, and
-  (if present) interstand tension instead. It may still be the more appropriate model for
-  tension-aware force/torque corrections, which is unaffected by this change — only forward
-  slip/RPM uses Ekelund's formula.
-</div>
 
 <hr>
 
@@ -176,29 +207,50 @@
 </p>
 <table>
   <tr><th>Option</th><th>Effect</th></tr>
-  <tr><td><strong>Working Diameter</strong> (default)</td><td>Roll RPM / Motor RPM computed from the geometric working diameter, unchanged from previous versions.</td></tr>
-  <tr><td><strong>Effective Diameter (Ekelund)</strong></td><td>Roll RPM / Motor RPM computed from the forward-slip-corrected effective diameter above.</td></tr>
+  <tr><td><strong>Working Diameter</strong> (default)</td><td>Roll RPM / Motor RPM computed from the PyRolL working diameter.</td></tr>
+  <tr><td><strong>Effective Diameter</strong></td><td>Roll RPM / Motor RPM, the ideal RPM (Roll RPM and Motor RPM, zero tension) and the gear tension of Finishing Blocks are computed from the forward-slip-corrected effective diameter (section 2). Stands without a forward slip result use the working diameter.</td></tr>
 </table>
 <div class="warn">
-  <strong>Scope:</strong> the switch only applies to <em>velocity-defined</em> stands (Standard,
-  Forward, and Backward Solve). Finishing Block sub-passes keep their prescribed motor RPM as the
-  authoritative input regardless of this setting — that RPM is a hard physical input (from
-  motor RPM / gear ratio), not something derived from simulated velocity that forward slip could
-  correct.
+  <strong>Scope:</strong> the switch applies to all stands whose velocity is given or solved
+  (Standard Solve with velocity input, Forward and Backward Solve), including Finishing Block
+  sub-passes, whose velocities follow from the entered start/end velocity and the gear ratios.
+  Only a Finishing Block motor RPM prescribed in <em>Standard Solve</em> is used as entered &mdash;
+  that RPM is a hard physical input, not something derived from a simulated velocity that
+  forward slip could correct.
 </div>
 <div class="info">
   <strong>Does not affect simulated rolling velocity:</strong> PyRolL's own mass-conservation
   solve always uses the working diameter internally to relate velocity and rotational frequency.
   This switch only changes how an already-simulated, unchanged velocity is converted into a
   displayed RPM figure — it does not feed back into profile dimensions, roll force, torque, power,
-  or temperature results.
+  or temperature results. The power and torque values themselves stay PyRolL's values; only the
+  tension-corrected powers use the displayed RPM and are therefore lower by about the forward slip
+  when the effective diameter is the RPM basis.
 </div>
 <p>
-  The default remains Working Diameter — nothing changes for existing projects unless the switch
-  is explicitly changed. We recommend validating Effective Diameter against real measured motor
-  RPM for your own mill before relying on it operationally, since forward slip depends strongly
-  on friction, reduction, and contact geometry that vary between mills.
+  The Engine Evaluation uses the Roll RPM of the Results and therefore follows the RPM Basis. The default
+  is the Working Diameter. We recommend validating the Effective Diameter against real measured motor
+  RPM for your own mill, since forward slip depends strongly on friction, reduction, and contact
+  geometry that vary between mills.
 </p>
+
+<hr>
+
+<h2>5. Scope and Validity</h2>
+<ul>
+  <li>The forward slip is calculated for <code>TwoRollPass</code> and <code>ThreeRollPass</code> stands.
+      For Asymmetric Roll Passes the Results table shows "&mdash;" and the RPM basis falls back to the
+      working diameter.</li>
+  <li>If the entry profile is not thicker than the exit profile (no reduction), the result is left
+      undefined ("&mdash;"). The forward slip is never negative.</li>
+  <li>The factors of the method were established for round &ndash; oval &ndash; round wire rod rolling.
+      Other groove shapes (box, square, diamond, &hellip;) and Three-Roll passes use the same formulas
+      but have not yet been verified against measured data. Please compare with your own mill data
+      before relying on them operationally.</li>
+  <li>PyRolL's built-in neutral-angle model (Lippmann-Mahrenholz) is not used for the forward slip:
+      it does not use friction directly and gave roughly ten times lower forward slip than the values
+      measured in rolling mills. It is still used for the tension-aware force and torque calculations.</li>
+</ul>
 
 <hr>
 <p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI — Effective Diameter Method</p>

@@ -189,7 +189,7 @@
   <tr><td>Initial Temperature</td><td>Incoming bar temperature as configured in the In Profile tab.</td></tr>
   <tr><td>Spreading Model</td><td>The spreading law used by PyRolL for width calculation (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td></tr>
   <tr><td>Solve Method</td><td>Forward Solve, Backward Solve, or Standard Solve — determines the direction of the numerical iteration.</td></tr>
-  <tr><td>RPM Basis</td><td><em>Working Diameter</em> (default) or <em>Effective Diameter (Ekelund)</em> — selects which diameter is used to convert simulated velocity into Roll RPM / Motor RPM for velocity-defined stands. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a> for details.</td></tr>
+  <tr><td>RPM Basis</td><td><em>Working Diameter</em> (default) or <em>Effective Diameter</em> — selects which diameter is used to convert simulated velocity into Roll RPM / Motor RPM (and the ideal RPM values) for velocity-defined stands. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip</a> for details.</td></tr>
 </table>
 
 <div class="info">
@@ -221,12 +221,14 @@
   <tr><td>Bar Area (corrected)</td><td>mm²</td><td>Cross-section area corrected for tension effects. Shown only when tension data is available.</td></tr>
   <tr><td>Reduction</td><td>%</td><td>Fractional area reduction: (A_in − A_out) / A_in × 100.</td></tr>
   <tr><td>Roll Diameter</td><td>mm</td><td>Nominal roll diameter (2 × nominal radius).</td></tr>
-  <tr><td>Working Diameter</td><td>mm</td><td>Effective working diameter at the groove base (2 × working radius).</td></tr>
-  <tr><td>Effective Diameter</td><td>mm</td><td>Forward-slip-corrected diameter per Ekelund's classical formula, using the pass's own friction coefficient, working radius, and equivalent height. Not available for Asymmetric Roll Pass. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a>.</td></tr>
-  <tr><td>Forward Slip</td><td>%</td><td>Forward slip percentage corresponding to the Effective Diameter above: (Effective Diameter / Working Diameter − 1) × 100.</td></tr>
-  <tr><td>Roll RPM (actual)</td><td>rpm</td><td>Actual rotational speed of the roll as set in the Pass Design.</td></tr>
-  <tr><td>Roll RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal RPM calculated for zero interstand tension.</td></tr>
-  <tr><td>Motor RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal motor RPM (after gear ratio) for zero tension condition.</td></tr>
+  <tr><td>Working Diameter</td><td>mm</td><td>Working diameter calculated by PyRolL (2 × working radius); basis of the forward slip calculation.</td></tr>
+  <tr><td>Effective Diameter</td><td>mm</td><td>Forward-slip-corrected diameter: Working Diameter &times; (1 + forward slip). Available for Two-Roll and Three-Roll passes; shown as &ndash; for Asymmetric passes. See <a href="Effective_Diameter_Method.html">Effective Diameter &ndash; Forward Slip</a>.</td></tr>
+  <tr><td>Forward Slip</td><td>%</td><td>Forward slip of the pass, calculated from the equivalent heights (reduced zone for Two-Roll passes), the neutral angle and a temperature-based friction.</td></tr>
+  <tr><td>Groove Factor</td><td>mm</td><td>Nominal roll diameter minus Effective Diameter: the deduction a mill control that only receives the nominal diameter has to apply to obtain the effective diameter.</td></tr>
+  <tr><td>Forward Slip Friction</td><td>&ndash;</td><td>Friction used for the forward slip: roll diameter and speed factors &times; (1.05 &minus; 0.0005 &times; bar temperature).</td></tr>
+  <tr><td>Roll RPM (actual)</td><td>rpm</td><td>Rotational speed of the roll: strip velocity divided by the Effective Diameter (or the Working Diameter, depending on the RPM Basis). A block motor RPM prescribed in Standard Solve is used as is.</td></tr>
+  <tr><td>Roll RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal RPM calculated for zero interstand tension, based on the same diameter as Roll RPM (actual).</td></tr>
+  <tr><td>Motor RPM (ideal, zero tension)</td><td>rpm</td><td>Ideal motor RPM (after gear ratio) for zero tension condition, based on the same diameter as Roll RPM (actual).</td></tr>
   <tr><td>In Profile Velocity</td><td>m/s</td><td>Bar speed at the entry of the roll pass.</td></tr>
   <tr><td>Out Profile Velocity</td><td>m/s</td><td>Bar speed at the exit of the roll pass.</td></tr>
   <tr><td>Transport Duration</td><td>s</td><td>Time the bar spends in the transport section following this pass. Shown as <em>x.xx s / y.yy m</em>.</td></tr>
@@ -288,8 +290,9 @@
 
 <div class="info">
   The <strong>RPM Basis</strong> switch (Working Diameter vs. Effective Diameter) only affects velocity-defined
-  stands. Finishing Block sub-passes always keep their prescribed motor RPM as the authoritative value,
-  since that is a hard physical input rather than something derived from simulated velocity.
+  stands (Standard Solve with velocity input, Forward and Backward Solve, including Finishing Block
+  sub-passes). Only a Finishing Block motor RPM prescribed in Standard Solve is used as entered, since
+  that is a hard physical input rather than something derived from a simulated velocity.
 </div>
 
 <!-- ─── 4. ENGINE EVALUATION ──────────────────────────────── -->
@@ -310,7 +313,7 @@
   <tr><td>Typ</td><td>Motor type: <strong>DC</strong> (grey badge) or <strong>AC</strong> (blue badge).</td></tr>
   <tr><td>Assigned Stands</td><td>The roll pass labels that are driven by this engine.</td></tr>
   <tr><td>Max Engine RPM</td><td>Maximum mechanical speed at the roll (engine max RPM after gear ratio).</td></tr>
-  <tr><td>Calculated Engine RPM</td><td>The highest RPM required by any assigned stand in the simulation. Highlighted green (OK) or red (OVERLOAD).</td></tr>
+  <tr><td>Calculated Engine RPM</td><td>The highest RPM required by any assigned stand in the simulation (based on the Roll RPM of the Results table, i.e. on the selected RPM Basis). Highlighted green (OK) or red (OVERLOAD).</td></tr>
   <tr><td>Aggregated Required kW</td><td>Sum of power demands from all stands assigned to this engine.</td></tr>
   <tr><td>Rated kW</td><td>Rated continuous power of the engine as configured.</td></tr>
   <tr><td>Available Power kW</td><td>Derated power available at the actual operating RPM (AC motor characteristic).</td></tr>

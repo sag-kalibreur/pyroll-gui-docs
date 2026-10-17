@@ -852,22 +852,24 @@
   <tr><th>Option</th><th>Effect</th></tr>
   <tr>
     <td><strong>Working Diameter</strong> (default)</td>
-    <td>RPM is computed from the geometric working diameter — the previous, unchanged behavior.</td>
+    <td>RPM is computed from the PyRolL working diameter.</td>
   </tr>
   <tr>
-    <td><strong>Effective Diameter (Ekelund)</strong></td>
-    <td>RPM is computed from the forward-slip-corrected effective diameter (Ekelund's formula),
-    so the displayed RPM accounts for the small speed difference between the roll surface and
-    the material at the neutral point.</td>
+    <td><strong>Effective Diameter</strong></td>
+    <td>RPM is computed from the forward-slip-corrected effective diameter (PyRolL working diameter
+    &times; (1 + forward slip)), so the displayed RPM accounts for the small speed difference between
+    the roll surface and the material at the neutral point.</td>
   </tr>
 </table>
 
 <div class="warn">
   <strong>Does not affect simulated rolling velocity:</strong> PyRolL's own mass-conservation solve
   always uses the geometric working diameter internally — switching this option only changes how
-  that unchanged velocity is converted into an RPM figure for display. It also does not apply to
-  Finishing Block sub-passes, which keep their prescribed motor RPM as the authoritative input
-  either way. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip (Ekelund)</a>
+  that unchanged velocity is converted into an RPM figure for display. Finishing Block
+  sub-passes follow the switch in Forward and Backward Solve (their velocity comes from the entered
+  start/end velocity); only a block motor RPM prescribed in Standard Solve is used as entered.
+  Stands without a forward slip result use the working diameter; the ideal RPM values and
+  the Engine Evaluation follow the switch. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip</a>
   for the full background and the comparison against PyRolL's built-in neutral-angle model.
 </div>
 

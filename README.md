@@ -32,7 +32,7 @@ The guides are hosted via **GitHub Pages** and can be viewed directly in any bro
 | [Asymmetric Roll Pass](AsymmetricRollPass_Method.html) | Theory of asymmetric roll pass decomposition into sub-passes |
 | [Flat Rolling – Siebel](FlatRolling_Siebel_Method.html) | Siebel friction model and roll force calculation |
 | [Working Diameter – Flat Rolling](FlatRolling_WorkingDiameter_Method.html) | Working radius/diameter correction for flat passes and the Lendl equivalent-height method |
-| [Effective Diameter – Forward Slip (Ekelund)](Effective_Diameter_Method.html) | Forward slip and effective diameter per Ekelund's formula, and the RPM Basis switch |
+| [Effective Diameter – Forward Slip](Effective_Diameter_Method.html) | Forward slip and effective diameter from the reduced zone and a temperature-based friction, and the RPM Basis switch |
 
 ### Complete Reference
 

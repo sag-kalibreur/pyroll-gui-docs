@@ -202,6 +202,7 @@
   <li>A <strong>type selector</strong> (left) to switch between unit types</li>
   <li>An <strong>expand / collapse</strong> button to show or hide detailed parameters</li>
   <li>A <strong>delete</strong> button to remove the unit from the schedule</li>
+  <li>A <strong>Deactivate / Activate</strong> button to exclude the unit from the calculation without deleting it (see Section 1.5)</li>
   <li>The unit's <strong>parameter fields</strong> when expanded</li>
 </ul>
 
@@ -209,6 +210,34 @@
   <strong>Tip:</strong> Rows can be collapsed to keep the overview clean when working with long schedules.
   All parameters are preserved when a row is collapsed.
 </div>
+
+<h3>1.5 Deactivating Units</h3>
+<p>
+  A unit can be switched off with <strong>Deactivate</strong> instead of deleting it. The row stays in the
+  schedule (dimmed, marked <em>INACTIVE</em>) and keeps all its parameters, but it is skipped by the
+  simulation. This is useful to see the result of an earlier pass when a later pass fails, or to compare
+  variants of a schedule.
+</p>
+<ul>
+  <li><strong>Deactivate from here</strong> deactivates the unit and all following units of the sequence in one click.</li>
+  <li><strong>Activate all</strong> (next to <em>+ Add Unit</em>) switches every unit of the sequence on again. The sequence header shows how many units are inactive.</li>
+  <li><strong>Finishing Block:</strong> the whole block or single sub-passes can be deactivated. A deactivated sub-pass is skipped together with its <em>Transport before</em> element.</li>
+  <li>Inactive units are ignored by the validation (a pass with incomplete parameters does not block the run), by the duplicate-label check and by the pass counting. A deactivated <em>SeparatingGuide</em> no longer splits the strand.</li>
+  <li>The setting is saved with the project, the XML file and the Pass Design Library. Inactive stands stay listed (marked <em>inactive</em>) in the Engines tab so motor assignments are not lost.</li>
+</ul>
+<div class="warn">
+  <strong>Transport and CoolingPipe units are not deactivated automatically.</strong>
+  If a pass between two Transport or CoolingPipe units is deactivated, both run back to back (the cooling times add up).
+  Deactivate them as well if this is not wanted.
+  With <strong>Backward Solve</strong> the last <em>active</em> unit becomes the anchor of the velocity calculation, so velocities and RPM differ from the full line when trailing units are deactivated &mdash; use Standard or Forward Solve for such checks.
+</div>
+
+<h3>1.6 Partial Results (Standard Solve)</h3>
+<p>
+  If a unit fails in <strong>Standard Solve</strong> (for example because the groove does not fit), the results of the
+  units solved before it are shown and the message names the failing unit. The sequence is then not marked as solved
+  and the following sequences cannot be run until the error is fixed. Forward and Backward Solve do not return partial results.
+</p>
 
 <hr>
 
@@ -319,6 +348,11 @@
   without the incoming workpiece profile. The full visualization including the workpiece
   cross-section overlay is available after running the simulation in the
   <strong>Roll Pass Plots</strong> and <strong>Overall Plots</strong>.
+</p>
+<p>
+  The parameter list at the top right shows the entered groove values. At the top left the plot shows the
+  <strong>Pass Height</strong> (bottom of the upper groove to the bottom of the lower groove, i.e. 2 &times; depth + gap
+  for a symmetric pass). It is calculated from depth and gap (upper depth + lower depth + gap for an AsymmetricRollPass), so it is also correct for vertical stands, and it is not shown for a ThreeRollPass.
 </p>
 
 <h3>3.4 Spread Correction</h3>

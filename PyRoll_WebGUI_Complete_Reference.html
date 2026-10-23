@@ -1535,10 +1535,17 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td><code>Label</code></td><td>—</td><td>Unique name for this cooling section.</td></tr>
   <tr><td><code>Define by</code></td><td>—</td><td>Specify by <em>length</em> (m) or <em>duration</em> (s) — same logic as Transport.</td></tr>
   <tr><td><code>Value</code></td><td>m or s</td><td>Length or duration of the cooling section.</td></tr>
-  <tr><td><code>Inner Radius</code></td><td>mm</td><td>Inner radius of the cooling pipe. Determines the annular gap between pipe wall and workpiece.</td></tr>
+  <tr><td><code>Inner Diameter</code></td><td>mm</td><td>Inner diameter of the pipe bore (<em>not</em> the gap between workpiece and pipe wall). The pipe is assumed to be circular and concentric with the workpiece; its cross-section must be larger than the workpiece cross-section, otherwise the simulation stops with an error. The water flows through the remaining annular area.</td></tr>
   <tr><td><code>Coolant Temperature</code></td><td>°C</td><td>Inlet temperature of the cooling water. Typical value: 15–25 °C.</td></tr>
-  <tr><td><code>Coolant Volume Flux</code></td><td>m³/s</td><td>Volumetric flow rate of the cooling water through the pipe. Controls the intensity of forced convection.</td></tr>
+  <tr><td><code>Coolant Volume Flux</code></td><td>m³/h</td><td>Volumetric flow rate of the cooling water through <em>this</em> pipe (not the total flow of the whole water box or plant). Controls the intensity of forced convection.</td></tr>
 </table>
+
+<div class="warn">
+  <strong>Calibration:</strong> The heat transfer is calculated with the Wehage model and reacts strongly to the
+  flow rate. Compare the resulting <em>Mean Temperature</em> with measured values and adjust the flow rate
+  accordingly. A pyrometer only sees the surface, which is much colder than the mean temperature directly after
+  the pipe and recovers by conduction within a few metres.
+</div>
 
 <h3>8.2 Difference to Transport</h3>
 <p>

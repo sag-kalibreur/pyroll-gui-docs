@@ -98,7 +98,8 @@
   For a <code>FlatGroove</code>, <code>groove_factor</code> is always \(0\) (the
   groove contour is a flat line at \(y = 0\)), so this reduces to
   \(r_{\text{work}} = r_{\text{nominal}}\) — the working radius equals the nominal
-  roll radius, unmodified.
+  roll radius, unmodified. Since PyRolL Core 3.1.17 the <code>groove_factor</code> is a property of the
+  roll (default: the \(y\)-position of the centroid of the groove contour) and no longer of the groove.
 </p>
 <p>
   This overestimates the effective rolling radius: the actual contact between roll
@@ -196,6 +197,11 @@
   \(r_{\text{work}} = r_{\text{nominal}} - \text{groove\_factor}\) formula is used
   unmodified, since those groove shapes already yield a meaningful, non-zero
   <code>groove_factor</code>.
+</div>
+<div class="info">
+  <strong>EdgeBoxGroove:</strong> The displayed contour of an EdgeBoxGroove can differ from the groove used for the
+  simulation (convex or concave ground). The <code>groove_factor</code> is always taken from the simulation groove
+  (flat or box shape), so the working radius does not depend on the ground curvature.
 </div>
 
 <hr>

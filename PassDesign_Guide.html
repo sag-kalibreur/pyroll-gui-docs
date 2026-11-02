@@ -549,6 +549,20 @@
   the pipe and recovers by conduction within a few metres.
 </div>
 
+<div class="info">
+  <strong>Thermal model (Ring Model Thermal 3.0.9):</strong> The surface temperature of the workpiece in the pipe is
+  now solved with the same heat transfer coefficient that extracts the heat. Earlier versions used the default
+  coefficient of the pipe in the surface balance, so the cooling was calculated too strong. In the test cases the
+  mean temperature after the pipe is higher than before: by about 10&ndash;15&nbsp;K for weak cooling and up to about
+  80&nbsp;K for very strong cooling. Cooling sections calibrated with an earlier version should be checked again.
+</div>
+
+<p>
+  <strong>Very strong cooling:</strong> If the simulation stops with <em>"the cooling is too strong for the current
+  number of disk elements"</em>, increase the <em>Disk Element Count</em> in the sequence header (e.g. to 60, see
+  Section 11.3) or reduce the Coolant Volume Flux.
+</p>
+
 <h3>8.2 Difference to Transport</h3>
 <p>
   Unlike a <em>Transport</em> unit (air cooling, low heat extraction), a <em>CoolingPipe</em>
@@ -583,6 +597,7 @@
   <tr><td><code>Block Name</code></td><td>—</td><td>Label for the entire finishing block (e.g. <em>Finishing Block</em>).</td></tr>
   <tr><td><code>Motor</code></td><td>—</td><td>Selection of the drive motor from the motor library. Determines the available power and maximum torque.</td></tr>
   <tr><td><code>Motor RPM</code></td><td>rpm</td><td>Rotational speed of the drive motor. This single value controls the velocity of all sub-passes through their respective gear ratios.</td></tr>
+  <tr><td><code>Interstand Tension</code></td><td>—</td><td><em>Post-processing (standard)</em> or <em>Kinematic (PyRolL Core, experimental)</em>. Selects how the tension between the sub-passes is determined, see Section 9.6.</td></tr>
 </table>
 
 <h3>9.2 Sub-Pass Parameters</h3>
@@ -637,6 +652,34 @@
   <li><strong>× (Remove)</strong> button on each sub-pass row — removes that sub-pass</li>
   <li><strong>Delete Block</strong> — removes the entire FinishingBlock from the schedule</li>
 </ul>
+
+<h3>9.6 Interstand Tension: Standard or Kinematic</h3>
+<p>
+  The <code>Interstand Tension</code> switch of the block selects how the tension between the sub-passes is determined.
+  To compare both variants, copy the sequence and switch the block in the copy; the Results show them side by side.
+</p>
+<ul>
+  <li><strong>Post-processing (standard):</strong> The sub-passes are simulated tension-free; the tension, the corrected
+    dimensions and the corrected forces are calculated afterwards (see <a href="Interstand_Tension_Method.html">Interstand Tension</a>).</li>
+  <li><strong>Kinematic (PyRolL Core, experimental):</strong> The sub-passes run at the speeds fixed by motor and gear ratios.
+    The first stand fixes the volume flux of the block; every following stand receives its exit area from continuity
+    (<em>A&nbsp;=&nbsp;Q&nbsp;/&nbsp;v</em>, width scaled, height kept) and hands this bar on to the next stand. Cross-section, width,
+    spread, forces, torques, power and temperatures of the following stands are therefore calculated for the bar under tension
+    or compression. The Results show the row <em>Tension / Compression kinematic [%]</em> instead of <em>Tension After</em> and the
+    <em>(corrected)</em> rows.</li>
+</ul>
+<p>
+  <strong>Roll speeds:</strong> With Standard Solve they follow from <em>Motor RPM</em> and the gear ratios. With Forward / Backward
+  Solve the sequence is solved as usual first; the block is then calculated a second time on one common motor speed, taken from the
+  reference stand of that solve (last stand of the block for Backward, first stand for Forward Solve), and the gear ratios. The speeds of
+  all other stands stay as solved. The calculation time roughly doubles.
+</p>
+<div class="warn">
+  <strong>Limits:</strong> Compression widens the bar. If it then fills the groove by more than 0.2&nbsp;% of its area, the result shows a &#9888;
+  marker; above 2&nbsp;% the calculation stops with an error and the stands solved so far are shown as partial result. The exit area of the block
+  is a result of the roll speeds (a Backward Solve target area is not enforced). Not available in sequences with an Asymmetric Roll Pass; the
+  tension between the block and the following stands is not evaluated. Experimental: not yet validated against measurements.
+</div>
 
 <div class="warn">
   <strong>Note:</strong> The FinishingBlock motor power check is performed during simulation.
@@ -878,6 +921,11 @@
   solver could not fully converge for that pass. This typically happens at very large
   reductions (&gt; 50 % area reduction in one pass). Reducing the Disk Element Count
   to 10–15 usually resolves the issue without significantly affecting result quality.
+</div>
+
+<div class="info">
+  <strong>CoolingPipe:</strong> A CoolingPipe with very strong cooling can need <em>more</em> disk elements,
+  not fewer (see Section 8.1).
 </div>
 
 <h3>11.4 RPM Basis</h3>

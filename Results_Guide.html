@@ -217,6 +217,7 @@
   <tr><td>Bar Width</td><td>mm</td><td>Outgoing profile width.</td></tr>
   <tr><td>Bar Width (corrected)</td><td>mm</td><td>Width corrected for interstand tension or gear tension effects. Shown only when tension data is available.</td></tr>
   <tr><td>Tension After</td><td>%</td><td>Interstand tension after this pass as a percentage of the material flow stress. Shown only when tension data is present.</td></tr>
+  <tr><td>Tension / Compression kinematic</td><td>%</td><td>Interstand tension (&minus;) or compression (+) behind the stand for Finishing Blocks with the <em>Kinematic</em> interstand tension (see <a href="Interstand_Tension_Method.html">Interstand Tension</a>). Replaces <em>Tension After</em> and the <em>(corrected)</em> rows for these stands, because the main rows already show the bar under tension. A &#9888; marks compression that fills the groove beyond its limit.</td></tr>
   <tr><td>Bar Area</td><td>mm²</td><td>Cross-section area of the outgoing profile.</td></tr>
   <tr><td>Bar Area (corrected)</td><td>mm²</td><td>Cross-section area corrected for tension effects. Shown only when tension data is available.</td></tr>
   <tr><td>Reduction</td><td>%</td><td>Fractional area reduction: (A_in − A_out) / A_in × 100.</td></tr>
@@ -236,7 +237,7 @@
   <tr><td>Entry Temperature</td><td>°C</td><td>Mean bar temperature entering this pass.</td></tr>
   <tr><td>Core Temperature</td><td>°C</td><td>Core temperature of the outgoing profile.</td></tr>
   <tr><td>Mean Temperature</td><td>°C</td><td>Volume-averaged temperature of the outgoing profile.</td></tr>
-  <tr><td>Surface Temperature</td><td>°C</td><td>Surface temperature of the outgoing profile.</td></tr>
+  <tr><td>Surface Temperature</td><td>°C</td><td>Surface temperature of the outgoing profile. After a roll pass it results from the heat flux balance at the surface (roll contact, free surface, conduction from the outermost ring) and is therefore well below the mean temperature.</td></tr>
   <tr><td>Bite Angle</td><td>°</td><td>Contact angle between roll and workpiece at entry.</td></tr>
   <tr><td>Roll Force</td><td>kN</td><td>Total rolling force per roll pass.</td></tr>
   <tr><td>Roll Force (corrected)</td><td>kN</td><td>Roll force corrected for tension effects.</td></tr>
@@ -286,6 +287,7 @@
   <li><em>Bar Width (corrected)</em> and <em>Bar Area (corrected)</em> reflect the geometry after gear-tension correction.</li>
   <li><em>Roll Force (corrected)</em>, <em>Roll Torque (corrected)</em>, and <em>Power (corrected)</em> are calculated with the gear tension taken into account.</li>
   <li>For block passes the <em>Roll RPM (ideal)</em> and <em>Motor RPM (ideal)</em> represent the tension-free ideal values used for gear ratio setup.</li>
+  <li>With the <em>Kinematic</em> interstand tension the block shows <em>Tension / Compression kinematic</em> instead of the tension and <em>(corrected)</em> rows; its main rows are already the bar under tension.</li>
 </ul>
 
 <div class="info">

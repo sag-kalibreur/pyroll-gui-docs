@@ -266,6 +266,40 @@
 </div>
 
 <hr>
+
+<h2>8. Kinematic Interstand Tension (Finishing Block, optional)</h2>
+<p>
+  A Finishing Block can alternatively be calculated with the kinematic interstand tension of PyRolL Core
+  (WICON principle; switch <em>Interstand Tension</em> in the block, see the Pass Design Guide, Section 9.6).
+  In contrast to Sections 2 to 7 the tension is part of the simulation: the first stand of the block fixes the volume flux,
+  every following stand gets its exit area from continuity and hands the corrected bar to the next stand.
+</p>
+<div class="formula-box">
+  \[
+    Q = A_1 \, v_1 \, (1 + s_1) \qquad
+    A_n = \frac{Q}{v_n \, (1 + s_n)} \qquad
+    z_n = \frac{A_{\text{free},n}}{A_n} - 1
+  \]
+  <p style="margin:0.5em 0 0 0; font-size:0.92em;">
+    \(v_n\) = exit velocity from the roll speed (motor speed / gear ratio),&nbsp;
+    \(s_n\) = forward slip of the pass,&nbsp;
+    \(A_{\text{free},n}\) = tension-free exit area,&nbsp;
+    \(z_n &gt; 0\): tension in front of stand \(n\).
+  </p>
+</div>
+<ul>
+  <li>The width of the exit cross-section is scaled to the area \(A_n\), the height is kept (as in Section 4.1).</li>
+  <li>The Results show the tension behind the stand with the usual sign (tension negative, compression positive), i.e. \(-z_{n+1}\) behind stand \(n\).</li>
+  <li><em>Roll RPM (ideal)</em> and <em>Motor RPM (ideal)</em> are calculated from the tension-free areas, because the forced exit areas would only return the actual speeds.</li>
+  <li>There is no force correction factor: force, torque and power follow from the geometry and temperature of the bar under tension.</li>
+  <li>Compared with the post-processing the tension is fed back, so it accumulates along the block and the exit area of the block changes. Compression that fills the groove by more than 0.2&nbsp;% of the bar area is marked, above 2&nbsp;% the calculation stops.</li>
+</ul>
+<div class="warn">
+  <strong>Experimental:</strong> Both variants model the same physics with different assumptions. Neither is validated against measurements yet; use
+  the kinematic variant for comparison.
+</div>
+
+<hr>
 <p style="font-size:0.85em; color:#888;">Michael Molter | PyRoll GUI Frontend Approximation Method</p>
 <div class="scroll-nav">
   <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Scroll to top">&#9650;</button>

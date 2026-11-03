@@ -2833,7 +2833,7 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td>Usable Width</td><td>mm</td><td>Width of the groove at the roll surface level (opening width)</td></tr>
   <tr><td>Flank Angle</td><td>°</td><td>Inclination of the groove flanks from vertical</td></tr>
   <tr><td>Flank Width / Height / Length</td><td>mm</td><td>Flank geometry dimensions (type-specific)</td></tr>
-  <tr><td>Pad Angle</td><td>mm</td><td>Angle of the flat pad at the groove base (e.g. FalseRoundGroove); usually 0. The pad does not influence the Working Diameter (see <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a>, Section 6)</td></tr>
+  <tr><td>Pad Angle</td><td>&deg;</td><td>Not an input for Two-Roll passes (hidden, the pad angle is always 0). For Three-Roll passes it is fixed to 30&deg; and shown greyed out. Values stored earlier are ignored. The pad does not influence the Working Diameter (see <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a>, Section 6)</td></tr>
   <tr><td>Ground Width</td><td>mm</td><td>Width of the flat bottom (BoxGroove)</td></tr>
 </table>
 
@@ -3016,7 +3016,7 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td><code>usable_width</code></td><td>Usable width in mm (optional)</td></tr>
   <tr><td><code>flank_angle</code></td><td>Flank angle in degrees</td></tr>
   <tr><td><code>ground_width</code></td><td>Flat bottom width in mm (BoxGroove)</td></tr>
-  <tr><td><code>pad_angle</code></td><td>Pad angle in mm (FalseRoundGroove); usually 0</td></tr>
+  <tr><td><code>pad_angle</code></td><td>Pad angle in degrees; ignored when the groove is used (0 for Two-Roll passes, 30 for Three-Roll passes)</td></tr>
 </table>
 
 <h3 id="import-json">7.2 Import from JSON File</h3>
@@ -5823,6 +5823,11 @@ nav.toc a:hover { text-decoration:underline; }
 <p>
   Before, the working diameter changed by almost 10&nbsp;mm with the pad angle alone; now it stays within
   0.5&nbsp;mm (the remaining difference is the slightly different groove shape).
+</p>
+<p>
+  The <em>Pad Angle</em> is therefore no input any more. It is hidden for Two-Roll passes (the rolls are
+  cylindrical, the pad angle is 0) and fixed to 30&deg; for Three-Roll passes, which need a pad for a valid
+  contour. Values stored in older projects and in the Groove Library are ignored.
 </p>
 
 <h3>What changes, what stays</h3>

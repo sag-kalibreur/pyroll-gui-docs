@@ -222,7 +222,7 @@
   <tr><td>Bar Area (corrected)</td><td>mm²</td><td>Cross-section area corrected for tension effects. Shown only when tension data is available.</td></tr>
   <tr><td>Reduction</td><td>%</td><td>Fractional area reduction: (A_in − A_out) / A_in × 100.</td></tr>
   <tr><td>Roll Diameter</td><td>mm</td><td>Nominal roll diameter (2 × nominal radius).</td></tr>
-  <tr><td>Working Diameter</td><td>mm</td><td>Working diameter calculated by PyRolL (2 × working radius); basis of the forward slip calculation.</td></tr>
+  <tr><td>Working Diameter</td><td>mm</td><td>Working diameter calculated by PyRolL (2 × working radius); basis of the forward slip calculation. The groove factor of the working radius is the centroid of the groove contour inside the usable width, the pads do not count (see <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a>, Section 6).</td></tr>
   <tr><td>Effective Diameter</td><td>mm</td><td>Forward-slip-corrected diameter: Working Diameter &times; (1 + forward slip). Available for Two-Roll and Three-Roll passes; shown as &ndash; for Asymmetric passes. See <a href="Effective_Diameter_Method.html">Effective Diameter &ndash; Forward Slip</a>.</td></tr>
   <tr><td>Forward Slip</td><td>%</td><td>Forward slip of the pass, calculated from the equivalent heights (reduced zone for Two-Roll passes), the neutral angle and a temperature-based friction.</td></tr>
   <tr><td>Groove Factor</td><td>mm</td><td>Nominal roll diameter minus Effective Diameter: the deduction a mill control that only receives the nominal diameter has to apply to obtain the effective diameter.</td></tr>

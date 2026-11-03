@@ -2833,7 +2833,7 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td>Usable Width</td><td>mm</td><td>Width of the groove at the roll surface level (opening width)</td></tr>
   <tr><td>Flank Angle</td><td>°</td><td>Inclination of the groove flanks from vertical</td></tr>
   <tr><td>Flank Width / Height / Length</td><td>mm</td><td>Flank geometry dimensions (type-specific)</td></tr>
-  <tr><td>Pad Angle</td><td>mm</td><td>Angle of the flat pad at the groove base (e.g. FalseRoundGroove); usually 0</td></tr>
+  <tr><td>Pad Angle</td><td>mm</td><td>Angle of the flat pad at the groove base (e.g. FalseRoundGroove); usually 0. The pad does not influence the Working Diameter (see <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a>, Section 6)</td></tr>
   <tr><td>Ground Width</td><td>mm</td><td>Width of the flat bottom (BoxGroove)</td></tr>
 </table>
 
@@ -3519,7 +3519,7 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td>Bar Area (corrected)</td><td>mm²</td><td>Cross-section area corrected for tension effects. Shown only when tension data is available.</td></tr>
   <tr><td>Reduction</td><td>%</td><td>Fractional area reduction: (A_in − A_out) / A_in × 100.</td></tr>
   <tr><td>Roll Diameter</td><td>mm</td><td>Nominal roll diameter (2 × nominal radius).</td></tr>
-  <tr><td>Working Diameter</td><td>mm</td><td>Working diameter calculated by PyRolL (2 × working radius); basis of the forward slip calculation.</td></tr>
+  <tr><td>Working Diameter</td><td>mm</td><td>Working diameter calculated by PyRolL (2 × working radius); basis of the forward slip calculation. The groove factor of the working radius is the centroid of the groove contour inside the usable width, the pads do not count (see <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a>, Section 6).</td></tr>
   <tr><td>Effective Diameter</td><td>mm</td><td>Forward-slip-corrected diameter: Working Diameter &times; (1 + forward slip). Available for Two-Roll and Three-Roll passes; shown as &ndash; for Asymmetric passes. See <a href="Effective_Diameter_Method.html">Effective Diameter &ndash; Forward Slip</a>.</td></tr>
   <tr><td>Forward Slip</td><td>%</td><td>Forward slip of the pass, calculated from the equivalent heights (reduced zone for Two-Roll passes), the neutral angle and a temperature-based friction.</td></tr>
   <tr><td>Groove Factor</td><td>mm</td><td>Nominal roll diameter minus Effective Diameter: the deduction a mill control that only receives the nominal diameter has to apply to obtain the effective diameter.</td></tr>
@@ -5678,6 +5678,7 @@ nav.toc a:hover { text-decoration:underline; }
   \(r_{\text{work}} = r_{\text{nominal}}\) — the working radius equals the nominal
   roll radius, unmodified. Since PyRolL Core 3.1.17 the <code>groove_factor</code> is a property of the
   roll (default: the \(y\)-position of the centroid of the groove contour) and no longer of the groove.
+  PyRoll WebGUI replaces this default for grooved passes by the centroid inside the usable width (Section 6).
 </p>
 <p>
   This overestimates the effective rolling radius: the actual contact between roll
@@ -5773,13 +5774,72 @@ nav.toc a:hover { text-decoration:underline; }
   using a <code>FlatGroove</code>. For all other groove types (round, oval, square,
   diamond, box, spline, …) PyRolL Core's standard
   \(r_{\text{work}} = r_{\text{nominal}} - \text{groove\_factor}\) formula is used
-  unmodified, since those groove shapes already yield a meaningful, non-zero
+  with the groove factor of Section 6, since those groove shapes yield a meaningful, non-zero
   <code>groove_factor</code>.
 </div>
 <div class="info">
   <strong>EdgeBoxGroove:</strong> The displayed contour of an EdgeBoxGroove can differ from the groove used for the
   simulation (convex or concave ground). The <code>groove_factor</code> is always taken from the simulation groove
   (flat or box shape), so the working radius does not depend on the ground curvature.
+</div>
+
+<hr>
+
+<h2>6. Grooved Passes &mdash; Groove Factor Inside the Usable Width</h2>
+<p>
+  For all grooved passes the working radius is \(r_{\text{work}} = r_{\text{nominal}} - \text{groove\_factor}\).
+  PyRolL Core takes the groove factor as the centroid of the <em>whole</em> contour line of the groove. That line
+  includes the flat <strong>pads</strong> on both sides of the groove (each \(0.2\) &times; usable width long, not
+  adjustable). The pads carry a large weight in the centroid, although they are only the transition to the roll
+  surface. The working diameter therefore depended on the pad angle, which has nothing to do with the roll body
+  that is in contact with the bar.
+</p>
+<p>
+  Since version 1.18.0 PyRoll WebGUI takes the centroid of the contour line <strong>only inside the usable
+  width</strong> \(b_u\):
+</p>
+<div class="formula-box">
+  \[
+    \text{groove\_factor} = \bar{y}\,\bigl(\text{contour line},\ |z| \le b_u / 2\bigr)
+  \]
+</div>
+<p>
+  The pads do not influence the working diameter any more; it depends on the shape of the groove between its
+  edges (the mean depth of the groove). This is also how mill speed-setup sheets treat the groove: only the groove
+  area counts, not the pads.
+</p>
+
+<h3>Example</h3>
+<p>
+  Circular oval groove, \(R_2 = 75\)&nbsp;mm, usable width 94.12&nbsp;mm, nominal roll radius 225&nbsp;mm,
+  different pad angles:
+</p>
+<table>
+  <tr><th>Pad angle</th><th>Groove factor (before)</th><th>Working diameter (before)</th><th>Groove factor (now)</th><th>Working diameter (now)</th></tr>
+  <tr><td>0&deg;</td><td>7.82&nbsp;mm</td><td>434.36&nbsp;mm</td><td>10.99&nbsp;mm</td><td>428.02&nbsp;mm</td></tr>
+  <tr><td>30&deg;</td><td>9.38&nbsp;mm</td><td>431.23&nbsp;mm</td><td>11.00&nbsp;mm</td><td>427.99&nbsp;mm</td></tr>
+  <tr><td>89&deg;</td><td>12.73&nbsp;mm</td><td>424.54&nbsp;mm</td><td>10.78&nbsp;mm</td><td>428.43&nbsp;mm</td></tr>
+</table>
+<p>
+  Before, the working diameter changed by almost 10&nbsp;mm with the pad angle alone; now it stays within
+  0.5&nbsp;mm (the remaining difference is the slightly different groove shape).
+</p>
+
+<h3>What changes, what stays</h3>
+<ul>
+  <li><strong>Changes:</strong> the working diameter of parametric grooves (round, oval, square, diamond, box,
+      false round, &hellip;) in Two-Roll and Three-Roll passes. In the test projects it is smaller than
+      before by 1.4&nbsp;% on median (up to 4&nbsp;% for small rolls with deep grooves). The roll RPM of
+      velocity-defined stands rises by about 1.3&nbsp;% on median, the roll torque falls by about 1.7&nbsp;% and the
+      roll force by about 0.4&nbsp;%. The forward slip, which is calculated from the working diameter, becomes
+      smaller by about 1&nbsp;% (relative). Cross-section and temperatures change by less than 0.5&nbsp;%.</li>
+  <li><strong>Stays:</strong> Spline / DXF grooves (their contour already ends at the usable width),
+      <code>FlatGroove</code> (separate correction, Sections 1&ndash;5), all plots, contours and the overfill tolerance
+      (the pads remain part of the groove geometry).</li>
+</ul>
+<div class="warn">
+  &#9888; Projects that were simulated with an earlier version show a smaller working diameter, a higher roll RPM and
+  a lower torque after a new simulation.
 </div>
 
 <hr>
@@ -5865,7 +5925,7 @@ nav.toc a:hover { text-decoration:underline; }
   <tr><td>\(r_w\)</td><td>Working radius of PyRolL</td></tr>
   <tr><td>\(v\)</td><td>Exit speed of the bar [m/s]</td></tr>
   <tr><td>\(\mu\)</td><td>Friction used for the forward slip, see section 3</td></tr>
-  <tr><td>\(D_w\)</td><td>Working diameter of PyRolL ("Working Diameter" row of the Results table)</td></tr>
+  <tr><td>\(D_w\)</td><td>Working diameter of PyRolL ("Working Diameter" row of the Results table); its groove factor is the centroid of the groove contour inside the usable width, the pads do not count (see <a href="FlatRolling_WorkingDiameter_Method.html">Working Diameter</a>, Section 6)</td></tr>
   <tr><td>GF</td><td>Groove Factor: nominal roll diameter minus effective diameter [mm]. This is the deduction a mill control that only receives the nominal diameter has to apply to obtain the effective diameter</td></tr>
   <tr><td>\(n\)</td><td>Roll speed [rpm] when the effective diameter is used as RPM basis</td></tr>
 </table>

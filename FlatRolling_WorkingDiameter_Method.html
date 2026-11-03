@@ -100,6 +100,7 @@
   \(r_{\text{work}} = r_{\text{nominal}}\) — the working radius equals the nominal
   roll radius, unmodified. Since PyRolL Core 3.1.17 the <code>groove_factor</code> is a property of the
   roll (default: the \(y\)-position of the centroid of the groove contour) and no longer of the groove.
+  PyRoll WebGUI replaces this default for grooved passes by the centroid inside the usable width (Section 6).
 </p>
 <p>
   This overestimates the effective rolling radius: the actual contact between roll
@@ -195,13 +196,72 @@
   using a <code>FlatGroove</code>. For all other groove types (round, oval, square,
   diamond, box, spline, …) PyRolL Core's standard
   \(r_{\text{work}} = r_{\text{nominal}} - \text{groove\_factor}\) formula is used
-  unmodified, since those groove shapes already yield a meaningful, non-zero
+  with the groove factor of Section 6, since those groove shapes yield a meaningful, non-zero
   <code>groove_factor</code>.
 </div>
 <div class="info">
   <strong>EdgeBoxGroove:</strong> The displayed contour of an EdgeBoxGroove can differ from the groove used for the
   simulation (convex or concave ground). The <code>groove_factor</code> is always taken from the simulation groove
   (flat or box shape), so the working radius does not depend on the ground curvature.
+</div>
+
+<hr>
+
+<h2>6. Grooved Passes &mdash; Groove Factor Inside the Usable Width</h2>
+<p>
+  For all grooved passes the working radius is \(r_{\text{work}} = r_{\text{nominal}} - \text{groove\_factor}\).
+  PyRolL Core takes the groove factor as the centroid of the <em>whole</em> contour line of the groove. That line
+  includes the flat <strong>pads</strong> on both sides of the groove (each \(0.2\) &times; usable width long, not
+  adjustable). The pads carry a large weight in the centroid, although they are only the transition to the roll
+  surface. The working diameter therefore depended on the pad angle, which has nothing to do with the roll body
+  that is in contact with the bar.
+</p>
+<p>
+  Since version 1.18.0 PyRoll WebGUI takes the centroid of the contour line <strong>only inside the usable
+  width</strong> \(b_u\):
+</p>
+<div class="formula-box">
+  \[
+    \text{groove\_factor} = \bar{y}\,\bigl(\text{contour line},\ |z| \le b_u / 2\bigr)
+  \]
+</div>
+<p>
+  The pads do not influence the working diameter any more; it depends on the shape of the groove between its
+  edges (the mean depth of the groove). This is also how mill speed-setup sheets treat the groove: only the groove
+  area counts, not the pads.
+</p>
+
+<h3>Example</h3>
+<p>
+  Circular oval groove, \(R_2 = 75\)&nbsp;mm, usable width 94.12&nbsp;mm, nominal roll radius 225&nbsp;mm,
+  different pad angles:
+</p>
+<table>
+  <tr><th>Pad angle</th><th>Groove factor (before)</th><th>Working diameter (before)</th><th>Groove factor (now)</th><th>Working diameter (now)</th></tr>
+  <tr><td>0&deg;</td><td>7.82&nbsp;mm</td><td>434.36&nbsp;mm</td><td>10.99&nbsp;mm</td><td>428.02&nbsp;mm</td></tr>
+  <tr><td>30&deg;</td><td>9.38&nbsp;mm</td><td>431.23&nbsp;mm</td><td>11.00&nbsp;mm</td><td>427.99&nbsp;mm</td></tr>
+  <tr><td>89&deg;</td><td>12.73&nbsp;mm</td><td>424.54&nbsp;mm</td><td>10.78&nbsp;mm</td><td>428.43&nbsp;mm</td></tr>
+</table>
+<p>
+  Before, the working diameter changed by almost 10&nbsp;mm with the pad angle alone; now it stays within
+  0.5&nbsp;mm (the remaining difference is the slightly different groove shape).
+</p>
+
+<h3>What changes, what stays</h3>
+<ul>
+  <li><strong>Changes:</strong> the working diameter of parametric grooves (round, oval, square, diamond, box,
+      false round, &hellip;) in Two-Roll and Three-Roll passes. In the test projects it is smaller than
+      before by 1.4&nbsp;% on median (up to 4&nbsp;% for small rolls with deep grooves). The roll RPM of
+      velocity-defined stands rises by about 1.3&nbsp;% on median, the roll torque falls by about 1.7&nbsp;% and the
+      roll force by about 0.4&nbsp;%. The forward slip, which is calculated from the working diameter, becomes
+      smaller by about 1&nbsp;% (relative). Cross-section and temperatures change by less than 0.5&nbsp;%.</li>
+  <li><strong>Stays:</strong> Spline / DXF grooves (their contour already ends at the usable width),
+      <code>FlatGroove</code> (separate correction, Sections 1&ndash;5), all plots, contours and the overfill tolerance
+      (the pads remain part of the groove geometry).</li>
+</ul>
+<div class="warn">
+  &#9888; Projects that were simulated with an earlier version show a smaller working diameter, a higher roll RPM and
+  a lower torque after a new simulation.
 </div>
 
 <hr>

@@ -142,7 +142,7 @@
 </div>
 
 <h1>Application Menu Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: November 2026</em></p>
 
 <hr>
 
@@ -153,7 +153,11 @@
     <li><a href="#overview">Overview</a></li>
     <li><a href="#dark-mode">Dark / Bright Mode Switcher</a></li>
     <li><a href="#pin-nav">Pinned Navigation Bar</a></li>
-    <li><a href="#file">File Menu</a></li>
+    <li><a href="#file">File Menu</a>
+      <ol>
+        <li><a href="#project-folder">Project Folder</a></li>
+      </ol>
+    </li>
     <li><a href="#edit">Edit Menu</a></li>
     <li><a href="#view">View Menu</a></li>
     <li><a href="#window">Window Menu</a></li>
@@ -285,6 +289,8 @@
   <div class="menu-item"><span>Open</span><span class="menu-accel">Ctrl+O</span></div>
   <div class="menu-item"><span>Save</span><span class="menu-accel">Ctrl+S</span></div>
   <hr class="menu-sep">
+  <div class="menu-item"><span>Set Project Folder…</span><span class="menu-accel"></span></div>
+  <hr class="menu-sep">
   <div class="menu-item"><span>Exit</span><span class="menu-accel">Ctrl+Q</span></div>
 </div>
 
@@ -299,12 +305,17 @@
     <tr>
       <td>Open</td>
       <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>O</kbd></td>
-      <td>Opens a system file dialog to load a previously saved PyRoll project file (<code>.json</code>). All pass design, engine configuration, simulation settings, and results are restored.</td>
+      <td>Opens a system file dialog to load a previously saved PyRoll project file (<code>.json</code>). All pass design, engine configuration, simulation settings, and results are restored. The dialog starts in the <a href="#project-folder">project folder</a>.</td>
     </tr>
     <tr>
       <td>Save</td>
       <td class="shortcut-col"><kbd>Ctrl</kbd>+<kbd>S</kbd></td>
-      <td>Saves the current project (pass design, engine configuration, In-Profile, settings, and simulation results) to a <code>.json</code> file. Opens a save dialog on first save.</td>
+      <td>Saves the current project (pass design, engine configuration, In-Profile, settings, and simulation results) to a <code>.json</code> file. The save dialog starts in the folder of the project that was opened or saved last, otherwise in the <a href="#project-folder">project folder</a>.</td>
+    </tr>
+    <tr>
+      <td>Set Project Folder…</td>
+      <td class="shortcut-col">—</td>
+      <td>Selects the folder in which projects and exported files are stored. See <a href="#project-folder">Project Folder</a>.</td>
     </tr>
     <tr>
       <td>Exit</td>
@@ -317,6 +328,40 @@
   Project files saved with <strong>Save</strong> include the full simulation results.
   When the file is reopened with <strong>Open</strong>, all results tabs are immediately
   populated — no re-simulation required.
+</div>
+
+<h3 id="project-folder">4.1 Project Folder</h3>
+<p>
+  The <strong>project folder</strong> is the place where the file dialogs of the application start.
+  By default it is <code>Documents\PyRoll Projects</code> of the signed-in user. The folder is created
+  the first time a file is loaded or saved. Use <strong>File → Set Project Folder…</strong> to choose
+  another folder, for example a shared network drive or a synchronised folder. The choice is stored
+  per user on this computer and applies immediately.
+</p>
+<p>
+  Projects are loaded from and saved to the project folder itself. Every other kind of file has its
+  own subfolder, so that exports do not end up mixed in one place:
+</p>
+<table>
+  <thead><tr><th>Subfolder</th><th>Files</th></tr></thead>
+  <tbody>
+    <tr><td><em>(project folder)</em></td><td>Projects (<code>.json</code>) from <strong>File → Open / Save</strong></td></tr>
+    <tr><td><code>Results</code></td><td>All exports of the Results and Pass Plots tabs: JSON, Excel, PDF, PowerPoint, HTML, plots &amp; CSV (ZIP), DXF contours, profile overview image</td></tr>
+    <tr><td><code>Grooves</code></td><td>Exported grooves and groove libraries; start folder for the JSON, Excel and DXF import of the Groove Library</td></tr>
+    <tr><td><code>InProfiles</code></td><td>In Profile XML files and the exported In Profile library</td></tr>
+    <tr><td><code>Pass Designs</code></td><td>Pass design XML files, the exported pass design library and the pass sequence overview image</td></tr>
+    <tr><td><code>Engines</code></td><td>Exported engine configurations and engine libraries, engine overview image</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li>A subfolder is created when a file of that kind is saved for the first time. If the dialog is cancelled, or the file is saved somewhere else, the empty subfolder is removed again.</li>
+  <li>Import dialogs start in the matching subfolder. As long as it does not exist, they start in the project folder.</li>
+  <li>The folder shown in a dialog is only the starting point. Any other folder can be selected, and own subfolders (for example one per customer or product) can be created inside the project folder.</li>
+  <li>If the project folder is not available, for example a network drive that is not connected, the dialog starts in the folder that was used last for that kind of file.</li>
+</ul>
+<div class="info">
+  Only files that are exported to disk are affected. Entries saved to the built-in libraries
+  (Groove Library, In Profile Library, Pass Design Library, Engine Library) stay inside the application.
 </div>
 
 <!-- ─── 5. EDIT MENU ──────────────────────────────────────────── -->

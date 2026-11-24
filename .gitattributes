@@ -1,0 +1,15 @@
+# Line endings: text files are stored with LF in the repository and checked out with LF on every PC,
+# independent of core.autocrlf. Without these rules Git only warns "LF will be replaced by CRLF" for
+# files that are not listed here.
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.xlsx binary
+*.pptx binary
+*.zip binary

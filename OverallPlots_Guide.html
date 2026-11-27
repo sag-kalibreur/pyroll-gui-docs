@@ -101,7 +101,7 @@
 </div>
 
 <h1>Overall Plots Guide <img src="img/pyroll_icon.png" style="height:1.8em; opacity:0.85;" alt="PyRoll"></h1>
-<p><em>PyRoll GUI &nbsp;|&nbsp; Date: June 2026</em></p>
+<p><em>PyRoll GUI &nbsp;|&nbsp; Date: November 2026</em></p>
 
 <hr>
 
@@ -161,11 +161,11 @@
 <h2 id="sim-config">2. Simulation Configuration</h2>
 <p>
   At the top of the tab, a <strong>Simulation Configuration</strong> panel summarises
-  the key parameters used during the simulation run. These values are shown for
-  traceability and are read-only in this tab.
+  the key parameters used during the simulation run — one card per sequence, exactly as
+  in the Results tab. These values are shown for traceability and are read-only in this tab.
 </p>
 
-<img class="screenshot-small" src="img/overall_plots_simulation_configuration.png" alt="Simulation Configuration panel showing Steel Grade, Spreading Model, Coulomb Friction Coefficient and Solve Method">
+<img class="screenshot" src="img/overall_plots_simulation_configuration.png" alt="Simulation Configuration cards for two sequences showing Steel Grade, Initial Temperature, Spreading Model, Solve Method and RPM Basis">
 
 <table>
   <thead>
@@ -174,19 +174,23 @@
   <tbody>
     <tr>
       <td>Steel Grade</td>
-      <td>Material selected in the In-Profile tab. Determines the flow stress model and temperature-dependent material properties used throughout the sequence.</td>
+      <td>The material selected in the In-Profile tab. Determines the flow stress model and temperature-dependent material properties.</td>
+    </tr>
+    <tr>
+      <td>Initial Temperature</td>
+      <td>Temperature of the bar at the entry of the sequence. For the first sequence this is the temperature of the In Profile tab, for every following sequence the temperature handed over by the sequence before it.</td>
     </tr>
     <tr>
       <td>Spreading Model</td>
-      <td>The spreading model applied to all passes (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td>
-    </tr>
-    <tr>
-      <td>Coulomb Friction Coefficient</td>
-      <td>The friction coefficient used for roll force and torque calculations in every pass.</td>
+      <td>The spreading model chosen for the sequence (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td>
     </tr>
     <tr>
       <td>Solve Method</td>
-      <td><em>Forward Solve</em> — calculates out-profile from a given gap. <em>Backward Solve</em> — determines the gap from a target out-profile height.</td>
+      <td><em>Forward Solve</em> (calculate out-profile from given gap), <em>Backward Solve</em> (determine gap from target out-profile) or <em>Standard Solve</em>.</td>
+    </tr>
+    <tr>
+      <td>RPM Basis</td>
+      <td><em>Working Diameter</em> (default) or <em>Effective Diameter</em> — the diameter used to convert the simulated velocity into Roll RPM / Motor RPM. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip</a> for details.</td>
     </tr>
   </tbody>
 </table>
@@ -278,9 +282,9 @@
   <li>To the right: a <strong>Roll Pass Results</strong> panel with all calculated values
     for that pass (Bite Angle, profile dimensions, area, reduction, strain, velocities,
     roll force and torque, gap ratios).</li>
-  <li>Below the results: the <strong>Simulation Settings</strong> panel (Steel Grade,
-    Spreading Model, Coulomb Friction Coefficient, Solve Method) — identical for all
-    passes since these are sequence-level settings.</li>
+  <li>Below the results: the <strong>Simulation Settings</strong> panel with the Steel Grade,
+    Spreading Model, Solve Method and RPM Basis of the sequence the pass belongs to, and the
+    Coulomb friction coefficient of the pass itself.</li>
 </ul>
 <div class="info">
   The Roll Pass Results values shown here are identical to those in the Results tab table
@@ -435,6 +439,10 @@
     </tr>
   </tbody>
 </table>
+<p>
+  Every format starts with the <a href="#sim-config">Simulation Configuration</a> as shown at the
+  top of the tab (one card per sequence).
+</p>
 <div class="info">
   The HTML and PDF exports capture all plots as images at screen resolution. For best
   results, ensure the application window is fully visible and not partially obscured

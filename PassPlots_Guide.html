@@ -237,12 +237,13 @@
 
 <h3 id="sim-config">3.1 Simulation Configuration</h3>
 <p>
-  Above the Roll Pass Visualization, a <strong>Simulation Settings</strong> panel summarises the
-  key simulation parameters that were active when the simulation was run. These values
-  are shown for traceability and cannot be edited from this tab.
+  At the top of the tab, a <strong>Simulation Configuration</strong> panel summarises the
+  key simulation parameters that were active when the simulation was run — one card per
+  sequence, exactly as in the Results tab. These values are shown for traceability and
+  cannot be edited from this tab.
 </p>
 
-<img class="screenshot-half" src="img/pass_plots_simulation_konfiguration.png" alt="Simulation Configuration panel showing Steel Grade, Spreading Model, Coulomb Friction Coefficient and Solve Method">
+<img class="screenshot" src="img/pass_plots_simulation_konfiguration.png" alt="Simulation Configuration cards for two sequences showing Steel Grade, Initial Temperature, Spreading Model, Solve Method and RPM Basis">
 
 <table>
   <thead>
@@ -254,19 +255,29 @@
       <td>The material selected in the In-Profile tab. Determines the flow stress model and temperature-dependent material properties.</td>
     </tr>
     <tr>
-      <td>Spreading Model</td>
-      <td>The spreading model chosen for the simulation run (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td>
+      <td>Initial Temperature</td>
+      <td>Temperature of the bar at the entry of the sequence. For the first sequence this is the temperature of the In Profile tab, for every following sequence the temperature handed over by the sequence before it.</td>
     </tr>
     <tr>
-      <td>Coulomb Friction Coeff</td>
-      <td>The friction coefficient used in the roll force and torque calculations.</td>
+      <td>Spreading Model</td>
+      <td>The spreading model chosen for the sequence (e.g. <em>Marini Spreading</em>, <em>Wusatowski</em>).</td>
     </tr>
     <tr>
       <td>Solve Method</td>
-      <td>Either <em>Forward Solve</em> (calculate out-profile from given gap) or <em>Backward Solve</em> (determine gap from target out-profile).</td>
+      <td><em>Forward Solve</em> (calculate out-profile from given gap), <em>Backward Solve</em> (determine gap from target out-profile) or <em>Standard Solve</em>.</td>
+    </tr>
+    <tr>
+      <td>RPM Basis</td>
+      <td><em>Working Diameter</em> (default) or <em>Effective Diameter</em> — the diameter used to convert the simulated velocity into Roll RPM / Motor RPM. See <a href="Effective_Diameter_Method.html">Effective Diameter – Forward Slip</a> for details.</td>
     </tr>
   </tbody>
 </table>
+<p>
+  The Coulomb friction coefficient is not part of this panel because it is entered for each
+  pass. It is listed in the <strong>Simulation Settings</strong> block of the sidebar, below the
+  Roll Pass Results, together with the Steel Grade, Spreading Model, Solve Method and RPM Basis
+  of the sequence the selected pass belongs to.
+</p>
 
 <h3 id="roll-pass-results-sidebar">3.2 Roll Pass Results Sidebar</h3>
 <p>
@@ -458,7 +469,7 @@
   to launch the modal.
 </p>
 
-<img class="screenshot" src="img/pass_plots_interactive_profiles_plot_modal.png" alt="Interactive Profiles Plot modal showing groove name in header, In Profile, Out Profile and Groove for Stand 1, with navigation controls at the bottom">
+<img class="screenshot" src="img/pass_plots_interactive_profiles_plot_modal.png" alt="Interactive Profiles Plot modal showing groove name in header, In Profile, Out Profile and Groove for Stand 1, the results and simulation settings in the sidebar, with navigation controls at the bottom">
 
 <p>
   The modal contains the same three geometric elements as the static Roll Pass Visualization
@@ -500,7 +511,9 @@
   name and number (e.g. <em>Stand 1 &nbsp;·&nbsp; TwoRollPass &nbsp;·&nbsp; Pass 1 / 13</em>)
   are displayed in the modal header. If a groove name is defined, it also appears in the
   header subtitle below the pass label. The Roll Pass Results sidebar updates in real time
-  as you navigate between passes.
+  as you navigate between passes. Below the results, the <strong>Simulation Settings</strong>
+  show the configuration of the sequence the current pass belongs to (Steel Grade, Initial
+  Temperature, Spreading Model, Solve Method, RPM Basis).
 </p>
 <div class="tip">
   Use the <strong>Play</strong> animation to visually inspect how the cross-section shape
@@ -624,6 +637,10 @@
     </tr>
   </tbody>
 </table>
+<p>
+  Every format starts with the <a href="#sim-config">Simulation Configuration</a> as shown at the
+  top of the tab (one card per sequence).
+</p>
 <div class="info">
   The HTML and PDF exports capture all plots as images at screen resolution. For best
   results, ensure the application window is fully visible and not partially hidden behind
